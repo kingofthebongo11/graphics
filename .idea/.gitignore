@@ -1,0 +1,20 @@
+# PyCharm
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Виртуальные окружения
+.venv/
+venv/
+env/
+.env
+
+# Служебное
+.DS_Store
+Thumbs.db# Default ignored files
+/shelf/
+/workspace.xml

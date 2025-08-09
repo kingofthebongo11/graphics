@@ -1,4 +1,4 @@
-import tkinter as tk
+import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk
 
 import matplotlib.pyplot as plt

@@ -1,0 +1,48 @@
+import tkinter as tk
+from tkinter import ttk
+from mylibproject.myutils_widgets import select_path
+
+
+def create_tab3(notebook, create_text, function1, clear_text):
+    """Создает вкладку для извлечения частотных параметров из LS-DYNA."""
+    # Создание третьей вкладки
+    tab3 = ttk.Frame(notebook)
+    notebook.add(tab3, text="Извлечение частотных параметров из LS-DYNA")
+
+    # Создаем фрейм для размещения текстового поля и кнопки
+    input_frame = ttk.Frame(tab3)
+    input_frame.place(x=10, y=10, width=1280, height=200)
+
+    # Метка над текстовым полем
+    label = ttk.Label(input_frame, text="Выберите папку рабочего проекта:")
+    label.place(x=10, y=0)
+
+    # Создаем текстовое поле для ввода пути с отступом слева
+    path_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    path_entry.place(x=10, y=30, width=600)
+
+    select_button = ttk.Button(input_frame, text="Выбор папки", command=lambda: select_path(path_entry))
+    select_button.place(x=600, y=28)
+
+    # Фрейм для текстового поля логов и скроллбара
+    log_frame = ttk.Frame(tab3)
+    log_frame.place(x=10, y=150, width=1280, height=200)
+
+    # Метка над окном логирования
+    log_label = ttk.Label(log_frame, text="Окно логирования:")
+    log_label.pack(side=tk.TOP, anchor="w")
+
+    # Создаем текстовое поле для логов с прокруткой
+    log_text = create_text(log_frame, height=10, state='disabled', scrollbar=True)
+
+    # Кнопка "Получить данные" под текстовым полем
+    get_data_button = ttk.Button(
+        input_frame,
+        text="Получить данные",
+        command=lambda: function1(log_text=log_text, path_entry=path_entry),
+    )
+    get_data_button.place(x=300, y=60)
+
+    # Кнопка для очистки окна логирования
+    clear_button = ttk.Button(tab3, text="Очистить окно логирования", command=lambda: clear_text(log_text))
+    clear_button.place(x=10, y=360)

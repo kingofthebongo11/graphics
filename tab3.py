@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from mylibproject.myutils_widgets import select_path
 
-
 def create_tab3(notebook, create_text, function1, clear_text):
     """Создает вкладку для извлечения частотных параметров из LS-DYNA."""
     # Создание третьей вкладки

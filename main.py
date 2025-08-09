@@ -19,7 +19,10 @@ from mylibproject.myutils_work_with_file import extract_data_frec_from_file
 
 from mylibproject.myutils_widgets import make_context_menu, select_path, message_log, add_hotkeys
 
+from tab2 import create_tab2
+
 from tab1 import create_tab1
+
 
 
 
@@ -806,13 +809,9 @@ def main():
     notebook = ttk.Notebook(root)
     notebook.pack(expand=True, fill=tk.BOTH)
 
-    # Создаем три фрейма для каждой вкладки
-
-    tab2 = ttk.Frame(notebook)
-
     # Добавляем вкладки
     create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
-    notebook.add(tab2, text="Создание графиков для LS-DYNA")
+    create_tab2(notebook)
 
     create_tab3(notebook)
 

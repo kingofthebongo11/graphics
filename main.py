@@ -273,7 +273,7 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
     if not ax:
         for curve_info in curves_info:
             plt.plot(curve_info['X_values'], curve_info['Y_values'], marker=None, linestyle='-')
-        plt.title(title, fontsize=16)
+        plt.title(title, fontsize=16, fontweight='bold')
         plt.xlabel(X_label)
         plt.ylabel(Y_label)
         plt.grid(True)
@@ -287,7 +287,7 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
         else:
             for curve_info in curves_info:
                 ax.plot(curve_info['X_values'], curve_info['Y_values'], marker=None, linestyle='-')
-        ax.set_title(title)
+        ax.set_title(title, fontsize=16, fontweight='bold')
         # Обработка названий осей
         ax.set_xlabel(X_label)
         ax.set_ylabel(Y_label)

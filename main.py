@@ -121,11 +121,11 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
     """
     if fig is None:
         if prY:
-            plt.figure(figsize=(8, 4.8))
+            fig = plt.figure(figsize=(8, 4.8))
             formatter = FuncFormatter(to_percent)
             plt.gca().yaxis.set_major_formatter(formatter)
         else:
-            plt.figure(figsize=(6.4, 4.8))
+            fig = plt.figure(figsize=(6.4, 4.8))
     if ax is None:
         for curve_info in curves_info:
             plt.plot(curve_info['X_values'], curve_info['Y_values'], marker=None, linestyle='-')
@@ -133,9 +133,11 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
         plt.xlabel(X_label)
         plt.ylabel(Y_label)
         plt.grid(True)
+        fig.tight_layout()
+        fig.subplots_adjust(bottom=0.15)
         if savefile:
-            plt.savefig(file_plt)
-        plt.close()
+            fig.savefig(file_plt)
+        plt.close(fig)
     else:
         if legend:
             for curve_info in curves_info:
@@ -148,6 +150,8 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
         ax.set_xlabel(X_label)
         ax.set_ylabel(Y_label)
         ax.grid(True)
+        fig.tight_layout()
+        fig.subplots_adjust(bottom=0.15)
         # Условное добавление легенды в зависимости от состояния чекбокса
         if legend:
             ax.legend()

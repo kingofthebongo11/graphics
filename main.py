@@ -29,6 +29,18 @@ from tab1 import create_tab1
 
 
 
+def configure_matplotlib():
+    """Configure global matplotlib settings used across the application."""
+    plt.rcParams['font.family'] = 'Times New Roman'
+    plt.rcParams['font.size'] = 14  # Общий размер шрифта
+    plt.rcParams['axes.titlesize'] = 14  # Размер шрифта для заголовков осей
+    plt.rcParams['axes.labelsize'] = 14  # Размер шрифта для подписей осей
+    plt.rcParams['xtick.labelsize'] = 14  # Размер шрифта для меток оси X
+    plt.rcParams['ytick.labelsize'] = 14  # Размер шрифта для меток оси Y
+    plt.rcParams['legend.fontsize'] = 14  # Размер шрифта для легенды
+
+
+
 
 
 def create_text(parent, method='text', height=10, wrap='word', state='normal', scrollbar=False, max_lines=0):
@@ -92,14 +104,21 @@ def clear_text(text_widget):
 
 
 def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False, file_plt='', fig=None, ax=None, legend=None):
-    # Устанавливаем Times New Roman для всех текстов
-    plt.rcParams['font.family'] = 'Times New Roman'
-    plt.rcParams['font.size'] = 14  # Общий размер шрифта
-    plt.rcParams['axes.titlesize'] = 14  # Размер шрифта для заголовков осей
-    plt.rcParams['axes.labelsize'] = 14  # Размер шрифта для подписей осей
-    plt.rcParams['xtick.labelsize'] = 14  # Размер шрифта для меток оси X
-    plt.rcParams['ytick.labelsize'] = 14  # Размер шрифта для меток оси Y
-    plt.rcParams['legend.fontsize'] = 14  # Размер шрифта для легенды
+    """Create a plot based on provided curve data.
+
+    Parameters:
+        curves_info (list[dict]): Список словарей с данными кривых. Каждый словарь должен
+            содержать ключи ``'X_values'`` и ``'Y_values'``.
+        X_label (str): Подпись оси X.
+        Y_label (str): Подпись оси Y.
+        title (str): Заголовок графика.
+        prY (bool, optional): Если ``True``, значения Y отображаются в процентах.
+        savefile (bool, optional): Флаг сохранения графика в файл.
+        file_plt (str, optional): Путь к файлу для сохранения графика.
+        fig (matplotlib.figure.Figure, optional): Существующая фигура для построения графика.
+        ax (matplotlib.axes.Axes, optional): Существующая ось для построения графика.
+        legend (bool, optional): Отображать легенду при наличии ``ax``.
+    """
     if fig is None:
         if prY:
             plt.figure(figsize=(8, 4.8))
@@ -107,7 +126,7 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
             plt.gca().yaxis.set_major_formatter(formatter)
         else:
             plt.figure(figsize=(6.4, 4.8))
-    if not ax:
+    if ax is None:
         for curve_info in curves_info:
             plt.plot(curve_info['X_values'], curve_info['Y_values'], marker=None, linestyle='-')
         plt.title(title, fontsize=16)
@@ -756,6 +775,7 @@ def on_closing(root):
 
 
 def main():
+    configure_matplotlib()
     # Создание главного окна
     root = tk.Tk()
     root.geometry("1500x900")

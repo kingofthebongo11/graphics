@@ -134,7 +134,7 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
     if ax is None:
         for curve_info in curves_info:
             plt.plot(curve_info['X_values'], curve_info['Y_values'], marker=None, linestyle='-')
-        plt.title(title, fontsize=16)
+        plt.title(title, fontsize=16, fontweight='bold')
         plt.xlabel(X_label)
         plt.ylabel(Y_label)
         plt.grid(True)
@@ -150,7 +150,7 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
         else:
             for curve_info in curves_info:
                 ax.plot(curve_info['X_values'], curve_info['Y_values'], marker=None, linestyle='-')
-        ax.set_title(title)
+        ax.set_title(title, fontsize=16, fontweight='bold')
         # Обработка названий осей
         ax.set_xlabel(X_label)
         ax.set_ylabel(Y_label)
@@ -182,7 +182,8 @@ def create_xlsx_file_with_result(file_out_xlsx, data_for_file, log_text):
     for name, graph in data_for_file.items():
         names = name.split()
         for i, word in enumerate(names):
-            ws.cell(row=row, column=i + 1).value = str(word)  # Записываем название
+            header_cell = ws.cell(row=row, column=i + 1)
+            header_cell.value = str(word)  # Записываем название
         row += 1
         for time_value in graph:
             for i, value in enumerate(time_value):

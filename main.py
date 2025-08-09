@@ -21,11 +21,11 @@ from mylibproject.myutils import to_percent
 from mylibproject.myutils_work_with_file import extract_data_frec_from_file
 
 from mylibproject.myutils_widgets import make_context_menu, select_path, message_log, add_hotkeys
-from tab3 import create_tab3
+from tabs.tab3 import create_tab3
 
-from tab2 import create_tab2
+from tabs.tab2 import create_tab2
 
-from tab1 import create_tab1
+from tabs.tab1 import create_tab1
 
 
 logger = logging.getLogger(__name__)

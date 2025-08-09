@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 def extract_data_frec_from_file(file_path, file_name):
     file = Path(file_path) / file_name
     with open(file, 'r') as fileeig:

@@ -24,7 +24,7 @@ def work_with_curve_db(data):
             start_recording = True
         elif string == "":
             break
-        elif start_recording:  # Если флаг записи активенz
+        elif start_recording:  # Если флаг записи активен
             result.append(string)  # Добавляем строку в результат
     # Объединяем строки из списка результатов в одну строку, используя пробел в качестве разделителя
     return result

@@ -1,4 +1,4 @@
-import tkinter as tk
+import tkinter as tk  # Import Tkinter under alias tk
 from tkinter import filedialog
 
 from mylibproject.myutils import is_russian_layout

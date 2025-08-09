@@ -12,6 +12,8 @@ import ast
 
 import numpy as np
 
+import logging
+
 from mylibproject.Figurenameclass import FigureNames
 
 from mylibproject.myutils import to_percent
@@ -24,6 +26,9 @@ from tab3 import create_tab3
 from tab2 import create_tab2
 
 from tab1 import create_tab1
+
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -643,7 +648,7 @@ def get_X_Y_data(curve_info):
             index_Y = headers_map.get(curve_info['curve_typeYF'])
 
             if index_X is None or index_Y is None:
-                print("Ошибка: некорректные параметры curve_typeXF или curve_typeYF.")
+                logger.error("Ошибка: некорректные параметры curve_typeXF или curve_typeYF.")
                 return
 
             # Переменные для хранения данных
@@ -684,7 +689,7 @@ def get_X_Y_data(curve_info):
                                 X_data.append(float(data_list[index_X]))  # Извлекаем данные для X
                     except (ValueError, SyntaxError):
                         # Если строку нельзя преобразовать в список, пропускаем её
-                        print(f"Ошибка преобразования строки: {line}")
+                        logger.error("Ошибка преобразования строки: %s", line)
 
                 # Извлечение данных из блока Y
                 if current_block_Y:
@@ -692,22 +697,22 @@ def get_X_Y_data(curve_info):
                         data_list = ast.literal_eval(line)  # Преобразуем строку в список
                         if isinstance(data_list, list) and len(data_list) > index_Y:
                             if index_Y == 4 or index_Y == 5:
-                                print(data_list[index_Y])
+                                logger.debug("%s", data_list[index_Y])
                                 Y_data.append(float(data_list[index_Y].strip('%')))
                             else:
                                 Y_data.append(float(data_list[index_Y]))  # Извлекаем данные для Y
                     except (ValueError, SyntaxError):
                         # Если строку нельзя преобразовать в список, пропускаем её
-                        print(f"Ошибка преобразования строки: {line}")
+                        logger.error("Ошибка преобразования строки: %s", line)
 
             # Сохранение данных в curve_info
             curve_info['X_values'] = X_data
             curve_info['Y_values'] = Y_data
 
         except FileNotFoundError:
-            print(f"Файл '{curve_info['curve_file']}' не найден.")
+            logger.error("Файл '%s' не найден.", curve_info['curve_file'])
         except IOError:
-            print(f"Ошибка при чтении файла '{curve_info['curve_file']}'.")
+            logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
 
 
 def generate_graph(ax,fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,
@@ -800,4 +805,5 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     main()

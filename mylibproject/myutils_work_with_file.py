@@ -68,4 +68,3 @@ def extract_data_frec_from_file(file_path, file_name):
             start_modal -= 1
 
     return {"time": time, "cycles_values": cycles_values, "modal_data": numbers_mass_value}
-

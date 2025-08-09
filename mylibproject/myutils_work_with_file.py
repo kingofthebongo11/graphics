@@ -1,5 +1,8 @@
+from pathlib import Path
+
+
 def extract_data_frec_from_file(file_path, file_name):
-    file = file_path + file_name
+    file = Path(file_path) / file_name
     with open(file, 'r') as fileeig:
         lines = fileeig.readlines()
 
@@ -65,3 +68,4 @@ def extract_data_frec_from_file(file_path, file_name):
             start_modal -= 1
 
     return {"time": time, "cycles_values": cycles_values, "modal_data": numbers_mass_value}
+

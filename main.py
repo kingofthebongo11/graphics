@@ -7,6 +7,7 @@ from matplotlib.ticker import FuncFormatter
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import os
+from pathlib import Path
 import ast
 
 import numpy as np
@@ -207,15 +208,14 @@ def create_png_plots(graph_with_time, file_path_outeig, log_text):
 
 def function1(log_text, path_entry):
     # Вывод текста в окно логов
-    file_path = path_entry.get() + "/"
-    if file_path:
+    file_path_str = path_entry.get()
+    if file_path_str:
+        file_path = Path(file_path_str)
         message_log(log_text, f"Выбранный путь к проетку LS-Dyna: {file_path}")
-        file_path_outeig = file_path + r"eigrusults\\"
-        file_out_txt = file_path_outeig + "eigoutput.txt"
-        file_out_xlsx = file_path_outeig + "eigoutput.xlsx"
-        directory = os.path.dirname(file_path_outeig)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        file_path_outeig = file_path / "eigresults"
+        file_out_txt = file_path_outeig / "eigoutput.txt"
+        file_out_xlsx = file_path_outeig / "eigoutput.xlsx"
+        file_path_outeig.mkdir(parents=True, exist_ok=True)
         all_frequencies = []
         all_modal_mass = []
         time_data = []
@@ -223,7 +223,7 @@ def function1(log_text, path_entry):
         while True:
             file_name = f"eigout{index}"
             try:
-                data_freq = extract_data_frec_from_file(file_path,file_name)
+                data_freq = extract_data_frec_from_file(file_path, file_name)
                 frequencies = data_freq['cycles_values']
                 modal_data = data_freq['modal_data']
                 time = data_freq['time']

@@ -18,6 +18,7 @@ from mylibproject.myutils import to_percent
 from mylibproject.myutils_work_with_file import extract_data_frec_from_file
 
 from mylibproject.myutils_widgets import make_context_menu, select_path, message_log, add_hotkeys
+from tab3 import create_tab3
 
 from tab2 import create_tab2
 
@@ -328,50 +329,6 @@ def function1(log_text, path_entry):
 
     else:
         message_log(log_text, "Вы не выбрали путь к проетку LS-Dyna, выберите путь в ячейке выше...")
-
-
-def create_tab3(notebook):
-    # Создание третьей вкладки
-    tab3 = ttk.Frame(notebook)
-    notebook.add(tab3, text="Извлечение частотных параметров из LS-DYNA")
-    # Элементы на третьей вкладке
-    # Создаем фрейм для размещения текстового поля и кнопки
-    input_frame = ttk.Frame(tab3)
-    input_frame.place(x=10, y=10, width=1280, height=200)  # Фиксируем позицию фрейма
-
-    # Метка над текстовым полем
-    label = ttk.Label(input_frame, text="Выберите папку рабочего проекта:")
-    label.place(x=10, y=0)
-
-    # Создаем текстовое поле для ввода пути с отступом слева
-    path_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    path_entry.place(x=10, y=30, width=600)  # Позиционирование текстового поля
-
-    select_button = ttk.Button(input_frame, text="Выбор папки", command=lambda: select_path(path_entry))
-    select_button.place(x=600, y=28)  # Позиционирование кнопки рядом с текстовым полем
-
-    # Фрейм для текстового поля логов и скроллбара
-    log_frame = ttk.Frame(tab3)
-    log_frame.place(x=10, y=150, width=1280, height=200)  # Позиционирование фрейма
-
-    # Метка над окном логирования
-    log_label = ttk.Label(log_frame, text="Окно логирования:")
-    log_label.pack(side=tk.TOP, anchor="w")  # Размещение метки
-
-    # Создаем текстовое поле для логов с прокруткой
-    log_text = create_text(log_frame, height=10, state='disabled', scrollbar=True)
-
-    # Кнопка "Получить данные" под текстовым полем
-    get_data_button = ttk.Button(input_frame, text="Получить данные",
-                                 command=lambda: function1(log_text=log_text, path_entry=path_entry))
-    get_data_button.place(x=300, y=60)  # Позиционирование кнопки ниже текстового пол
-
-    # Кнопка для очистки окна логирования
-    clear_button = ttk.Button(tab3, text="Очистить окно логирования", command=lambda: clear_text(log_text))
-    clear_button.place(x=10, y=360)  # Позиционирование кнопки под логом
-
-
-
 
 
 def on_combobox_event(event, *callbacks):
@@ -813,7 +770,7 @@ def main():
     create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
     create_tab2(notebook)
 
-    create_tab3(notebook)
+    create_tab3(notebook, create_text, function1, clear_text)
 
     # Привязка обработчика закрытия окна
     root.protocol("WM_DELETE_WINDOW", lambda: on_closing(root))

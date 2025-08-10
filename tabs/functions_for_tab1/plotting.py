@@ -146,9 +146,18 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                     elif widget_name == f"curve_{i}_typeYFtype":
                         curve_info['curve_typeYF_type'] = widget.get()
 
+                if widget_name == f"curve_{i}_X_source":
+                    curve_info.setdefault('X_source', {}).update({'source': widget.get()})
+                elif widget_name == f"curve_{i}_Y_source":
+                    curve_info.setdefault('Y_source', {}).update({'source': widget.get()})
+
                 # Получаем имя файла для каждой кривой
                 if widget_name == f"curve_{i}_filename":
                     curve_info['curve_file'] = widget.get()
+                    if 'X_source' in curve_info:
+                        curve_info['X_source'].setdefault('curve_file', widget.get())
+                    if 'Y_source' in curve_info:
+                        curve_info['Y_source'].setdefault('curve_file', widget.get())
 
                 if widget_name == f"curve_{i}_horizontal":
                     curve_info['horizontal'] = widget.var.get()

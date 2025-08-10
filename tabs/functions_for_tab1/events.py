@@ -1,3 +1,4 @@
+# Файл содержит обработчики событий для элементов управления.
 from tkinter import ttk
 
 
@@ -44,3 +45,36 @@ def on_combo_change_curve_type(frame, combo, label_curve_typeX, combo_curve_type
         combo_curve_typeX_type.place_forget()
         label_curve_typeY_type.place_forget()
         combo_curve_typeY_type.place_forget()
+
+
+def on_combo_change_curve_type_excel(frame, combo, checkbox_horizontal, checkbox_range,
+                                     label_X_range, entry_X_range, label_Y_range, entry_Y_range):
+    if combo.get() == "Excel файл":
+        if not checkbox_horizontal.winfo_viewable():
+            frame.update_idletasks()
+            checkbox_horizontal.place(x=combo.winfo_x() + 170, y=combo.winfo_y())
+            checkbox_range.place(x=combo.winfo_x() + 170, y=combo.winfo_y() + 25)
+            on_range_checkbox_toggle(checkbox_range, label_X_range, entry_X_range, label_Y_range, entry_Y_range)
+    else:
+        checkbox_horizontal.place_forget()
+        checkbox_range.place_forget()
+        label_X_range.place_forget()
+        entry_X_range.place_forget()
+        label_Y_range.place_forget()
+        entry_Y_range.place_forget()
+        checkbox_range.var.set(False)
+
+
+def on_range_checkbox_toggle(checkbox_range, label_X_range, entry_X_range, label_Y_range, entry_Y_range):
+    if checkbox_range.var.get():
+        x = checkbox_range.winfo_x()
+        y = checkbox_range.winfo_y() + 25
+        label_X_range.place(x=x, y=y)
+        entry_X_range.place(x=x + 80, y=y, width=100)
+        label_Y_range.place(x=x + 200, y=y)
+        entry_Y_range.place(x=x + 280, y=y, width=100)
+    else:
+        label_X_range.place_forget()
+        entry_X_range.place_forget()
+        label_Y_range.place_forget()
+        entry_Y_range.place_forget()

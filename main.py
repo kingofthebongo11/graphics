@@ -641,6 +641,30 @@ class AxisTitleProcessor:
                 "Другое": "Other",
             },
         }
+        self.size_translation_map = {
+            "Русский": {},
+            "Английский": {
+                "мс": "ms",
+                "с": "sec",
+                "мин": "min",
+                "ч": "h",
+                "мм": "mm",
+                "см": "cm",
+                "м": "m",
+                "%": "%",
+                "мН": "mN",
+                "Н": "N",
+                "кН": "kN",
+                "г": "g",
+                "кг": "kg",
+                "т": "t",
+                "Па": "Pa",
+                "кПа": "kPa",
+                "МПа": "MPa",
+                "Гц": "Hz",
+                "кГц": "kHz",
+            },
+        }
 
     def get_processed_title(self):
         title = self.combo_title.get()
@@ -650,6 +674,7 @@ class AxisTitleProcessor:
         else:
             processed_title = self.translation_map.get(self.language, {}).get(title, title)
         if size:
+            size = self.size_translation_map.get(self.language, {}).get(size, size)
             return f"{processed_title}, {size}"
         return processed_title
 

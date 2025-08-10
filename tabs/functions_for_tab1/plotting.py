@@ -3,6 +3,8 @@ import numpy as np
 import logging
 from tkinter import filedialog, messagebox
 
+from tabs.function_for_all_tabs import create_plot
+
 logger = logging.getLogger(__name__)
 
 
@@ -65,7 +67,6 @@ class AxisTitleProcessor:
 
 
 def save_file(entry_widget, graph_info):
-    from main import create_plot  # локальный импорт для избежания циклической зависимости
 
     file_name = entry_widget.get()
     if file_name:
@@ -183,7 +184,6 @@ def get_X_Y_data(curve_info):
 
 def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,
                    legend_checkbox, curves_frame, combo_curves, combo_language):
-    from main import create_plot  # локальный импорт для избежания циклической зависимости
 
     # Очистка предыдущего графика
     ax.clear()

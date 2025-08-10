@@ -2,10 +2,11 @@ import os
 from tabs.functions_for_tab3.Figurenameclass import FigureNames
 from widgets.message_log import message_log
 
+from tabs.function_for_all_tabs import create_plot
+
 
 def create_png_plots(graph_with_time, file_path_outeig, log_text):
     """Создает PNG-графики характеристик во времени."""
-    from main import create_plot  # локальный импорт для избежания циклической зависимости
 
     for name, graph in graph_with_time.items():
         X_values = [float(item[0]) for item in graph]

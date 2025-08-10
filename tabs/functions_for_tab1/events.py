@@ -80,12 +80,20 @@ def on_combo_change_curve_type(frame, combo, label_curve_typeX, combo_curve_type
                                  y=combo.winfo_y(), width=150)
 
         frame.update_idletasks()
-        label_path_X.place(x=label_path.winfo_x(), y=label_path.winfo_y())
-        path_entry_X.place(x=path_entry.winfo_x(), y=path_entry.winfo_y(), width=path_entry.winfo_width())
-        select_button_X.place(x=select_button.winfo_x(), y=select_button.winfo_y())
-        label_path_Y.place(x=label_path.winfo_x(), y=label_path.winfo_y() + 50)
-        path_entry_Y.place(x=path_entry.winfo_x(), y=path_entry.winfo_y() + 50, width=path_entry.winfo_width())
-        select_button_Y.place(x=select_button.winfo_x(), y=select_button.winfo_y() + 50)
+
+        base_x = path_entry.winfo_x()
+        width = (label_source_X.winfo_x() - base_x - select_button.winfo_width() - 20)
+        base_y_label = label_path.winfo_y() - 30
+        base_y_entry = path_entry.winfo_y() - 30
+        base_y_button = select_button.winfo_y() - 30
+        button_x = base_x + width + 10
+
+        label_path_X.place(x=base_x, y=base_y_label)
+        path_entry_X.place(x=base_x, y=base_y_entry, width=width)
+        select_button_X.place(x=button_x, y=base_y_button)
+        label_path_Y.place(x=base_x, y=base_y_label + 50)
+        path_entry_Y.place(x=base_x, y=base_y_entry + 50, width=width)
+        select_button_Y.place(x=button_x, y=base_y_button + 50)
     else:
         label_curve_typeX.place_forget()
         combo_curve_typeX.place_forget()

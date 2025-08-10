@@ -5,26 +5,65 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
+def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo, language):
     """
     Обрабатывает выбор в комбобоксе для осей:
     - Если выбрано "Другое", отображает текстовое поле для ввода и скрывает выбор размерности.
     - Иначе скрывает текстовое поле, показывает метку и комбобокс размерности с нужными единицами.
     """
     UNITS_MAPPING = {
-        "Время": ["мс", "с", "мин", "ч"],
-        "Перемещение по X": ["мм", "см", "м"],
-        "Перемещение по Y": ["мм", "см", "м"],
-        "Перемещение по Z": ["мм", "см", "м"],
-        "Удлинение": ["мм", "см", "м"],
-        "Деформация": ["%"],
-        "Сила": ["мН", "Н", "кН"],
-        "Масса": ["г", "кг", "т"],
-        "Напряжение": ["Па", "кПа", "МПа"],
-        "Частота 1": ["Гц", "кГц"],
-        "Частота 2": ["Гц", "кГц"],
-        "Частота 3": ["Гц", "кГц"],
-        "Другое": []
+        "Время": {
+            "Русский": ["мс", "с", "мин", "ч"],
+            "Английский": ["ms", "s", "min", "h"],
+        },
+        "Перемещение по X": {
+            "Русский": ["мм", "см", "м"],
+            "Английский": ["mm", "cm", "m"],
+        },
+        "Перемещение по Y": {
+            "Русский": ["мм", "см", "м"],
+            "Английский": ["mm", "cm", "m"],
+        },
+        "Перемещение по Z": {
+            "Русский": ["мм", "см", "м"],
+            "Английский": ["mm", "cm", "m"],
+        },
+        "Удлинение": {
+            "Русский": ["мм", "см", "м"],
+            "Английский": ["mm", "cm", "m"],
+        },
+        "Деформация": {
+            "Русский": ["%"],
+            "Английский": ["%"],
+        },
+        "Сила": {
+            "Русский": ["мН", "Н", "кН"],
+            "Английский": ["mN", "N", "kN"],
+        },
+        "Масса": {
+            "Русский": ["г", "кг", "т"],
+            "Английский": ["g", "kg", "t"],
+        },
+        "Напряжение": {
+            "Русский": ["Па", "кПа", "МПа"],
+            "Английский": ["Pa", "kPa", "MPa"],
+        },
+        "Частота 1": {
+            "Русский": ["Гц", "кГц"],
+            "Английский": ["Hz", "kHz"],
+        },
+        "Частота 2": {
+            "Русский": ["Гц", "кГц"],
+            "Английский": ["Hz", "kHz"],
+        },
+        "Частота 3": {
+            "Русский": ["Гц", "кГц"],
+            "Английский": ["Hz", "kHz"],
+        },
+        "Другое": {
+            "Русский": [],
+            "Английский": [],
+        },
     }
     selection = combo.get()
     if selection == "Другое":
@@ -35,8 +74,9 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
         size_combo.place_forget()
     else:
         entry.place_forget()
+        label_size.config(text="Выберите размерность:" if language == "Русский" else "Select unit:")
         label_size.place(x=combo.winfo_x() + 200, y=combo.winfo_y())
-        values = UNITS_MAPPING.get(selection, [])
+        values = UNITS_MAPPING.get(selection, {}).get(language, [])
         size_combo['values'] = values
         if values:
             size_combo.place(x=combo.winfo_x() + 350, y=combo.winfo_y(), width=150)
@@ -62,7 +102,7 @@ def create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
     input_frame.place(x=10, y=10, width=750, height=160)
 
     # Вспомогательная функция для создания элементов управления осями
-    def add_axis_control(parent, label_text, options, y_pos):
+    def add_axis_control(parent, label_text, options, y_pos, combo_language):
         label = ttk.Label(parent, text=label_text)
         label.place(x=10, y=y_pos)
         combo = ttk.Combobox(parent, values=options, state='readonly')
@@ -78,7 +118,7 @@ def create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
         size_combo.place_forget()
         combo.bind(
             "<<ComboboxSelected>>",
-            lambda e: on_combo_changeX_Y_labels(combo, entry, size_label, size_combo)
+            lambda e: on_combo_changeX_Y_labels(combo, entry, size_label, size_combo, combo_language.get())
         )
         return combo, entry, size_label, size_combo
 
@@ -102,11 +142,18 @@ def create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
 
     # Поля для осей X и Y, используя список физических величин
     combo_titleX, path_entry_titleX, label_titleX_size, combo_titleX_size = add_axis_control(
-        input_frame, "Выберите величину для оси X:", PHYSICAL_QUANTITIES, 60
+        input_frame, "Выберите величину для оси X:", PHYSICAL_QUANTITIES, 60, combo_language
     )
     combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size = add_axis_control(
-        input_frame, "Выберите величину для оси Y:", PHYSICAL_QUANTITIES, 90
+        input_frame, "Выберите величину для оси Y:", PHYSICAL_QUANTITIES, 90, combo_language
     )
+
+    def on_language_change(event=None):
+        language = combo_language.get()
+        on_combo_changeX_Y_labels(combo_titleX, path_entry_titleX, label_titleX_size, combo_titleX_size, language)
+        on_combo_changeX_Y_labels(combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size, language)
+
+    combo_language.bind("<<ComboboxSelected>>", on_language_change)
 
     # Управление количеством кривых
     label_curves = ttk.Label(input_frame, text="Выберите количество кривых на графике:")
@@ -142,7 +189,7 @@ def create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
             ax, fig, canvas, path_entry_title,
             combo_titleX, combo_titleX_size,
             combo_titleY, combo_titleY_size,
-            checkbox_var, curves_frame, combo_curves
+            checkbox_var, curves_frame, combo_curves, combo_language
         )
     )
     btn_generate_graph.place(x=1050, y=690)

@@ -1,6 +1,8 @@
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk
 
+from functions_for_tab1 import update_curves, generate_graph, save_file
+
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -44,7 +46,7 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
             size_combo.place_forget()
 
 
-def create_tab1(notebook, create_text, update_curves, generate_graph, save_file):
+def create_tab1(notebook, create_text):
     # Список физических величин для прочностных расчетов
     PHYSICAL_QUANTITIES = [
         "Время", "Деформация", "Масса", "Напряжение",

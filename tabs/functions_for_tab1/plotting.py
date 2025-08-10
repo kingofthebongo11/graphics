@@ -162,14 +162,15 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                 # Получаем имя файла для каждой кривой
                 if widget_name == f"curve_{i}_filename":
                     curve_info['curve_file'] = widget.get()
-                    if 'X_source' in curve_info:
-                        curve_info['X_source'].setdefault('curve_file', widget.get())
-                    if 'Y_source' in curve_info:
-                        curve_info['Y_source'].setdefault('curve_file', widget.get())
+                    if curve_info.get('curve_type') != "Комбинированный":
+                        if 'X_source' in curve_info:
+                            curve_info['X_source'].setdefault('curve_file', widget.get())
+                        if 'Y_source' in curve_info:
+                            curve_info['Y_source'].setdefault('curve_file', widget.get())
                 elif widget_name == f"curve_{i}_filename_X":
-                    curve_info.setdefault('X_source', {}).setdefault('curve_file', widget.get())
+                    curve_info.setdefault('X_source', {}).update({'curve_file': widget.get()})
                 elif widget_name == f"curve_{i}_filename_Y":
-                    curve_info.setdefault('Y_source', {}).setdefault('curve_file', widget.get())
+                    curve_info.setdefault('Y_source', {}).update({'curve_file': widget.get()})
 
                 if widget_name == f"curve_{i}_horizontal":
                     curve_info['horizontal'] = widget.var.get()

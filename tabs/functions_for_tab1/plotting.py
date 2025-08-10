@@ -162,6 +162,12 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                         curve_info['offset_vertical'] = int(widget.get())
                     except ValueError:
                         curve_info['offset_vertical'] = 0
+                if widget_name == f"curve_{i}_use_ranges":
+                    curve_info['use_ranges'] = widget.var.get()
+                elif widget_name == f"curve_{i}_range_x":
+                    curve_info['range_x'] = widget.get()
+                elif widget_name == f"curve_{i}_range_y":
+                    curve_info['range_y'] = widget.get()
 
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":

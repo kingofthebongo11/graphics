@@ -111,27 +111,82 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         })
     )
 
+    ranges_var = tk.BooleanVar(value=saved_data[i - 1].get('use_ranges', False))
+    checkbox_ranges = ttk.Checkbutton(
+        input_frame,
+        text="Диапазоны",
+        variable=ranges_var,
+        command=lambda: (saved_data[i - 1].update({'use_ranges': ranges_var.get()}), toggle_excel_options())
+    )
+    checkbox_ranges._name = f"curve_{i}_use_ranges"
+    checkbox_ranges.var = ranges_var
+
+    label_range_x = ttk.Label(input_frame, text="X:")
+    entry_range_x = ttk.Entry(input_frame, width=10)
+    entry_range_x.insert(0, saved_data[i - 1].get('range_x', ''))
+    entry_range_x._name = f"curve_{i}_range_x"
+    entry_range_x.bind(
+        '<KeyRelease>',
+        lambda e: saved_data[i - 1].update({'range_x': entry_range_x.get()})
+    )
+
+    label_range_y = ttk.Label(input_frame, text="Y:")
+    entry_range_y = ttk.Entry(input_frame, width=10)
+    entry_range_y.insert(0, saved_data[i - 1].get('range_y', ''))
+    entry_range_y._name = f"curve_{i}_range_y"
+    entry_range_y.bind(
+        '<KeyRelease>',
+        lambda e: saved_data[i - 1].update({'range_y': entry_range_y.get()})
+    )
+
     def toggle_excel_options():
         if combo_curve_type.get() == "Excel файл":
             checkbox_horizontal.place(x=10, y=60 + dy * (i - 1))
             checkbox_offset.place(x=150, y=60 + dy * (i - 1))
-            if offset_var.get():
-                label_offset_h.place(x=230, y=60 + dy * (i - 1))
-                entry_offset_h.place(x=270, y=60 + dy * (i - 1), width=40)
-                label_offset_v.place(x=320, y=60 + dy * (i - 1))
-                entry_offset_v.place(x=360, y=60 + dy * (i - 1), width=40)
-            else:
+            checkbox_ranges.place(x=410, y=60 + dy * (i - 1))
+            if ranges_var.get():
+                checkbox_horizontal.var.set(False)
+                checkbox_offset.var.set(False)
+                saved_data[i - 1].update({'horizontal': False, 'use_offset': False})
+                checkbox_horizontal.config(state='disabled')
+                checkbox_offset.config(state='disabled')
                 label_offset_h.place_forget()
                 entry_offset_h.place_forget()
                 label_offset_v.place_forget()
                 entry_offset_v.place_forget()
+                label_range_x.place(x=470, y=60 + dy * (i - 1))
+                entry_range_x.place(x=500, y=60 + dy * (i - 1), width=80)
+                label_range_y.place(x=590, y=60 + dy * (i - 1))
+                entry_range_y.place(x=620, y=60 + dy * (i - 1), width=80)
+            else:
+                checkbox_horizontal.config(state='normal')
+                checkbox_offset.config(state='normal')
+                label_range_x.place_forget()
+                entry_range_x.place_forget()
+                label_range_y.place_forget()
+                entry_range_y.place_forget()
+                if offset_var.get():
+                    label_offset_h.place(x=230, y=60 + dy * (i - 1))
+                    entry_offset_h.place(x=270, y=60 + dy * (i - 1), width=40)
+                    label_offset_v.place(x=320, y=60 + dy * (i - 1))
+                    entry_offset_v.place(x=360, y=60 + dy * (i - 1), width=40)
+                else:
+                    label_offset_h.place_forget()
+                    entry_offset_h.place_forget()
+                    label_offset_v.place_forget()
+                    entry_offset_v.place_forget()
         else:
             checkbox_horizontal.place_forget()
             checkbox_offset.place_forget()
+            checkbox_ranges.place_forget()
             label_offset_h.place_forget()
             entry_offset_h.place_forget()
             label_offset_v.place_forget()
             entry_offset_v.place_forget()
+            label_range_x.place_forget()
+            entry_range_x.place_forget()
+            label_range_y.place_forget()
+            entry_range_y.place_forget()
 
     # Привязка события изменения выбора в combo_curve_type
     combo_curve_type.bind(
@@ -202,7 +257,8 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
     for i in range(len(saved_data), num_curves_int):
         saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
                            'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False,
-                           'use_offset': False, 'offset_horizontal': 0, 'offset_vertical': 0})
+                           'use_offset': False, 'offset_horizontal': 0, 'offset_vertical': 0,
+                           'use_ranges': False, 'range_x': '', 'range_y': ''})
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)

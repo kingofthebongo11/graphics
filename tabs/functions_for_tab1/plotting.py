@@ -1,0 +1,242 @@
+import ast
+import numpy as np
+import logging
+from tkinter import filedialog, messagebox
+
+logger = logging.getLogger(__name__)
+
+
+class AxisTitleProcessor:
+    def __init__(self, combo_title, combo_size, language='Русский'):
+        self.combo_title = combo_title
+        self.combo_size = combo_size
+        self.language = language
+        self.title_mapping = {
+            "Время": {
+                "Русский": "Время $t$",
+                "Английский": "Time $t$",
+            },
+            "Частота 1": {
+                "Русский": "Частота ${{f}}_{{\\mathit{1}}}$",
+                "Английский": "Frequency ${{f}}_{{\\mathit{1}}}$",
+            },
+            "Частота 2": {
+                "Русский": "Частота ${{f}}_{{\\mathit{2}}}$",
+                "Английский": "Frequency ${{f}}_{{\\mathit{2}}}$",
+            },
+            "Частота 3": {
+                "Русский": "Частота ${{f}}_{{\\mathit{3}}}$",
+                "Английский": "Frequency ${{f}}_{{\\mathit{3}}}$",
+            },
+        }
+
+    def _get_units(self):
+        units = {
+            "Время": {
+                "Русский": "с",
+                "Английский": "s",
+            },
+            "Частота 1": {
+                "Русский": "Гц",
+                "Английский": "Hz",
+            },
+            "Частота 2": {
+                "Русский": "Гц",
+                "Английский": "Hz",
+            },
+            "Частота 3": {
+                "Русский": "Гц",
+                "Английский": "Hz",
+            },
+        }
+        selection = self.combo_title.get()
+        unit = units.get(selection, {}).get(self.language, "")
+        return f", {unit}" if unit else ""
+
+    def _get_title(self):
+        selection = self.combo_title.get()
+        return self.title_mapping.get(selection, {}).get(self.language, selection)
+
+    def get_processed_title(self):
+        if self.combo_title.get() == "Другое" and self.combo_size.get():
+            return f"{self.combo_size.get()}"
+        title = self._get_title()
+        return f"{title}{self._get_units()}"
+
+
+def save_file(entry_widget, graph_info):
+    from main import create_plot  # локальный импорт для избежания циклической зависимости
+
+    file_name = entry_widget.get()
+    if file_name:
+        file_path = filedialog.asksaveasfilename(defaultextension=".png",
+                                                 filetypes=[("PNG files", "*.png"), ("All files", "*.*")],
+                                                 initialfile=file_name)
+        if file_path:
+            try:
+                curves_info = [{
+                    'X_values': graph_info['X_values'],
+                    'Y_values': graph_info['Y_values']
+                }]
+                create_plot(curves_info, graph_info['X_label'], graph_info['Y_label'], graph_info['title'],
+                            savefile=True,
+                            file_plt=file_path)  # Генерация и сохранение графика
+                messagebox.showinfo("Успех", f"График сохранен: {file_path}")
+            except Exception as e:
+                messagebox.showerror("Ошибка", f"Не удалось сохранить файл: {str(e)}")
+    else:
+        messagebox.showerror("Ошибка", "Имя файла не может быть пустым!")
+
+
+def get_X_Y_data(curve_info):
+    if curve_info['curve_type'] == 'Частотный анализ':
+        try:
+            # Открытие файла
+            with open(curve_info['curve_file'], 'r') as file:
+                lines = file.readlines()
+
+            # Динамическое определение заголовков на основе curve_typeXF_type и curve_typeYF_type
+            header_XF = f"t {curve_info['curve_typeXF_type']}N {curve_info['curve_typeXF_type']}eig {curve_info['curve_typeXF_type']}mass pr{curve_info['curve_typeXF_type']}mass totalpr{curve_info['curve_typeXF_type']}mass"
+            header_YF = f"t {curve_info['curve_typeYF_type']}N {curve_info['curve_typeYF_type']}eig {curve_info['curve_typeYF_type']}mass pr{curve_info['curve_typeYF_type']}mass totalpr{curve_info['curve_typeYF_type']}mass"
+
+            # Динамическое определение индекса столбца для каждого параметра curve_typeXF и curve_typeYF
+            headers_map = {
+                "Время": 0,
+                "Номер доминантной частота": 1,
+                "Частота": 2,
+                "Масса": 3,
+                "Процент от общей массы": 4,
+                "Процент общей массы": 5
+            }
+
+            # Определяем, какой солбец нужно извлекать для X и Y в зависимости от curve_typeXF и curve_typeYF
+            index_X = headers_map.get(curve_info['curve_typeXF'])
+            index_Y = headers_map.get(curve_info['curve_typeYF'])
+
+            if index_X is None or index_Y is None:
+                logger.error("Ошибка: некорректные параметры curve_typeXF или curve_typeYF.")
+                return
+
+            # Переменные для хранения данных
+            X_data = []
+            Y_data = []
+            current_block_X = False
+            current_block_Y = False
+
+            for line in lines:
+                line = line.strip()
+
+                # Определение начала блока
+                if line == header_XF and line == header_YF:
+                    current_block_X = True
+                    current_block_Y = True
+                    continue
+                elif line == header_XF:
+                    current_block_X = True
+                    current_block_Y = False
+                    continue
+                elif line == header_YF:
+                    current_block_Y = True
+                    current_block_X = False
+                    continue
+                elif line == '':
+                    current_block_X = False
+                    current_block_Y = False
+                    continue
+
+                # Извлечение данных из блока X
+                if current_block_X:
+                    try:
+                        data_list = ast.literal_eval(line)  # Преобразуем строку в список
+                        if isinstance(data_list, list) and len(data_list) > index_X:
+                            if index_X == 4 or index_X == 5:
+                                X_data.append(float(data_list[index_X].strip('%')))
+                            else:
+                                X_data.append(float(data_list[index_X]))  # Извлекаем данные для X
+                    except (ValueError, SyntaxError):
+                        # Если строку нельзя преобразовать в список, пропускаем её
+                        logger.error("Ошибка преобразования строки: %s", line)
+
+                # Извлечение данных из блока Y
+                if current_block_Y:
+                    try:
+                        data_list = ast.literal_eval(line)  # Преобразуем строку в список
+                        if isinstance(data_list, list) and len(data_list) > index_Y:
+                            if index_Y == 4 or index_Y == 5:
+                                logger.debug("%s", data_list[index_Y])
+                                Y_data.append(float(data_list[index_Y].strip('%')))
+                            else:
+                                Y_data.append(float(data_list[index_Y]))  # Извлекаем данные для Y
+                    except (ValueError, SyntaxError):
+                        # Если строку нельзя преобразовать в список, пропускаем её
+                        logger.error("Ошибка преобразования строки: %s", line)
+
+            # Сохранение данных в curve_info
+            curve_info['X_values'] = X_data
+            curve_info['Y_values'] = Y_data
+
+        except FileNotFoundError:
+            logger.error("Файл '%s' не найден.", curve_info['curve_file'])
+        except IOError:
+            logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
+
+
+def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,
+                   legend_checkbox, curves_frame, combo_curves, combo_language):
+    from main import create_plot  # локальный импорт для избежания циклической зависимости
+
+    # Очистка предыдущего графика
+    ax.clear()
+    # Считываем заголовок из поля ввода
+    title = path_entry_title.get()
+    language = combo_language.get() or 'Русский'
+    xlabel_processor = AxisTitleProcessor(combo_titleX, combo_titleX_size, language)
+    ylabel_processor = AxisTitleProcessor(combo_titleY, combo_titleY_size, language)
+    xlabel = xlabel_processor.get_processed_title()
+    ylabel = ylabel_processor.get_processed_title()
+
+    # Считываем количество кривых из combobox
+    num_curves = int(combo_curves.get())
+
+    # Генерация данных для графика (пример - синусоида)
+    x = np.linspace(0, 10, 100)
+    curves_info = []
+    # Построение каждой кривой в цикле
+    for i in range(1, num_curves + 1):
+        curve_info = {}
+        for widget in curves_frame.winfo_children():
+            if hasattr(widget, '_name'):
+                widget_name = widget._name
+
+                # Проверяем тип кривой
+                if widget_name == f"curve_{i}_type":
+                    curve_info['curve_type'] = widget.get()
+
+                # Если тип кривой "Частотный анализ", собираем дополнительные данные
+                if 'curve_type' in curve_info and curve_info['curve_type'] == "Частотный анализ":
+                    if widget_name == f"curve_{i}_typeXF":
+                        curve_info['curve_typeXF'] = widget.get()
+                    elif widget_name == f"curve_{i}_typeYF":
+                        curve_info['curve_typeYF'] = widget.get()
+                    elif widget_name == f"curve_{i}_typeXFtype":
+                        curve_info['curve_typeXF_type'] = widget.get()
+                    elif widget_name == f"curve_{i}_typeYFtype":
+                        curve_info['curve_typeYF_type'] = widget.get()
+
+                # Получаем имя файла для каждой кривой
+                if widget_name == f"curve_{i}_filename":
+                    curve_info['curve_file'] = widget.get()
+
+                # Проверяем наличие легенды, если отмечен чекбокс
+                if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
+                    curve_info['curve_legend'] = widget.get()
+
+        # Добавляем информацию о кривой в общий список
+        get_X_Y_data(curve_info)
+        curves_info.append(curve_info)
+
+    create_plot(curves_info, xlabel, ylabel, title,
+                fig=fig, ax=ax, legend=legend_checkbox.get())
+
+    # Перерисовка графика
+    canvas.draw()

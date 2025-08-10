@@ -1,7 +1,7 @@
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk
 
-from functions_for_tab1 import update_curves, generate_graph, save_file
+from .functions_for_tab1 import update_curves, generate_graph, save_file
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg

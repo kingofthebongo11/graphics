@@ -788,7 +788,7 @@ def main():
     configure_matplotlib()
     # Создание главного окна
     root = tk.Tk()
-    root.geometry("1500x900")
+    root.geometry("1600x1400")
     root.title("Работа с графиками")
     root.resizable(True, True)
 

@@ -11,14 +11,19 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
 
     # Определяем высоту ячейки на основе состояния чекбокса
     dy = 190 if checkbox_var.get() else 130
+    extra_offset = 60 * sum(
+        1 for idx in range(i - 1)
+        if saved_data[idx].get('curve_type') == "Комбинированный"
+    )
+    base_y = dy * (i - 1) + extra_offset
 
     # Метка о параметрах кривой
     label_curve_box = ttk.Label(input_frame, text=f"Настройка параметров кривой {i}:")
-    label_curve_box.place(x=10, y=0 + dy * (i - 1))
+    label_curve_box.place(x=10, y=0 + base_y)
 
     # Метка о выборе типа кривой
     label_curve_type = ttk.Label(input_frame, text=f"Выберите тип кривой {i}:")
-    label_curve_type.place(x=10, y=30 + dy * (i - 1))
+    label_curve_type.place(x=10, y=30 + base_y)
 
     # Создание выпадающего меню для типа кривой
     combo_curve_type = ttk.Combobox(
@@ -26,7 +31,8 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         values=["Частотный анализ", "Текстовой файл", "Файл кривой LS-Dyna", "Excel файл", "Комбинированный"],
         state='readonly'
     )
-    combo_curve_type.place(x=250, y=30 + dy * (i - 1), width=150)
+    combo_curve_type.place(x=250, y=30 + base_y, width=150)
+    combo_curve_type.set(saved_data[i - 1].get('curve_type', ''))
     combo_curve_type._name = f"curve_{i}_type"
 
     # Создане элементов для параметров X и Y
@@ -314,9 +320,9 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
 
     def toggle_excel_options():
         if combo_curve_type.get() == "Excel файл":
-            checkbox_horizontal.place(x=10, y=60 + dy * (i - 1))
-            checkbox_offset.place(x=150, y=60 + dy * (i - 1))
-            checkbox_ranges.place(x=410, y=60 + dy * (i - 1))
+            checkbox_horizontal.place(x=10, y=60 + base_y)
+            checkbox_offset.place(x=150, y=60 + base_y)
+            checkbox_ranges.place(x=410, y=60 + base_y)
             if ranges_var.get():
                 checkbox_horizontal.var.set(False)
                 checkbox_offset.var.set(False)
@@ -327,10 +333,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 entry_offset_h.place_forget()
                 label_offset_v.place_forget()
                 entry_offset_v.place_forget()
-                label_range_x.place(x=500, y=60 + dy * (i - 1))
-                entry_range_x.place(x=520, y=60 + dy * (i - 1), width=80)
-                label_range_y.place(x=610, y=60 + dy * (i - 1))
-                entry_range_y.place(x=630, y=60 + dy * (i - 1), width=80)
+                label_range_x.place(x=500, y=60 + base_y)
+                entry_range_x.place(x=520, y=60 + base_y, width=80)
+                label_range_y.place(x=610, y=60 + base_y)
+                entry_range_y.place(x=630, y=60 + base_y, width=80)
             else:
                 checkbox_horizontal.config(state='normal')
                 checkbox_offset.config(state='normal')
@@ -339,10 +345,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 label_range_y.place_forget()
                 entry_range_y.place_forget()
                 if offset_var.get():
-                    label_offset_h.place(x=240, y=60 + dy * (i - 1))
-                    entry_offset_h.place(x=270, y=60 + dy * (i - 1), width=40)
-                    label_offset_v.place(x=320, y=60 + dy * (i - 1))
-                    entry_offset_v.place(x=360, y=60 + dy * (i - 1), width=40)
+                    label_offset_h.place(x=240, y=60 + base_y)
+                    entry_offset_h.place(x=270, y=60 + base_y, width=40)
+                    label_offset_v.place(x=320, y=60 + base_y)
+                    entry_offset_v.place(x=360, y=60 + base_y, width=40)
                 else:
                     label_offset_h.place_forget()
                     entry_offset_h.place_forget()
@@ -394,16 +400,23 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
             lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
             lambda e: toggle_excel_options(),
             lambda e: (toggle_X_source_options(), toggle_Y_source_options()),
+            lambda e: update_curves(
+                input_frame,
+                input_frame.num_curves,
+                input_frame.next_frame,
+                checkbox_var,
+                saved_data,
+            ),
         ),
     )
 
     # Метка для выбора файла с кривой
     label_path = ttk.Label(input_frame, text="Выберите файл с кривой:")
-    label_path.place(x=10, y=90 + dy * (i - 1))
+    label_path.place(x=10, y=90 + base_y)
 
     # Создание текстового поля для ввода пути
     path_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    path_entry.place(x=10, y=110 + dy * (i - 1), width=600)
+    path_entry.place(x=10, y=110 + base_y, width=600)
 
     path_entry._name = f"curve_{i}_filename"
 
@@ -413,13 +426,13 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         text="Выбор файла",
         command=lambda: select_path(path_entry, path_type='file', saved_data=saved_data[i - 1])
     )
-    select_button.place(x=620, y=108 + dy * (i - 1))
+    select_button.place(x=620, y=108 + base_y)
 
     # Отдельные поля для комбинированного типа
     label_path_X = ttk.Label(input_frame, text="Файл для X:")
-    label_path_X.place(x=10, y=90 + dy * (i - 1))
+    label_path_X.place(x=10, y=90 + base_y)
     path_entry_X = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    path_entry_X.place(x=10, y=110 + dy * (i - 1), width=600)
+    path_entry_X.place(x=10, y=110 + base_y, width=600)
     path_entry_X._name = f"curve_{i}_filename_X"
     path_entry_X.bind(
         '<KeyRelease>',
@@ -433,12 +446,12 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
             saved_data[i - 1].setdefault('X_source', {}).update({'curve_file': path_entry_X.get()})
         )
     )
-    select_button_X.place(x=620, y=108 + dy * (i - 1))
+    select_button_X.place(x=620, y=108 + base_y)
 
     label_path_Y = ttk.Label(input_frame, text="Файл для Y:")
-    label_path_Y.place(x=10, y=140 + dy * (i - 1))
+    label_path_Y.place(x=10, y=140 + base_y)
     path_entry_Y = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    path_entry_Y.place(x=10, y=160 + dy * (i - 1), width=600)
+    path_entry_Y.place(x=10, y=160 + base_y, width=600)
     path_entry_Y._name = f"curve_{i}_filename_Y"
     path_entry_Y.bind(
         '<KeyRelease>',
@@ -452,7 +465,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
             saved_data[i - 1].setdefault('Y_source', {}).update({'curve_file': path_entry_Y.get()})
         )
     )
-    select_button_Y.place(x=620, y=158 + dy * (i - 1))
+    select_button_Y.place(x=620, y=158 + base_y)
 
     label_path_X.place_forget()
     path_entry_X.place_forget()
@@ -463,10 +476,11 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
 
     # Если чекбокс легенды отмечен, добавляем поле для легенды
     if checkbox_var.get():
+        legend_offset = 200 if saved_data[i - 1].get('curve_type') == "Комбинированный" else 150
         label_legend = ttk.Label(input_frame, text="Подпись легенды:")
-        label_legend.place(x=10, y=150 + dy * (i - 1))
+        label_legend.place(x=10, y=legend_offset + base_y)
         legend_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-        legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
+        legend_entry.place(x=10, y=legend_offset + 20 + base_y, width=300)
         legend_entry._name = f"curve_{i}_legend"
 
     toggle_excel_options()
@@ -486,9 +500,15 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
         return
     else:
         num_curves_int = int(num_curves)
+    frame.num_curves = num_curves_int
+    frame.next_frame = next_frame
 
-    # Меняем высоту фрейма в зависимости от количества кривых
-    frame_height = 210 * num_curves_int if checkbox_var.get() else 150 * num_curves_int
+    base_height = 210 if checkbox_var.get() else 150
+    combined_count = sum(
+        1 for data in saved_data[:num_curves_int]
+        if data.get('curve_type') == "Комбинированный"
+    )
+    frame_height = base_height * num_curves_int + 60 * combined_count
     frame.place_configure(height=frame_height)
 
     # Восстанавливаем данные, если они есть

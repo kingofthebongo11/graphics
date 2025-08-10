@@ -158,6 +158,10 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                         curve_info['X_source'].setdefault('curve_file', widget.get())
                     if 'Y_source' in curve_info:
                         curve_info['Y_source'].setdefault('curve_file', widget.get())
+                elif widget_name == f"curve_{i}_filename_X":
+                    curve_info.setdefault('X_source', {}).setdefault('curve_file', widget.get())
+                elif widget_name == f"curve_{i}_filename_Y":
+                    curve_info.setdefault('Y_source', {}).setdefault('curve_file', widget.get())
 
                 if widget_name == f"curve_{i}_horizontal":
                     curve_info['horizontal'] = widget.var.get()

@@ -57,9 +57,83 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state='readonly'
     )
     combo_source_X._name = f"curve_{i}_X_source"
+
+    label_param_X = ttk.Label(input_frame, text="Параметр:")
+    combo_param_X = ttk.Combobox(
+        input_frame,
+        values=["Время", "Номер доминантной частота", "Частота",
+                "Масса", "Процент от общей массы", "Процент общей массы"],
+        state='readonly'
+    )
+    combo_param_X._name = f"curve_{i}_X_parameter"
+    combo_param_X.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'parameter': combo_param_X.get()})
+    )
+
+    label_axis_X = ttk.Label(input_frame, text="По какой оси:")
+    combo_axis_X = ttk.Combobox(
+        input_frame,
+        values=["X", "Y", "Z", "XR", "YR", "ZR"],
+        state='readonly'
+    )
+    combo_axis_X._name = f"curve_{i}_X_direction"
+    combo_axis_X.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'direction': combo_axis_X.get()})
+    )
+
+    label_column_X = ttk.Label(input_frame, text="Столбец:")
+    combo_column_X = ttk.Combobox(
+        input_frame,
+        values=["X", "Y"],
+        state='readonly'
+    )
+    combo_column_X._name = f"curve_{i}_X_column"
+    combo_column_X.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'column': 0 if combo_column_X.get() == 'X' else 1})
+    )
+
+    label_range_Xc = ttk.Label(input_frame, text="Диапазон:")
+    entry_range_Xc = ttk.Entry(input_frame, width=10)
+    entry_range_Xc.insert(0, saved_data[i - 1].get('X_source', {}).get('range_x', ''))
+    entry_range_Xc._name = f"curve_{i}_X_range"
+    entry_range_Xc.bind(
+        '<KeyRelease>',
+        lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'use_ranges': True, 'range_x': entry_range_Xc.get(), 'column': 0})
+    )
+
+    def toggle_X_source_options():
+        for w in [label_param_X, combo_param_X, label_axis_X, combo_axis_X,
+                  label_column_X, combo_column_X, label_range_Xc, entry_range_Xc]:
+            w.place_forget()
+        if combo_curve_type.get() != "Комбинированный":
+            return
+        source = combo_source_X.get()
+        if source == "Частотный анализ":
+            input_frame.update_idletasks()
+            label_param_X.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 30)
+            combo_param_X.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 50, width=150)
+            label_axis_X.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 75)
+            combo_axis_X.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 95, width=150)
+        elif source in ("Текстовой файл", "Файл кривой LS-Dyna"):
+            input_frame.update_idletasks()
+            label_column_X.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 30)
+            combo_column_X.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 50, width=150)
+        elif source == "Excel файл":
+            input_frame.update_idletasks()
+            label_range_Xc.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 30)
+            entry_range_Xc.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 50, width=150)
+            saved_data[i - 1].setdefault('X_source', {}).update({'column': 0})
+
     combo_source_X.bind(
         "<<ComboboxSelected>>",
-        lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'source': combo_source_X.get()})
+        lambda e: on_combobox_event(
+            e,
+            lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'source': combo_source_X.get()}),
+            lambda e: toggle_X_source_options()
+        )
     )
 
     label_source_Y = ttk.Label(input_frame, text="Выберите тип для данных Y:")
@@ -69,9 +143,83 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state='readonly'
     )
     combo_source_Y._name = f"curve_{i}_Y_source"
+
+    label_param_Y = ttk.Label(input_frame, text="Параметр:")
+    combo_param_Y = ttk.Combobox(
+        input_frame,
+        values=["Время", "Номер доминантной частота", "Частота",
+                "Масса", "Процент от общей массы", "Процент общей массы"],
+        state='readonly'
+    )
+    combo_param_Y._name = f"curve_{i}_Y_parameter"
+    combo_param_Y.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'parameter': combo_param_Y.get()})
+    )
+
+    label_axis_Y = ttk.Label(input_frame, text="По какой оси:")
+    combo_axis_Y = ttk.Combobox(
+        input_frame,
+        values=["X", "Y", "Z", "XR", "YR", "ZR"],
+        state='readonly'
+    )
+    combo_axis_Y._name = f"curve_{i}_Y_direction"
+    combo_axis_Y.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'direction': combo_axis_Y.get()})
+    )
+
+    label_column_Y = ttk.Label(input_frame, text="Столбец:")
+    combo_column_Y = ttk.Combobox(
+        input_frame,
+        values=["X", "Y"],
+        state='readonly'
+    )
+    combo_column_Y._name = f"curve_{i}_Y_column"
+    combo_column_Y.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'column': 0 if combo_column_Y.get() == 'X' else 1})
+    )
+
+    label_range_Yc = ttk.Label(input_frame, text="Диапазон:")
+    entry_range_Yc = ttk.Entry(input_frame, width=10)
+    entry_range_Yc.insert(0, saved_data[i - 1].get('Y_source', {}).get('range_y', ''))
+    entry_range_Yc._name = f"curve_{i}_Y_range"
+    entry_range_Yc.bind(
+        '<KeyRelease>',
+        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'use_ranges': True, 'range_y': entry_range_Yc.get(), 'column': 1})
+    )
+
+    def toggle_Y_source_options():
+        for w in [label_param_Y, combo_param_Y, label_axis_Y, combo_axis_Y,
+                  label_column_Y, combo_column_Y, label_range_Yc, entry_range_Yc]:
+            w.place_forget()
+        if combo_curve_type.get() != "Комбинированный":
+            return
+        source = combo_source_Y.get()
+        if source == "Частотный анализ":
+            input_frame.update_idletasks()
+            label_param_Y.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 30)
+            combo_param_Y.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 50, width=150)
+            label_axis_Y.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 75)
+            combo_axis_Y.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 95, width=150)
+        elif source in ("Текстовой файл", "Файл кривой LS-Dyna"):
+            input_frame.update_idletasks()
+            label_column_Y.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 30)
+            combo_column_Y.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 50, width=150)
+        elif source == "Excel файл":
+            input_frame.update_idletasks()
+            label_range_Yc.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 30)
+            entry_range_Yc.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 50, width=150)
+            saved_data[i - 1].setdefault('Y_source', {}).update({'column': 1})
+
     combo_source_Y.bind(
         "<<ComboboxSelected>>",
-        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'source': combo_source_Y.get()})
+        lambda e: on_combobox_event(
+            e,
+            lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'source': combo_source_Y.get()}),
+            lambda e: toggle_Y_source_options()
+        )
     )
 
     # Установка позиций для параметров X и Y
@@ -245,6 +393,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
             ),
             lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
             lambda e: toggle_excel_options(),
+            lambda e: (toggle_X_source_options(), toggle_Y_source_options()),
         ),
     )
 
@@ -321,6 +470,8 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         legend_entry._name = f"curve_{i}_legend"
 
     toggle_excel_options()
+    toggle_X_source_options()
+    toggle_Y_source_options()
 
     return None
 

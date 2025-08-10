@@ -79,60 +79,11 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     checkbox_horizontal._name = f"curve_{i}_horizontal"
     checkbox_horizontal.var = horizontal_var
 
-    offset_var = tk.BooleanVar(value=saved_data[i - 1].get('offset', False))
-
-    offset_x_var = tk.StringVar(value=str(saved_data[i - 1].get('offset_x', 0)))
-    offset_y_var = tk.StringVar(value=str(saved_data[i - 1].get('offset_y', 0)))
-
-    def on_offset_toggle():
-        saved_data[i - 1].update({'offset': offset_var.get()})
-        toggle_offset_widgets()
-
-    checkbox_offset = ttk.Checkbutton(
-        input_frame,
-        text="Смещение",
-        variable=offset_var,
-        command=on_offset_toggle,
-    )
-    checkbox_offset._name = f"curve_{i}_offset"
-    checkbox_offset.var = offset_var
-
-    label_offset_x = ttk.Label(input_frame, text="dX:")
-    entry_offset_x = ttk.Entry(input_frame, textvariable=offset_x_var, width=6)
-    entry_offset_x._name = f"curve_{i}_offset_x"
-
-    label_offset_y = ttk.Label(input_frame, text="dY:")
-    entry_offset_y = ttk.Entry(input_frame, textvariable=offset_y_var, width=6)
-    entry_offset_y._name = f"curve_{i}_offset_y"
-
-    offset_x_var.trace_add('write', lambda *args: saved_data[i - 1].update({'offset_x': offset_x_var.get()}))
-    offset_y_var.trace_add('write', lambda *args: saved_data[i - 1].update({'offset_y': offset_y_var.get()}))
-
     def toggle_horizontal_checkbox():
         if combo_curve_type.get() == "Excel файл":
             checkbox_horizontal.place(x=10, y=60 + dy * (i - 1))
         else:
             checkbox_horizontal.place_forget()
-
-    def toggle_offset_widgets():
-        if combo_curve_type.get() == "Excel файл":
-            checkbox_offset.place(x=150, y=60 + dy * (i - 1))
-            if offset_var.get():
-                label_offset_x.place(x=250, y=60 + dy * (i - 1))
-                entry_offset_x.place(x=280, y=60 + dy * (i - 1))
-                label_offset_y.place(x=330, y=60 + dy * (i - 1))
-                entry_offset_y.place(x=360, y=60 + dy * (i - 1))
-            else:
-                label_offset_x.place_forget()
-                entry_offset_x.place_forget()
-                label_offset_y.place_forget()
-                entry_offset_y.place_forget()
-        else:
-            checkbox_offset.place_forget()
-            label_offset_x.place_forget()
-            entry_offset_x.place_forget()
-            label_offset_y.place_forget()
-            entry_offset_y.place_forget()
 
     # Привязка события изменения выбора в combo_curve_type
     combo_curve_type.bind(
@@ -152,7 +103,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 combo_curve_typeY_type,
             ),
             lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
-            lambda e: (toggle_horizontal_checkbox(), toggle_offset_widgets()),
+            lambda e: toggle_horizontal_checkbox(),
         ),
     )
 
@@ -180,7 +131,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         legend_entry._name = f"curve_{i}_legend"
 
     toggle_horizontal_checkbox()
-    toggle_offset_widgets()
 
     return None
 
@@ -202,19 +152,8 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
 
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
-        saved_data.append({
-            'curve_type': "",
-            'path': "",
-            'legend': "",
-            'curve_typeX': "",
-            'curve_typeY': "",
-            'curve_typeX_type': "",
-            'curve_typeY_type': "",
-            'horizontal': False,
-            'offset': False,
-            'offset_x': 0,
-            'offset_y': 0,
-        })
+        saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
+                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False})
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)

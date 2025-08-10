@@ -79,11 +79,59 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     checkbox_horizontal._name = f"curve_{i}_horizontal"
     checkbox_horizontal.var = horizontal_var
 
-    def toggle_horizontal_checkbox():
+    offset_var = tk.BooleanVar(value=saved_data[i - 1].get('use_offset', False))
+    checkbox_offset = ttk.Checkbutton(
+        input_frame,
+        text="Смещение",
+        variable=offset_var,
+        command=lambda: (saved_data[i - 1].update({'use_offset': offset_var.get()}), toggle_excel_options())
+    )
+    checkbox_offset._name = f"curve_{i}_use_offset"
+    checkbox_offset.var = offset_var
+
+    label_offset_h = ttk.Label(input_frame, text="Гор:")
+    entry_offset_h = ttk.Entry(input_frame, width=5)
+    entry_offset_h.insert(0, str(saved_data[i - 1].get('offset_horizontal', 0)))
+    entry_offset_h._name = f"curve_{i}_offset_h"
+    entry_offset_h.bind(
+        '<KeyRelease>',
+        lambda e: saved_data[i - 1].update({
+            'offset_horizontal': int(entry_offset_h.get() or 0) if entry_offset_h.get().isdigit() else 0
+        })
+    )
+
+    label_offset_v = ttk.Label(input_frame, text="Верт:")
+    entry_offset_v = ttk.Entry(input_frame, width=5)
+    entry_offset_v.insert(0, str(saved_data[i - 1].get('offset_vertical', 0)))
+    entry_offset_v._name = f"curve_{i}_offset_v"
+    entry_offset_v.bind(
+        '<KeyRelease>',
+        lambda e: saved_data[i - 1].update({
+            'offset_vertical': int(entry_offset_v.get() or 0) if entry_offset_v.get().isdigit() else 0
+        })
+    )
+
+    def toggle_excel_options():
         if combo_curve_type.get() == "Excel файл":
             checkbox_horizontal.place(x=10, y=60 + dy * (i - 1))
+            checkbox_offset.place(x=150, y=60 + dy * (i - 1))
+            if offset_var.get():
+                label_offset_h.place(x=230, y=60 + dy * (i - 1))
+                entry_offset_h.place(x=270, y=60 + dy * (i - 1), width=40)
+                label_offset_v.place(x=320, y=60 + dy * (i - 1))
+                entry_offset_v.place(x=360, y=60 + dy * (i - 1), width=40)
+            else:
+                label_offset_h.place_forget()
+                entry_offset_h.place_forget()
+                label_offset_v.place_forget()
+                entry_offset_v.place_forget()
         else:
             checkbox_horizontal.place_forget()
+            checkbox_offset.place_forget()
+            label_offset_h.place_forget()
+            entry_offset_h.place_forget()
+            label_offset_v.place_forget()
+            entry_offset_v.place_forget()
 
     # Привязка события изменения выбора в combo_curve_type
     combo_curve_type.bind(
@@ -103,7 +151,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 combo_curve_typeY_type,
             ),
             lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
-            lambda e: toggle_horizontal_checkbox(),
+            lambda e: toggle_excel_options(),
         ),
     )
 
@@ -130,7 +178,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
         legend_entry._name = f"curve_{i}_legend"
 
-    toggle_horizontal_checkbox()
+    toggle_excel_options()
 
     return None
 
@@ -153,7 +201,8 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
         saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
-                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False})
+                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False,
+                           'use_offset': False, 'offset_horizontal': 0, 'offset_vertical': 0})
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)

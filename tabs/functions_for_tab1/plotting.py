@@ -150,6 +150,19 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                 if widget_name == f"curve_{i}_horizontal":
                     curve_info['horizontal'] = widget.var.get()
 
+                if widget_name == f"curve_{i}_use_offset":
+                    curve_info['use_offset'] = widget.var.get()
+                elif widget_name == f"curve_{i}_offset_h":
+                    try:
+                        curve_info['offset_horizontal'] = int(widget.get())
+                    except ValueError:
+                        curve_info['offset_horizontal'] = 0
+                elif widget_name == f"curve_{i}_offset_v":
+                    try:
+                        curve_info['offset_vertical'] = int(widget.get())
+                    except ValueError:
+                        curve_info['offset_vertical'] = 0
+
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
                     curve_info['curve_legend'] = widget.get()

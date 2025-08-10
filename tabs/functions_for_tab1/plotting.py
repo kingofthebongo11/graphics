@@ -1,11 +1,12 @@
-import ast
 import numpy as np
-import logging
 from tkinter import filedialog, messagebox
 
 from tabs.function_for_all_tabs import create_plot
-
-logger = logging.getLogger(__name__)
+from .curves_from_file import (
+    read_X_Y_from_frequency_analysis,
+    read_X_Y_from_text_file,
+    read_X_Y_from_ls_dyna,
+)
 
 
 class AxisTitleProcessor:
@@ -91,143 +92,11 @@ def save_file(entry_widget, graph_info):
 
 def get_X_Y_data(curve_info):
     if curve_info['curve_type'] == 'Частотный анализ':
-        try:
-            # Открытие файла
-            with open(curve_info['curve_file'], 'r') as file:
-                lines = file.readlines()
-
-            # Динамическое определение заголовков на основе curve_typeXF_type и curve_typeYF_type
-            header_XF = f"t {curve_info['curve_typeXF_type']}N {curve_info['curve_typeXF_type']}eig {curve_info['curve_typeXF_type']}mass pr{curve_info['curve_typeXF_type']}mass totalpr{curve_info['curve_typeXF_type']}mass"
-            header_YF = f"t {curve_info['curve_typeYF_type']}N {curve_info['curve_typeYF_type']}eig {curve_info['curve_typeYF_type']}mass pr{curve_info['curve_typeYF_type']}mass totalpr{curve_info['curve_typeYF_type']}mass"
-
-            # Динамическое определение индекса столбца для каждого параметра curve_typeXF и curve_typeYF
-            headers_map = {
-                "Время": 0,
-                "Номер доминантной частота": 1,
-                "Частота": 2,
-                "Масса": 3,
-                "Процент от общей массы": 4,
-                "Процент общей массы": 5
-            }
-
-            # Определяем, какой солбец нужно извлекать для X и Y в зависимости от curve_typeXF и curve_typeYF
-            index_X = headers_map.get(curve_info['curve_typeXF'])
-            index_Y = headers_map.get(curve_info['curve_typeYF'])
-
-            if index_X is None or index_Y is None:
-                logger.error("Ошибка: некорректные параметры curve_typeXF или curve_typeYF.")
-                return
-
-            # Переменные для хранения данных
-            X_data = []
-            Y_data = []
-            current_block_X = False
-            current_block_Y = False
-
-            for line in lines:
-                line = line.strip()
-
-                # Определение начала блока
-                if line == header_XF and line == header_YF:
-                    current_block_X = True
-                    current_block_Y = True
-                    continue
-                elif line == header_XF:
-                    current_block_X = True
-                    current_block_Y = False
-                    continue
-                elif line == header_YF:
-                    current_block_Y = True
-                    current_block_X = False
-                    continue
-                elif line == '':
-                    current_block_X = False
-                    current_block_Y = False
-                    continue
-
-                # Извлечение данных из блока X
-                if current_block_X:
-                    try:
-                        data_list = ast.literal_eval(line)  # Преобразуем строку в список
-                        if isinstance(data_list, list) and len(data_list) > index_X:
-                            if index_X == 4 or index_X == 5:
-                                X_data.append(float(data_list[index_X].strip('%')))
-                            else:
-                                X_data.append(float(data_list[index_X]))  # Извлекаем данные для X
-                    except (ValueError, SyntaxError):
-                        # Если строку нельзя преобразовать в список, пропускаем её
-                        logger.error("Ошибка преобразования строки: %s", line)
-
-                # Извлечение данных из блока Y
-                if current_block_Y:
-                    try:
-                        data_list = ast.literal_eval(line)  # Преобразуем строку в список
-                        if isinstance(data_list, list) and len(data_list) > index_Y:
-                            if index_Y == 4 or index_Y == 5:
-                                logger.debug("%s", data_list[index_Y])
-                                Y_data.append(float(data_list[index_Y].strip('%')))
-                            else:
-                                Y_data.append(float(data_list[index_Y]))  # Извлекаем данные для Y
-                    except (ValueError, SyntaxError):
-                        # Если строку нельзя преобразовать в список, пропускаем её
-                        logger.error("Ошибка преобразования строки: %s", line)
-
-            # Сохранение данных в curve_info
-            curve_info['X_values'] = X_data
-            curve_info['Y_values'] = Y_data
-
-        except FileNotFoundError:
-            logger.error("Файл '%s' не найден.", curve_info['curve_file'])
-        except IOError:
-            logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
+        read_X_Y_from_frequency_analysis(curve_info)
     elif curve_info['curve_type'] == 'Текстовой файл':
-        try:
-            X_data = []
-            Y_data = []
-            with open(curve_info['curve_file'], 'r', encoding='utf-8') as file:
-                for line in file:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    parts = line.replace(',', ' ').split()
-                    if len(parts) < 2:
-                        continue
-                    try:
-                        X_data.append(float(parts[0]))
-                        Y_data.append(float(parts[1]))
-                    except ValueError:
-                        logger.error("Некорректная строка данных: %s", line)
-            curve_info['X_values'] = X_data
-            curve_info['Y_values'] = Y_data
-        except FileNotFoundError:
-            logger.error("Файл '%s' не найден.", curve_info['curve_file'])
-        except IOError:
-            logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
+        read_X_Y_from_text_file(curve_info)
     elif curve_info['curve_type'] == 'Файл кривой LS-Dyna':
-        try:
-            X_data = []
-            Y_data = []
-            with open(curve_info['curve_file'], 'r', encoding='utf-8') as file:
-                for line in file:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    parts = line.split()
-                    if len(parts) != 2:
-                        continue
-                    try:
-                        x = float(parts[0])
-                        y = float(parts[1])
-                    except ValueError:
-                        continue
-                    X_data.append(x)
-                    Y_data.append(y)
-            curve_info['X_values'] = X_data
-            curve_info['Y_values'] = Y_data
-        except FileNotFoundError:
-            logger.error("Файл '%s' не найден.", curve_info['curve_file'])
-        except IOError:
-            logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
+        read_X_Y_from_ls_dyna(curve_info)
 
 
 def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,

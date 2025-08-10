@@ -57,6 +57,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state='readonly'
     )
     combo_source_X._name = f"curve_{i}_X_source"
+    combo_source_X.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'source': combo_source_X.get()})
+    )
 
     label_source_Y = ttk.Label(input_frame, text="Выберите тип для данных Y:")
     combo_source_Y = ttk.Combobox(
@@ -65,88 +69,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state='readonly'
     )
     combo_source_Y._name = f"curve_{i}_Y_source"
-
-    # Путь и выбор колонки для X
-    label_path_X = ttk.Label(input_frame, text="Файл для X:")
-    entry_path_X = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    button_path_X = ttk.Button(
-        input_frame,
-        text="Выбор файла",
-        command=lambda: select_path(
-            entry_path_X,
-            path_type='file',
-            saved_data=saved_data[i - 1].setdefault('X_source', {}),
-            key='curve_file'
-        )
-    )
-    label_column_X = ttk.Label(input_frame, text="Колонка:")
-    combo_column_X = ttk.Combobox(input_frame, values=["X", "Y"], state='readonly')
-    combo_column_X.bind(
+    combo_source_Y.bind(
         "<<ComboboxSelected>>",
-        lambda e: saved_data[i - 1].setdefault('X_source', {}).update(
-            {'column': 0 if combo_column_X.get() == 'X' else 1}
-        )
+        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'source': combo_source_Y.get()})
     )
-    for widget in (label_path_X, entry_path_X, button_path_X, label_column_X, combo_column_X):
-        widget.place_forget()
-
-    # Путь и выбор колонки для Y
-    label_path_Y = ttk.Label(input_frame, text="Файл для Y:")
-    entry_path_Y = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    button_path_Y = ttk.Button(
-        input_frame,
-        text="Выбор файла",
-        command=lambda: select_path(
-            entry_path_Y,
-            path_type='file',
-            saved_data=saved_data[i - 1].setdefault('Y_source', {}),
-            key='curve_file'
-        )
-    )
-    label_column_Y = ttk.Label(input_frame, text="Колонка:")
-    combo_column_Y = ttk.Combobox(input_frame, values=["X", "Y"], state='readonly')
-    combo_column_Y.bind(
-        "<<ComboboxSelected>>",
-        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update(
-            {'column': 0 if combo_column_Y.get() == 'X' else 1}
-        )
-    )
-    for widget in (label_path_Y, entry_path_Y, button_path_Y, label_column_Y, combo_column_Y):
-        widget.place_forget()
-
-    def handle_source_change(axis):
-        def inner(event=None):
-            source_combo = combo_source_X if axis == 'X' else combo_source_Y
-            label_path = label_path_X if axis == 'X' else label_path_Y
-            entry_path = entry_path_X if axis == 'X' else entry_path_Y
-            button_path = button_path_X if axis == 'X' else button_path_Y
-            label_column = label_column_X if axis == 'X' else label_column_Y
-            combo_column = combo_column_X if axis == 'X' else combo_column_Y
-            offset = 0 if axis == 'X' else 60
-            source = source_combo.get()
-            axis_dict = saved_data[i - 1].setdefault(f'{axis}_source', {})
-            axis_dict.update({'source': source})
-            if combo_curve_type.get() == "Комбинированный" and source:
-                label_path.place(x=10, y=90 + offset + dy * (i - 1))
-                entry_path.place(x=10, y=110 + offset + dy * (i - 1), width=400)
-                button_path.place(x=420, y=108 + offset + dy * (i - 1))
-                if source in {"Текстовой файл", "Файл кривой LS-Dyna", "Excel файл"}:
-                    label_column.place(x=500, y=90 + offset + dy * (i - 1))
-                    combo_column.place(x=500, y=110 + offset + dy * (i - 1), width=100)
-                else:
-                    label_column.place_forget()
-                    combo_column.place_forget()
-                    axis_dict.pop('column', None)
-            else:
-                label_path.place_forget()
-                entry_path.place_forget()
-                button_path.place_forget()
-                label_column.place_forget()
-                combo_column.place_forget()
-        return inner
-
-    combo_source_X.bind("<<ComboboxSelected>>", handle_source_change('X'))
-    combo_source_Y.bind("<<ComboboxSelected>>", handle_source_change('Y'))
 
     # Установка позиций для параметров X и Y
     input_frame.update_idletasks()
@@ -287,49 +213,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
             label_range_y.place_forget()
             entry_range_y.place_forget()
 
-    # Метка для выбора файла с кривой
-    label_path = ttk.Label(input_frame, text="Выберите файл с кривой:")
-    label_path.place(x=10, y=90 + dy * (i - 1))
-
-    # Создание текстового поля для ввода пути
-    path_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    path_entry.place(x=10, y=110 + dy * (i - 1), width=600)
-
-    path_entry._name = f"curve_{i}_filename"
-
-    # Кнопка для выбора файла
-    select_button = ttk.Button(input_frame, text="Выбор файла",
-                               command=lambda: select_path(path_entry, path_type='file', saved_data=saved_data[i - 1]))
-    select_button.place(x=620, y=108 + dy * (i - 1))
-
-    # Если чекбокс легенды отмечен, добавляем поле для легенды
-    if checkbox_var.get():
-        label_legend = ttk.Label(input_frame, text="Подпись легенды:")
-        label_legend.place(x=10, y=150 + dy * (i - 1))
-        legend_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-        legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
-        legend_entry._name = f"curve_{i}_legend"
-    else:
-        label_legend = None
-        legend_entry = None
-
-    def toggle_combined_path():
-        if combo_curve_type.get() == "Комбинированный":
-            label_path.place_forget()
-            path_entry.place_forget()
-            select_button.place_forget()
-            handle_source_change('X')()
-            handle_source_change('Y')()
-        else:
-            label_path.place(x=10, y=90 + dy * (i - 1))
-            path_entry.place(x=10, y=110 + dy * (i - 1), width=600)
-            select_button.place(x=620, y=108 + dy * (i - 1))
-            for w in (
-                label_path_X, entry_path_X, button_path_X, label_column_X, combo_column_X,
-                label_path_Y, entry_path_Y, button_path_Y, label_column_Y, combo_column_Y,
-            ):
-                w.place_forget()
-
     # Привязка события изменения выбора в combo_curve_type
     combo_curve_type.bind(
         "<<ComboboxSelected>>",
@@ -352,12 +235,33 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 combo_source_Y,
             ),
             lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
-            lambda e: toggle_combined_path(),
             lambda e: toggle_excel_options(),
         ),
     )
 
-    toggle_combined_path()
+    # Метка для выбора файла с кривой
+    label_path = ttk.Label(input_frame, text="Выберите файл с кривой:")
+    label_path.place(x=10, y=90 + dy * (i - 1))
+
+    # Создание текстового поля для ввода пути
+    path_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    path_entry.place(x=10, y=110 + dy * (i - 1), width=600)
+
+    path_entry._name = f"curve_{i}_filename"
+
+    # Кнопка для выбора файла
+    select_button = ttk.Button(input_frame, text="Выбор файла",
+                               command=lambda: select_path(path_entry, path_type='file', saved_data=saved_data[i - 1]))
+    select_button.place(x=620, y=108 + dy * (i - 1))
+
+    # Если чекбокс легенды отмечен, добавляем поле для легенды
+    if checkbox_var.get():
+        label_legend = ttk.Label(input_frame, text="Подпись легенды:")
+        label_legend.place(x=10, y=150 + dy * (i - 1))
+        legend_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+        legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
+        legend_entry._name = f"curve_{i}_legend"
+
     toggle_excel_options()
 
     return None

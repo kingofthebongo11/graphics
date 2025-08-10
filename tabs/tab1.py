@@ -5,6 +5,7 @@ from .functions_for_tab1 import update_curves, generate_graph, save_file
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from widgets.text_widget import create_text
 
 
 def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
@@ -46,7 +47,7 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
             size_combo.place_forget()
 
 
-def create_tab1(notebook, create_text):
+def create_tab1(notebook):
     # Список физических величин для прочностных расчетов
     PHYSICAL_QUANTITIES = [
         "Время", "Деформация", "Масса", "Напряжение",

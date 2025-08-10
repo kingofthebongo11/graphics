@@ -7,7 +7,6 @@ from matplotlib.ticker import FuncFormatter
 import logging
 
 from mylibproject.myutils import to_percent
-from widgets.text_widget import create_text, clear_text
 from tabs.tab3 import create_tab3
 from tabs.tab2 import create_tab2
 from tabs.tab1 import create_tab1
@@ -102,10 +101,10 @@ def main():
     notebook.pack(expand=True, fill=tk.BOTH)
 
     # Добавляем вкладки
-    create_tab1(notebook, create_text)
+    create_tab1(notebook)
     create_tab2(notebook)
 
-    create_tab3(notebook, create_text, clear_text)
+    create_tab3(notebook)
 
     # Привязка обработчика закрытия окна
     root.protocol("WM_DELETE_WINDOW", lambda: on_closing(root))

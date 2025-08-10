@@ -154,10 +154,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 entry_offset_h.place_forget()
                 label_offset_v.place_forget()
                 entry_offset_v.place_forget()
-                label_range_x.place(x=470, y=60 + dy * (i - 1))
-                entry_range_x.place(x=500, y=60 + dy * (i - 1), width=80)
-                label_range_y.place(x=590, y=60 + dy * (i - 1))
-                entry_range_y.place(x=620, y=60 + dy * (i - 1), width=80)
+                label_range_x.place(x=500, y=60 + dy * (i - 1))
+                entry_range_x.place(x=520, y=60 + dy * (i - 1), width=80)
+                label_range_y.place(x=610, y=60 + dy * (i - 1))
+                entry_range_y.place(x=630, y=60 + dy * (i - 1), width=80)
             else:
                 checkbox_horizontal.config(state='normal')
                 checkbox_offset.config(state='normal')
@@ -166,7 +166,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 label_range_y.place_forget()
                 entry_range_y.place_forget()
                 if offset_var.get():
-                    label_offset_h.place(x=230, y=60 + dy * (i - 1))
+                    label_offset_h.place(x=240, y=60 + dy * (i - 1))
                     entry_offset_h.place(x=270, y=60 + dy * (i - 1), width=40)
                     label_offset_v.place(x=320, y=60 + dy * (i - 1))
                     entry_offset_v.place(x=360, y=60 + dy * (i - 1), width=40)

@@ -6,7 +6,6 @@ from .curves_from_file import (
     read_X_Y_from_frequency_analysis,
     read_X_Y_from_text_file,
     read_X_Y_from_ls_dyna,
-    read_X_Y_from_excel,
 )
 
 
@@ -98,8 +97,6 @@ def get_X_Y_data(curve_info):
         read_X_Y_from_text_file(curve_info)
     elif curve_info['curve_type'] == 'Файл кривой LS-Dyna':
         read_X_Y_from_ls_dyna(curve_info)
-    elif curve_info['curve_type'] == 'Excel/CSV файл':
-        read_X_Y_from_excel(curve_info)
 
 
 def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,
@@ -142,14 +139,6 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                         curve_info['curve_typeXF_type'] = widget.get()
                     elif widget_name == f"curve_{i}_typeYFtype":
                         curve_info['curve_typeYF_type'] = widget.get()
-
-                # Параметры для Excel/CSV
-                if widget_name == f"curve_{i}_excel_horizontal":
-                    curve_info['excel_horizontal'] = widget.var.get()
-                elif widget_name == f"curve_{i}_excel_x_range":
-                    curve_info['excel_x_range'] = widget.get()
-                elif widget_name == f"curve_{i}_excel_y_range":
-                    curve_info['excel_y_range'] = widget.get()
 
                 # Получаем имя файла для каждой кривой
                 if widget_name == f"curve_{i}_filename":

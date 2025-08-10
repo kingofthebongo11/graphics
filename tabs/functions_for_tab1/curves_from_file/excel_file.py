@@ -14,37 +14,11 @@ def read_X_Y_from_excel(curve_info):
         X_data = []
         Y_data = []
         horizontal = curve_info.get('horizontal', False)
-        offset_enabled = curve_info.get('offset', False)
-        range_enabled = curve_info.get('range', False)
-        offset_x = curve_info.get('offset_x', 0)
-        offset_y = curve_info.get('offset_y', 0)
-        range_x = curve_info.get('range_x')
-        range_y = curve_info.get('range_y')
 
         if suffix in {'.xlsx', '.xlsm'}:
             wb = load_workbook(path, read_only=True, data_only=True)
             ws = wb.active
-            if range_enabled and range_x and range_y:
-                def parse_range(rng):
-                    values = []
-                    try:
-                        cells = ws[rng]
-                    except Exception:
-                        logger.error("Некорректный диапазон: %s", rng)
-                        return values
-                    for row in cells:
-                        for cell in row:
-                            if cell.value is None:
-                                continue
-                            try:
-                                values.append(float(str(cell.value).replace(',', '.')))
-                            except (ValueError, TypeError):
-                                logger.error("Некорректное значение: %s", cell.value)
-                    return values
-
-                X_data = parse_range(range_x)
-                Y_data = parse_range(range_y)
-            elif horizontal:
+            if horizontal:
                 rows = list(ws.iter_rows(values_only=True))
                 if len(rows) >= 2:
                     row_x, row_y = rows[0], rows[1]
@@ -92,18 +66,6 @@ def read_X_Y_from_excel(curve_info):
         else:
             logger.error("Неподдерживаемый формат файла: %s", suffix)
             return
-
-        if offset_enabled:
-            try:
-                dx = float(str(offset_x).replace(',', '.'))
-            except (ValueError, TypeError):
-                dx = 0
-            try:
-                dy = float(str(offset_y).replace(',', '.'))
-            except (ValueError, TypeError):
-                dy = 0
-            X_data = [x + dx for x in X_data]
-            Y_data = [y + dy for y in Y_data]
 
         curve_info['X_values'] = X_data
         curve_info['Y_values'] = Y_data

@@ -142,7 +142,7 @@ def create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
             ax, fig, canvas, path_entry_title,
             combo_titleX, combo_titleX_size,
             combo_titleY, combo_titleY_size,
-            checkbox_var, curves_frame, combo_curves, combo_language
+            checkbox_var, curves_frame, combo_curves
         )
     )
     btn_generate_graph.place(x=1050, y=690)

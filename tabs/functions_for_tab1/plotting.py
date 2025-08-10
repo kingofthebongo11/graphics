@@ -6,7 +6,6 @@ from .curves_from_file import (
     read_X_Y_from_frequency_analysis,
     read_X_Y_from_text_file,
     read_X_Y_from_ls_dyna,
-    read_X_Y_from_excel,
 )
 
 
@@ -98,8 +97,6 @@ def get_X_Y_data(curve_info):
         read_X_Y_from_text_file(curve_info)
     elif curve_info['curve_type'] == 'Файл кривой LS-Dyna':
         read_X_Y_from_ls_dyna(curve_info)
-    elif curve_info['curve_type'] == 'Excel файл':
-        read_X_Y_from_excel(curve_info)
 
 
 def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,
@@ -131,14 +128,6 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                 # Проверяем тип кривой
                 if widget_name == f"curve_{i}_type":
                     curve_info['curve_type'] = widget.get()
-                if widget_name == f"curve_{i}_horizontal":
-                    curve_info['horizontal'] = widget.var.get()
-                elif widget_name == f"curve_{i}_use_range":
-                    curve_info['use_range'] = widget.var.get()
-                elif widget_name == f"curve_{i}_Xrange":
-                    curve_info['X_range'] = widget.get()
-                elif widget_name == f"curve_{i}_Yrange":
-                    curve_info['Y_range'] = widget.get()
 
                 # Если тип кривой "Частотный анализ", собираем дополнительные данные
                 if 'curve_type' in curve_info and curve_info['curve_type'] == "Частотный анализ":

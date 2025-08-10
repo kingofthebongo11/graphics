@@ -233,6 +233,15 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 combo_source_X,
                 label_source_Y,
                 combo_source_Y,
+                label_path,
+                path_entry,
+                select_button,
+                label_path_X,
+                path_entry_X,
+                select_button_X,
+                label_path_Y,
+                path_entry_Y,
+                select_button_Y,
             ),
             lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
             lambda e: toggle_excel_options(),
@@ -250,9 +259,58 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     path_entry._name = f"curve_{i}_filename"
 
     # Кнопка для выбора файла
-    select_button = ttk.Button(input_frame, text="Выбор файла",
-                               command=lambda: select_path(path_entry, path_type='file', saved_data=saved_data[i - 1]))
+    select_button = ttk.Button(
+        input_frame,
+        text="Выбор файла",
+        command=lambda: select_path(path_entry, path_type='file', saved_data=saved_data[i - 1])
+    )
     select_button.place(x=620, y=108 + dy * (i - 1))
+
+    # Отдельные поля для комбинированного типа
+    label_path_X = ttk.Label(input_frame, text="Файл для X:")
+    label_path_X.place(x=10, y=90 + dy * (i - 1))
+    path_entry_X = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    path_entry_X.place(x=10, y=110 + dy * (i - 1), width=600)
+    path_entry_X._name = f"curve_{i}_filename_X"
+    path_entry_X.bind(
+        '<KeyRelease>',
+        lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'curve_file': path_entry_X.get()})
+    )
+    select_button_X = ttk.Button(
+        input_frame,
+        text="Выбор файла",
+        command=lambda: (
+            select_path(path_entry_X, path_type='file'),
+            saved_data[i - 1].setdefault('X_source', {}).update({'curve_file': path_entry_X.get()})
+        )
+    )
+    select_button_X.place(x=620, y=108 + dy * (i - 1))
+
+    label_path_Y = ttk.Label(input_frame, text="Файл для Y:")
+    label_path_Y.place(x=10, y=140 + dy * (i - 1))
+    path_entry_Y = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    path_entry_Y.place(x=10, y=160 + dy * (i - 1), width=600)
+    path_entry_Y._name = f"curve_{i}_filename_Y"
+    path_entry_Y.bind(
+        '<KeyRelease>',
+        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'curve_file': path_entry_Y.get()})
+    )
+    select_button_Y = ttk.Button(
+        input_frame,
+        text="Выбор файла",
+        command=lambda: (
+            select_path(path_entry_Y, path_type='file'),
+            saved_data[i - 1].setdefault('Y_source', {}).update({'curve_file': path_entry_Y.get()})
+        )
+    )
+    select_button_Y.place(x=620, y=158 + dy * (i - 1))
+
+    label_path_X.place_forget()
+    path_entry_X.place_forget()
+    select_button_X.place_forget()
+    label_path_Y.place_forget()
+    path_entry_Y.place_forget()
+    select_button_Y.place_forget()
 
     # Если чекбокс легенды отмечен, добавляем поле для легенды
     if checkbox_var.get():

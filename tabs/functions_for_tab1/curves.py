@@ -1,7 +1,13 @@
 from tkinter import ttk
+import tkinter as tk
 from widgets.select_path import select_path
 
-from .events import on_combobox_event, on_combo_change_curve_type
+from .events import (
+    on_combobox_event,
+    on_combo_change_curve_type,
+    on_combo_change_curve_type_excel,
+    on_range_checkbox_toggle,
+)
 
 
 def create_curve_box(input_frame, i, checkbox_var, saved_data):
@@ -22,7 +28,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     # Создание выпадающего меню для типа кривой
     combo_curve_type = ttk.Combobox(
         input_frame,
-        values=["Частотный анализ", "Текстовой файл", "Файл кривой LS-Dyna"],
+        values=["Частотный анализ", "Текстовой файл", "Файл кривой LS-Dyna", "Excel файл"],
         state='readonly'
     )
     combo_curve_type.place(x=250, y=30 + dy * (i - 1), width=150)
@@ -48,6 +54,34 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                                           state='readonly')
     combo_curve_typeY_type._name = f"curve_{i}_typeYFtype"
 
+    # Элементы для Excel
+    var_horizontal = tk.BooleanVar()
+    checkbox_horizontal = ttk.Checkbutton(input_frame, text="По горизонтали", variable=var_horizontal)
+    checkbox_horizontal._name = f"curve_{i}_horizontal"
+    checkbox_horizontal.var = var_horizontal
+    checkbox_horizontal.place_forget()
+
+    var_range = tk.BooleanVar()
+    checkbox_range = ttk.Checkbutton(input_frame, text="Указать диапазон", variable=var_range)
+    checkbox_range._name = f"curve_{i}_use_range"
+    checkbox_range.var = var_range
+    checkbox_range.place_forget()
+
+    label_X_range = ttk.Label(input_frame, text="Диапазон X:")
+    entry_X_range = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    entry_X_range._name = f"curve_{i}_Xrange"
+    label_Y_range = ttk.Label(input_frame, text="Диапазон Y:")
+    entry_Y_range = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    entry_Y_range._name = f"curve_{i}_Yrange"
+
+    label_X_range.place_forget()
+    entry_X_range.place_forget()
+    label_Y_range.place_forget()
+    entry_Y_range.place_forget()
+
+    checkbox_range.config(command=lambda cb=checkbox_range, lx=label_X_range, ex=entry_X_range, ly=label_Y_range, ey=entry_Y_range:
+                          on_range_checkbox_toggle(cb, lx, ex, ly, ey))
+
     # Установка позиций для параметров X и Y
     input_frame.update_idletasks()
     label_curve_typeX.place(x=combo_curve_type.winfo_x() + 170,
@@ -69,20 +103,35 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                                  y=combo_curve_type.winfo_y() + 45, width=150)  # Позиция для оси Y
 
     # Привязка события изменения выбора в combo_curve_type
-    combo_curve_type.bind("<<ComboboxSelected>>",
-                          lambda event: on_combobox_event(event,
-                                                          lambda e: on_combo_change_curve_type(input_frame,
-                                                                                               combo_curve_type,
-                                                                                               label_curve_typeX,
-                                                                                               combo_curve_typeX,
-                                                                                               label_curve_typeY,
-                                                                                               combo_curve_typeY,
-                                                                                               label_curve_typeX_type,
-                                                                                               combo_curve_typeX_type,
-                                                                                               label_curve_typeY_type,
-                                                                                               combo_curve_typeY_type),
-                                                          lambda e: saved_data[i - 1].update(
-                                                              {'curve_type': combo_curve_type.get()})))
+    combo_curve_type.bind(
+        "<<ComboboxSelected>>",
+        lambda event: on_combobox_event(
+            event,
+            lambda e: on_combo_change_curve_type(
+                input_frame,
+                combo_curve_type,
+                label_curve_typeX,
+                combo_curve_typeX,
+                label_curve_typeY,
+                combo_curve_typeY,
+                label_curve_typeX_type,
+                combo_curve_typeX_type,
+                label_curve_typeY_type,
+                combo_curve_typeY_type,
+            ),
+            lambda e: on_combo_change_curve_type_excel(
+                input_frame,
+                combo_curve_type,
+                checkbox_horizontal,
+                checkbox_range,
+                label_X_range,
+                entry_X_range,
+                label_Y_range,
+                entry_Y_range,
+            ),
+            lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
+        ),
+    )
 
     # Метка для выбора файла с кривой
     label_path = ttk.Label(input_frame, text="Выберите файл с кривой:")

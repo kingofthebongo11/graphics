@@ -158,6 +158,10 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                     value = widget.get()
                     column = 1 if value != 'X' else 0
                     curve_info.setdefault('Y_source', {}).update({'column': column})
+                elif widget_name == f"curve_{i}_X_range":
+                    curve_info.setdefault('X_source', {}).update({'range_x': widget.get(), 'use_ranges': True, 'column': 0})
+                elif widget_name == f"curve_{i}_Y_range":
+                    curve_info.setdefault('Y_source', {}).update({'range_y': widget.get(), 'use_ranges': True, 'column': 1})
 
                 # Получаем имя файла для каждой кривой
                 if widget_name == f"curve_{i}_filename":

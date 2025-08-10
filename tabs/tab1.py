@@ -98,6 +98,7 @@ def create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
         values=["Русский", "Английский"],
         state='readonly'
     )
+    combo_language.current(0)
     combo_language.place(x=550, y=30, width=150)
 
     # Поля для осей X и Y, используя список физических величин

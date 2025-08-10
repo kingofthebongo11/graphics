@@ -49,6 +49,31 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                                           state='readonly')
     combo_curve_typeY_type._name = f"curve_{i}_typeYFtype"
 
+    # Элементы для комбинированного типа
+    label_source_X = ttk.Label(input_frame, text="Выберите тип для X:")
+    combo_source_X = ttk.Combobox(
+        input_frame,
+        values=["Частотный анализ", "Текстовой файл", "Файл кривой LS-Dyna", "Excel файл"],
+        state='readonly'
+    )
+    combo_source_X._name = f"curve_{i}_X_source"
+    combo_source_X.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'source': combo_source_X.get()})
+    )
+
+    label_source_Y = ttk.Label(input_frame, text="Выберите тип для данных Y:")
+    combo_source_Y = ttk.Combobox(
+        input_frame,
+        values=["Частотный анализ", "Текстовой файл", "Файл кривой LS-Dyna", "Excel файл"],
+        state='readonly'
+    )
+    combo_source_Y._name = f"curve_{i}_Y_source"
+    combo_source_Y.bind(
+        "<<ComboboxSelected>>",
+        lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'source': combo_source_Y.get()})
+    )
+
     # Установка позиций для параметров X и Y
     input_frame.update_idletasks()
     label_curve_typeX.place(x=combo_curve_type.winfo_x() + 170,
@@ -204,6 +229,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 combo_curve_typeX_type,
                 label_curve_typeY_type,
                 combo_curve_typeY_type,
+                label_source_X,
+                combo_source_X,
+                label_source_Y,
+                combo_source_Y,
             ),
             lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
             lambda e: toggle_excel_options(),
@@ -258,7 +287,8 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
         saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
                            'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False,
                            'use_offset': False, 'offset_horizontal': 0, 'offset_vertical': 0,
-                           'use_ranges': False, 'range_x': '', 'range_y': ''})
+                           'use_ranges': False, 'range_x': '', 'range_y': '',
+                           'X_source': {}, 'Y_source': {}})
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)

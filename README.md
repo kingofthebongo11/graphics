@@ -31,3 +31,5 @@ This opens the GUI where you can create and customize plots across multiple tabs
 ## Supported Curve File Formats
 - Custom frequency analysis format.
 - Plain text files where each line contains two numbers: X and Y.
+- LS-Dyna curve files.
+- Excel or CSV tables (first two columns are treated as X and Y).

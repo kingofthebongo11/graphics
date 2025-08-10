@@ -1,3 +1,4 @@
+import tkinter as tk
 from tkinter import ttk
 from widgets.select_path import select_path
 
@@ -68,21 +69,43 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     combo_curve_typeY_type.place(x=combo_curve_typeX_type.winfo_x() + 170,
                                  y=combo_curve_type.winfo_y() + 45, width=150)  # Позиция для оси Y
 
+    horizontal_var = tk.BooleanVar(value=saved_data[i - 1].get('horizontal', False))
+    checkbox_horizontal = ttk.Checkbutton(
+        input_frame,
+        text="По-горизонтали",
+        variable=horizontal_var,
+        command=lambda: saved_data[i - 1].update({'horizontal': horizontal_var.get()})
+    )
+    checkbox_horizontal._name = f"curve_{i}_horizontal"
+    checkbox_horizontal.var = horizontal_var
+
+    def toggle_horizontal_checkbox():
+        if combo_curve_type.get() == "Excel файл":
+            checkbox_horizontal.place(x=10, y=60 + dy * (i - 1))
+        else:
+            checkbox_horizontal.place_forget()
+
     # Привязка события изменения выбора в combo_curve_type
-    combo_curve_type.bind("<<ComboboxSelected>>",
-                          lambda event: on_combobox_event(event,
-                                                          lambda e: on_combo_change_curve_type(input_frame,
-                                                                                               combo_curve_type,
-                                                                                               label_curve_typeX,
-                                                                                               combo_curve_typeX,
-                                                                                               label_curve_typeY,
-                                                                                               combo_curve_typeY,
-                                                                                               label_curve_typeX_type,
-                                                                                               combo_curve_typeX_type,
-                                                                                               label_curve_typeY_type,
-                                                                                               combo_curve_typeY_type),
-                                                          lambda e: saved_data[i - 1].update(
-                                                              {'curve_type': combo_curve_type.get()})))
+    combo_curve_type.bind(
+        "<<ComboboxSelected>>",
+        lambda event: on_combobox_event(
+            event,
+            lambda e: on_combo_change_curve_type(
+                input_frame,
+                combo_curve_type,
+                label_curve_typeX,
+                combo_curve_typeX,
+                label_curve_typeY,
+                combo_curve_typeY,
+                label_curve_typeX_type,
+                combo_curve_typeX_type,
+                label_curve_typeY_type,
+                combo_curve_typeY_type,
+            ),
+            lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
+            lambda e: toggle_horizontal_checkbox(),
+        ),
+    )
 
     # Метка для выбора файла с кривой
     label_path = ttk.Label(input_frame, text="Выберите файл с кривой:")
@@ -107,6 +130,8 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
         legend_entry._name = f"curve_{i}_legend"
 
+    toggle_horizontal_checkbox()
+
     return None
 
 
@@ -128,7 +153,7 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
         saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
-                           'curve_typeX_type': "", 'curve_typeY_type': ""})
+                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False})
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)

@@ -14,15 +14,18 @@ def read_X_Y_from_excel(curve_info):
         X_data = []
         Y_data = []
         horizontal = curve_info.get('horizontal', False)
+        use_offset = curve_info.get('use_offset', False)
+        h_off = int(curve_info.get('offset_horizontal', 0)) if use_offset else 0
+        v_off = int(curve_info.get('offset_vertical', 0)) if use_offset else 0
 
         if suffix in {'.xlsx', '.xlsm'}:
             wb = load_workbook(path, read_only=True, data_only=True)
             ws = wb.active
             if horizontal:
                 rows = list(ws.iter_rows(values_only=True))
-                if len(rows) >= 2:
-                    row_x, row_y = rows[0], rows[1]
-                    for x, y in zip(row_x, row_y):
+                if len(rows) >= v_off + 2:
+                    row_x, row_y = rows[v_off], rows[v_off + 1]
+                    for x, y in zip(row_x[h_off:], row_y[h_off:]):
                         if x is None or y is None:
                             continue
                         try:
@@ -31,10 +34,10 @@ def read_X_Y_from_excel(curve_info):
                         except (ValueError, TypeError):
                             logger.error("Некорректная пара данных: %s, %s", x, y)
             else:
-                for row in ws.iter_rows(values_only=True):
-                    if row is None or len(row) < 2:
+                for idx, row in enumerate(ws.iter_rows(values_only=True)):
+                    if idx < v_off or row is None or len(row) <= h_off + 1:
                         continue
-                    x, y = row[0], row[1]
+                    x, y = row[h_off], row[h_off + 1]
                     if x is None or y is None:
                         continue
                     try:
@@ -47,20 +50,22 @@ def read_X_Y_from_excel(curve_info):
                 reader = csv.reader(f)
                 if horizontal:
                     rows = list(reader)
-                    if len(rows) >= 2:
-                        for x, y in zip(rows[0], rows[1]):
+                    if len(rows) >= v_off + 2:
+                        row_x = rows[v_off]
+                        row_y = rows[v_off + 1]
+                        for x, y in zip(row_x[h_off:], row_y[h_off:]):
                             try:
                                 X_data.append(float(x.replace(',', '.')))
                                 Y_data.append(float(y.replace(',', '.')))
                             except ValueError:
                                 logger.error("Некорректная пара данных: %s, %s", x, y)
                 else:
-                    for row in reader:
-                        if len(row) < 2:
+                    for idx, row in enumerate(reader):
+                        if idx < v_off or len(row) <= h_off + 1:
                             continue
                         try:
-                            X_data.append(float(row[0].replace(',', '.')))
-                            Y_data.append(float(row[1].replace(',', '.')))
+                            X_data.append(float(row[h_off].replace(',', '.')))
+                            Y_data.append(float(row[h_off + 1].replace(',', '.')))
                         except ValueError:
                             logger.error("Некорректная строка данных: %s", row)
         else:

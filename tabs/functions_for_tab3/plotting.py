@@ -1,6 +1,6 @@
 import os
 from tabs.functions_for_tab3.Figurenameclass import FigureNames
-from mylibproject.myutils_widgets import message_log
+from widgets.message_log import message_log
 
 
 def create_png_plots(graph_with_time, file_path_outeig, log_text):

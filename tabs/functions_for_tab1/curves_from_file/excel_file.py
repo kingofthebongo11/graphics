@@ -28,23 +28,42 @@ def read_X_Y_from_excel(curve_info):
                 return sheet, cells
             return None, rng
 
-        if use_ranges and range_x and range_y:
+        if use_ranges and (range_x or range_y):
             if suffix in {'.xlsx', '.xlsm'}:
                 wb = load_workbook(path, read_only=True, data_only=True)
-                sheet_x, cells_x = split_sheet_range(range_x)
-                sheet_y, cells_y = split_sheet_range(range_y)
-                ws_x = wb[sheet_x] if sheet_x else wb.active
-                ws_y = wb[sheet_y] if sheet_y else wb.active
-                values_x = [cell.value for row in ws_x[cells_x] for cell in row]
-                values_y = [cell.value for row in ws_y[cells_y] for cell in row]
-                for x, y in zip(values_x, values_y):
-                    if x is None or y is None:
-                        continue
-                    try:
-                        X_data.append(float(str(x).replace(',', '.')))
-                        Y_data.append(float(str(y).replace(',', '.')))
-                    except (ValueError, TypeError):
-                        logger.error("Некорректная пара данных: %s, %s", x, y)
+
+                def read_cells(rng: str):
+                    sheet, cells = split_sheet_range(rng)
+                    ws = wb[sheet] if sheet else wb.active
+                    return [cell.value for row in ws[cells] for cell in row]
+
+                if range_x and range_y:
+                    values_x = read_cells(range_x)
+                    values_y = read_cells(range_y)
+                    for x, y in zip(values_x, values_y):
+                        if x is None or y is None:
+                            continue
+                        try:
+                            X_data.append(float(str(x).replace(',', '.')))
+                            Y_data.append(float(str(y).replace(',', '.')))
+                        except (ValueError, TypeError):
+                            logger.error("Некорректная пара данных: %s, %s", x, y)
+                elif range_x:
+                    for x in read_cells(range_x):
+                        if x is None:
+                            continue
+                        try:
+                            X_data.append(float(str(x).replace(',', '.')))
+                        except (ValueError, TypeError):
+                            logger.error("Некорректное значение данных: %s", x)
+                else:
+                    for y in read_cells(range_y):
+                        if y is None:
+                            continue
+                        try:
+                            Y_data.append(float(str(y).replace(',', '.')))
+                        except (ValueError, TypeError):
+                            logger.error("Некорректное значение данных: %s", y)
             elif suffix == '.csv':
                 with open(path, 'r', encoding='utf-8') as f:
                     rows = list(csv.reader(f))
@@ -62,14 +81,27 @@ def read_X_Y_from_excel(curve_info):
                                 vals.append(row[c_idx - 1])
                     return vals
 
-                values_x = get_range_vals(range_x)
-                values_y = get_range_vals(range_y)
-                for x, y in zip(values_x, values_y):
-                    try:
-                        X_data.append(float(str(x).replace(',', '.')))
-                        Y_data.append(float(str(y).replace(',', '.')))
-                    except (ValueError, TypeError):
-                        logger.error("Некорректная пара данных: %s, %s", x, y)
+                if range_x and range_y:
+                    values_x = get_range_vals(range_x)
+                    values_y = get_range_vals(range_y)
+                    for x, y in zip(values_x, values_y):
+                        try:
+                            X_data.append(float(str(x).replace(',', '.')))
+                            Y_data.append(float(str(y).replace(',', '.')))
+                        except (ValueError, TypeError):
+                            logger.error("Некорректная пара данных: %s, %s", x, y)
+                elif range_x:
+                    for x in get_range_vals(range_x):
+                        try:
+                            X_data.append(float(str(x).replace(',', '.')))
+                        except (ValueError, TypeError):
+                            logger.error("Некорректное значение данных: %s", x)
+                else:
+                    for y in get_range_vals(range_y):
+                        try:
+                            Y_data.append(float(str(y).replace(',', '.')))
+                        except (ValueError, TypeError):
+                            logger.error("Некорректное значение данных: %s", y)
             else:
                 logger.error("Неподдерживаемый формат файла: %s", suffix)
                 return

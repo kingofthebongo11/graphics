@@ -1,29 +1,18 @@
 import tkinter as tk
 from tkinter import ttk
 
-import openpyxl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-import os
-from pathlib import Path
-
 
 import logging
 
-from mylibproject.Figurenameclass import FigureNames
-
 from mylibproject.myutils import to_percent
-
-from mylibproject.myutils_work_with_file import extract_data_frec_from_file
 
 from mylibproject.myutils_widgets import make_context_menu, message_log, add_hotkeys
 from tabs.tab3 import create_tab3
-
 from tabs.tab2 import create_tab2
-
 from tabs.tab1 import create_tab1
+from tabs.functions_for_tab3.processing import function1
 
 
 
@@ -157,206 +146,6 @@ def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False,
         # Условное добавление легенды в зависимости от состояния чекбокса
         if legend:
             ax.legend()
-
-
-def create_txt_file_with_result(file_out_txt, data_for_file, log_text):
-    with open(file_out_txt, 'w') as file:
-        for name, graph in data_for_file.items():
-            file.write(str(name) + '\n')
-            for time_value in graph:
-                file.write(str(time_value) + '\n')
-            file.write('\n')
-    message_log(log_text, "Создан текстовый файл со всеми параметрами")
-
-
-def create_xlsx_file_with_result(file_out_xlsx, data_for_file, log_text):
-    # Создаем новый Excel файл
-    wb = openpyxl.Workbook()
-    ws = wb.active
-
-    # Записываем данные в Excel
-    row = 1
-    for name, graph in data_for_file.items():
-        names = name.split()
-        for i, word in enumerate(names):
-            header_cell = ws.cell(row=row, column=i + 1)
-            header_cell.value = str(word)  # Записываем название
-        row += 1
-        for time_value in graph:
-            for i, value in enumerate(time_value):
-                if isinstance(value, str):
-                    if value[-1] == '%':
-                        value = value[:-1]
-                ws.cell(row=row, column=i + 1).value = float(value)  # Записываем данные
-            row += 1
-        row += 1  # Пропускаем строку для разделения графов
-
-    # Сохраняем файл
-    wb.save(file_out_xlsx)
-    message_log(log_text, "Создан эксель файл со всеми параметрами")
-
-
-def create_png_plots(graph_with_time, file_path_outeig, log_text):
-    for name, graph in graph_with_time.items():
-        X_values = [float(item[0]) for item in graph]
-        xlabel = 'Время $t$, с'
-        namefig = FigureNames(name)
-
-        # Список ключей для проверки в name
-        keys = ['XR', 'YR', 'ZR', 'X', 'Y', 'Z']
-        # Цикл для проверки каждого ключа в списке
-        for key in keys:
-            if key in name:
-                directory = os.path.join(file_path_outeig, key)
-                if not os.path.exists(directory):
-                    os.makedirs(directory)
-                file_plt = os.path.join(directory, f'{namefig.generate_filename()}.png')
-                break  # Выход из цикла после первого совпадения
-        if 'pr' in name:
-            Y_values = [float(value[1].strip('%')) if isinstance(value[1], str) else value[1] for value in graph]
-            curves_info = [{
-                'X_values': X_values,
-                'Y_values': Y_values
-            }]
-            create_plot(curves_info, xlabel, namefig.generate_plot_ylabel(), namefig.generate_plot_title(),
-                        True, True, file_plt)
-        else:
-            Y_values = [float(item[1]) for item in graph]
-            curves_info = [{
-                'X_values': X_values,
-                'Y_values': Y_values
-            }]
-            create_plot(curves_info, xlabel, namefig.generate_plot_ylabel(), namefig.generate_plot_title(),
-                        False, True, file_plt)
-
-    message_log(log_text, "Созданы графики всех характеристик")
-
-
-def function1(log_text, path_entry):
-    # Вывод текста в окно логов
-    file_path_str = path_entry.get()
-    if file_path_str:
-        file_path = Path(file_path_str)
-        message_log(log_text, f"Выбранный путь к проетку LS-Dyna: {file_path}")
-        file_path_outeig = file_path / "eigresults"
-        file_out_txt = file_path_outeig / "eigoutput.txt"
-        file_out_xlsx = file_path_outeig / "eigoutput.xlsx"
-        file_path_outeig.mkdir(parents=True, exist_ok=True)
-        all_frequencies = []
-        all_modal_mass = []
-        time_data = []
-        index = 1
-        while True:
-            file_name = f"eigout{index}"
-            try:
-                data_freq = extract_data_frec_from_file(file_path, file_name)
-                frequencies = data_freq['cycles_values']
-                modal_data = data_freq['modal_data']
-                time = data_freq['time']
-                time_data.append(time)
-                all_modal_mass.append(modal_data)
-                all_frequencies.append(frequencies)
-                index += 1
-            except FileNotFoundError:
-                if index == 1:
-                    message_log(log_text, "В данной папке нет расчетных файлов по частотному анализу")
-                    return
-                else:
-                    n_file = index - 1
-                    message_log(log_text, f"eigout{index} не найден. Значит последний eigout{n_file}")
-                    message_log(log_text, "Точки во времени для модального анализа:")
-                    message_log(log_text, str(time_data))
-                break
-        graphs = {
-            "Xmass": [],
-            "totalprXmass": [],
-            "Ymass": [],
-            "totalprYmass": [],
-            "Zmass": [],
-            "totalprZmass": [],
-            "XRmass": [],
-            "totalprXRmass": [],
-            "YRmass": [],
-            "totalprYRmass": [],
-            "ZRmass": [],
-            "totalprZRmass": [],
-            "Xeig": [],
-            "Yeig": [],
-            "Zeig": [],
-            "XReig": [],
-            "YReig": [],
-            "ZReig": [],
-            "XN": [],
-            "YN": [],
-            "ZN": [],
-            "XRN": [],
-            "YRN": [],
-            "ZRN": [],
-            "prXmass": [],
-            "prYmass": [],
-            "prZmass": [],
-            "prXRmass": [],
-            "prYRmass": [],
-            "prZRmass": [],
-        }
-        for mass, frequencies in zip(all_modal_mass, all_frequencies):
-            onecoord = {
-                "Xmass": 0,
-                "Ymass": 0,
-                "Zmass": 0,
-                "XRmass": 0,
-                "YRmass": 0,
-                "ZRmass": 0,
-            }
-            for i, item in enumerate(mass):
-                for key, value in item.items():
-                    if key in ["X", "Y", "Z", "XR", "YR", "ZR"]:
-                        if float(value) > onecoord[key + 'mass']:
-                            onecoord[key + 'mass'] = float(value)
-                            onecoord[key + 'eig'] = frequencies[int(item['N']) - 1]
-                            onecoord[key + 'N'] = item['N']
-                            onecoord['pr' + key + 'mass'] = item['pr' + key]
-                            if i > 0:
-                                onecoord['pr' + key + 'mass'] = str(float(onecoord['pr' + key + 'mass'].strip('%')) - float(
-                                    mass[i - 1]['pr' + key].strip('%')))+'%'
-                        onecoord['totalpr' + key + 'mass'] = item['pr' + key]
-
-            for key, value in onecoord.items():
-                if key in graphs:
-                    graphs[key].append(value)
-        data_for_file = {
-            't XN Xeig Xmass prXmass totalprXmass': [],
-            't YN Yeig Ymass prYmass totalprYmass': [],
-            't ZN Zeig Zmass prZmass totalprZmass': [],
-            't XRN XReig XRmass prXRmass totalprXRmass': [],
-            't YRN YReig YRmass prYRmass totalprYRmass': [],
-            't ZRN ZReig ZRmass prZRmass totalprZRmass': []
-        }
-        for i in range(n_file):
-            for s in ['X', 'Y', 'Z', 'XR', 'YR', 'ZR']:
-                data_for_file[f't {s}N {s}eig {s}mass pr{s}mass totalpr{s}mass'].append(
-                    [time_data[i], graphs[f'{s}N'][i], graphs[f'{s}eig'][i], graphs[f'{s}mass'][i],
-                     graphs[f'pr{s}mass'][i], graphs[f'totalpr{s}mass'][i]])
-
-        graph_with_time = {
-        }
-        for key, graph in graphs.items():
-            values_with_time = []
-            for time, value in zip(time_data, graph):
-                values_with_time.append([time, value])
-            graph_with_time[key] = values_with_time
-        # Создаем изображения графиков результатов
-        create_png_plots(graph_with_time, file_path_outeig, log_text)
-
-        # Создаем текстовый файл результатов
-        create_txt_file_with_result(file_out_txt, data_for_file, log_text)
-        # Создаем эксель файл результатов
-        create_xlsx_file_with_result(file_out_xlsx, data_for_file, log_text)
-
-    else:
-        message_log(log_text, "Вы не выбрали путь к проетку LS-Dyna, выберите путь в ячейке выше...")
-
-
 def on_closing(root):
     root.quit()  # Останавливаем цикл Tkinter
     root.destroy()  # Уничтожаем окно

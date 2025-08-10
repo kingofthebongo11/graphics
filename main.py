@@ -609,22 +609,50 @@ def on_combo_change_curve_type(frame, combo, label_curve_typeX, combo_curve_type
 
 
 class AxisTitleProcessor:
-    def __init__(self, combo_title, combo_size):
+    def __init__(self, combo_title, combo_size, language='Русский'):
         self.combo_title = combo_title
         self.combo_size = combo_size
+        self.language = language
         self.title_mapping = {
-            "Время": "Время $t$",
-            "Частота 1": "Частота ${{f}}_{{\mathit{{1}}}}$",
-            # Добавьте другие варианты здесь при необходимости
+            "Время": {
+                "Русский": "Время $t$",
+                "Английский": "Time $t$",
+            },
+            "Частота 1": {
+                "Русский": "Частота ${{f}}_{{\\mathit{1}}}$",
+                "Английский": "Frequency ${{f}}_{{\\mathit{1}}}$",
+            },
+        }
+        self.translation_map = {
+            "Русский": {},
+            "Английский": {
+                "Время": "Time",
+                "Деформация": "Strain",
+                "Масса": "Mass",
+                "Напряжение": "Stress",
+                "Перемещение по X": "Displacement X",
+                "Перемещение по Y": "Displacement Y",
+                "Перемещение по Z": "Displacement Z",
+                "Сила": "Force",
+                "Удлинение": "Elongation",
+                "Частота 1": "Frequency 1",
+                "Частота 2": "Frequency 2",
+                "Частота 3": "Frequency 3",
+                "Другое": "Other",
+            },
         }
 
     def get_processed_title(self):
         title = self.combo_title.get()
         size = self.combo_size.get()
-        processed_title = self.title_mapping.get(title, title)
         if title in self.title_mapping:
+            processed_title = self.title_mapping[title].get(self.language, title)
+        else:
+            processed_title = self.translation_map.get(self.language, {}).get(title, title)
+        if size:
             return f"{processed_title}, {size}"
         return processed_title
+
 
 
 def get_X_Y_data(curve_info):
@@ -721,13 +749,14 @@ def get_X_Y_data(curve_info):
 
 
 def generate_graph(ax,fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,
-                   legend_checkbox, curves_frame, combo_curves):
+                   legend_checkbox, curves_frame, combo_curves, combo_language):
     # Очистка предыдущего графика
     ax.clear()
     # Считываем заголовок из поля ввода
     title = path_entry_title.get()
-    xlabel_processor = AxisTitleProcessor(combo_titleX, combo_titleX_size)
-    ylabel_processor = AxisTitleProcessor(combo_titleY, combo_titleY_size)
+    language = combo_language.get() or 'Русский'
+    xlabel_processor = AxisTitleProcessor(combo_titleX, combo_titleX_size, language)
+    ylabel_processor = AxisTitleProcessor(combo_titleY, combo_titleY_size, language)
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
 

@@ -10,7 +10,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     from widgets.text_widget import create_text  # локальный импорт для избегания циклической зависимости
 
     # Определяем высоту ячейки на основе состояния чекбокса
-    dy = 190 if checkbox_var.get() else 130
+    dy = 270 if checkbox_var.get() else 190
 
     # Метка о параметрах кривой
     label_curve_box = ttk.Label(input_frame, text=f"Настройка параметров кривой {i}:")
@@ -79,11 +79,105 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     checkbox_horizontal._name = f"curve_{i}_horizontal"
     checkbox_horizontal.var = horizontal_var
 
-    def toggle_horizontal_checkbox():
+    offset_var = tk.BooleanVar(value=saved_data[i - 1].get('offset', False))
+    checkbox_offset = ttk.Checkbutton(
+        input_frame,
+        text="Смещение",
+        variable=offset_var,
+        command=lambda: on_offset_toggle())
+    checkbox_offset._name = f"curve_{i}_offset"
+    checkbox_offset.var = offset_var
+
+    range_var = tk.BooleanVar(value=saved_data[i - 1].get('range', False))
+    checkbox_range = ttk.Checkbutton(
+        input_frame,
+        text="Диапазоны",
+        variable=range_var,
+        command=lambda: on_range_toggle())
+    checkbox_range._name = f"curve_{i}_range"
+    checkbox_range.var = range_var
+
+    label_offset_x = ttk.Label(input_frame, text="dX:")
+    offset_x_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    offset_x_entry._name = f"curve_{i}_offset_x"
+    offset_x_entry.insert(0, saved_data[i - 1].get('offset_x', '0'))
+
+    label_offset_y = ttk.Label(input_frame, text="dY:")
+    offset_y_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    offset_y_entry._name = f"curve_{i}_offset_y"
+    offset_y_entry.insert(0, saved_data[i - 1].get('offset_y', '0'))
+
+    label_range_x = ttk.Label(input_frame, text="X:")
+    range_x_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    range_x_entry._name = f"curve_{i}_range_x"
+    range_x_entry.insert(0, saved_data[i - 1].get('range_x', ''))
+
+    label_range_y = ttk.Label(input_frame, text="Y:")
+    range_y_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
+    range_y_entry._name = f"curve_{i}_range_y"
+    range_y_entry.insert(0, saved_data[i - 1].get('range_y', ''))
+
+    def on_offset_toggle():
+        saved_data[i - 1].update({'offset': offset_var.get()})
+        if offset_var.get():
+            range_var.set(False)
+            saved_data[i - 1].update({'range': False})
+            checkbox_range.var.set(False)
+            label_range_x.place_forget()
+            range_x_entry.place_forget()
+            label_range_y.place_forget()
+            range_y_entry.place_forget()
+            label_offset_x.place(x=10, y=90 + dy * (i - 1))
+            offset_x_entry.place(x=120, y=90 + dy * (i - 1), width=100)
+            label_offset_y.place(x=240, y=90 + dy * (i - 1))
+            offset_y_entry.place(x=350, y=90 + dy * (i - 1), width=100)
+        else:
+            label_offset_x.place_forget()
+            offset_x_entry.place_forget()
+            label_offset_y.place_forget()
+            offset_y_entry.place_forget()
+
+    def on_range_toggle():
+        saved_data[i - 1].update({'range': range_var.get()})
+        if range_var.get():
+            offset_var.set(False)
+            saved_data[i - 1].update({'offset': False})
+            checkbox_offset.var.set(False)
+            label_offset_x.place_forget()
+            offset_x_entry.place_forget()
+            label_offset_y.place_forget()
+            offset_y_entry.place_forget()
+            label_range_x.place(x=10, y=90 + dy * (i - 1))
+            range_x_entry.place(x=120, y=90 + dy * (i - 1), width=100)
+            label_range_y.place(x=240, y=90 + dy * (i - 1))
+            range_y_entry.place(x=350, y=90 + dy * (i - 1), width=100)
+        else:
+            label_range_x.place_forget()
+            range_x_entry.place_forget()
+            label_range_y.place_forget()
+            range_y_entry.place_forget()
+
+    def toggle_excel_options():
         if combo_curve_type.get() == "Excel файл":
             checkbox_horizontal.place(x=10, y=60 + dy * (i - 1))
+            checkbox_offset.place(x=150, y=60 + dy * (i - 1))
+            checkbox_range.place(x=260, y=60 + dy * (i - 1))
+            if offset_var.get():
+                on_offset_toggle()
+            elif range_var.get():
+                on_range_toggle()
         else:
             checkbox_horizontal.place_forget()
+            checkbox_offset.place_forget()
+            checkbox_range.place_forget()
+            label_offset_x.place_forget()
+            offset_x_entry.place_forget()
+            label_offset_y.place_forget()
+            offset_y_entry.place_forget()
+            label_range_x.place_forget()
+            range_x_entry.place_forget()
+            label_range_y.place_forget()
+            range_y_entry.place_forget()
 
     # Привязка события изменения выбора в combo_curve_type
     combo_curve_type.bind(
@@ -103,34 +197,34 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 combo_curve_typeY_type,
             ),
             lambda e: saved_data[i - 1].update({'curve_type': combo_curve_type.get()}),
-            lambda e: toggle_horizontal_checkbox(),
+            lambda e: toggle_excel_options(),
         ),
     )
 
     # Метка для выбора файла с кривой
     label_path = ttk.Label(input_frame, text="Выберите файл с кривой:")
-    label_path.place(x=10, y=90 + dy * (i - 1))
+    label_path.place(x=10, y=130 + dy * (i - 1))
 
     # Создание текстового поля для ввода пути
     path_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    path_entry.place(x=10, y=110 + dy * (i - 1), width=600)
+    path_entry.place(x=10, y=150 + dy * (i - 1), width=600)
 
     path_entry._name = f"curve_{i}_filename"
 
     # Кнопка для выбора файла
     select_button = ttk.Button(input_frame, text="Выбор файла",
                                command=lambda: select_path(path_entry, path_type='file', saved_data=saved_data[i - 1]))
-    select_button.place(x=620, y=108 + dy * (i - 1))
+    select_button.place(x=620, y=148 + dy * (i - 1))
 
     # Если чекбокс легенды отмечен, добавляем поле для легенды
     if checkbox_var.get():
         label_legend = ttk.Label(input_frame, text="Подпись легенды:")
-        label_legend.place(x=10, y=150 + dy * (i - 1))
+        label_legend.place(x=10, y=210 + dy * (i - 1))
         legend_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-        legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
+        legend_entry.place(x=10, y=230 + dy * (i - 1), width=300)
         legend_entry._name = f"curve_{i}_legend"
 
-    toggle_horizontal_checkbox()
+    toggle_excel_options()
 
     return None
 
@@ -147,13 +241,15 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
         num_curves_int = int(num_curves)
 
     # Меняем высоту фрейма в зависимости от количества кривых
-    frame_height = 210 * num_curves_int if checkbox_var.get() else 150 * num_curves_int
+    frame_height = (270 if checkbox_var.get() else 190) * num_curves_int
     frame.place_configure(height=frame_height)
 
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
         saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
-                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False})
+                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False,
+                           'offset': False, 'offset_x': '0', 'offset_y': '0',
+                           'range': False, 'range_x': '', 'range_y': ''})
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)

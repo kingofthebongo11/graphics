@@ -1,5 +1,5 @@
 import os
-from mylibproject.Figurenameclass import FigureNames
+from tabs.functions_for_tab3.Figurenameclass import FigureNames
 from mylibproject.myutils_widgets import message_log
 
 

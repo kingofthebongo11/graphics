@@ -522,26 +522,20 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                                combo_curve_typeY_type)
 
 
-def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data, canvas=None, scrollbar=None):
-    """Обновляет кривые в соответствии с выбранным количеством и состоянием чекбокса.
-
-    При превышении доступной области отображения добавляется вертикальная прокрутка.
-    """
+def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
+    """Обновляет кривые в соответствии с выбранным количеством и состоянием чекбокса."""
     # Очищаем старые виджеты
     for widget in frame.winfo_children():
         widget.destroy()
 
-    if not num_curves:
-        if canvas is not None:
-            canvas.configure(scrollregion=(0, 0, 0, 0))
-        if scrollbar is not None:
-            scrollbar.place_forget()
+    if num_curves == '':
         return
+    else:
+        num_curves_int = int(num_curves)
 
-    num_curves_int = int(num_curves)
-
-    # Полная высота содержимого
-    content_height = 210 * num_curves_int if checkbox_var.get() else 150 * num_curves_int
+    # Меняем высоту фрейма в зависимости от количества кривых
+    frame_height = 210 * num_curves_int if checkbox_var.get() else 150 * num_curves_int
+    frame.place_configure(height=frame_height)
 
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
@@ -551,21 +545,7 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data, canva
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)
 
-    if canvas is not None:
-        canvas.update_idletasks()
-        frame.configure(width=canvas.winfo_width(), height=content_height)
-        canvas.configure(scrollregion=(0, 0, canvas.winfo_width(), content_height))
-        canvas_height = int(canvas['height'])
-        if scrollbar is not None:
-            if content_height > canvas_height:
-                scrollbar.place(x=canvas.winfo_x() + canvas.winfo_width(),
-                                y=canvas.winfo_y(),
-                                height=canvas_height)
-            else:
-                scrollbar.place_forget()
-
-    if next_frame is not None and canvas is not None:
-        next_frame.place(x=10, y=canvas.winfo_y() + int(canvas['height']) + 10)
+    next_frame.place(x=10, y=frame.winfo_y() + frame_height + 10)  # Обновляем координаты следующего фрейма
 
 
 def save_file(entry_widget, graph_info):

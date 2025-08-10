@@ -42,9 +42,13 @@ def _read_axis(axis_info, column=0):
             "offset_horizontal": axis_info.get("offset_horizontal", 0),
             "offset_vertical": axis_info.get("offset_vertical", 0),
             "use_ranges": axis_info.get("use_ranges", False),
-            "range_x": axis_info.get("range_x", ""),
-            "range_y": axis_info.get("range_y", ""),
         })
+        if column == 0:
+            tmp_info["range_x"] = axis_info.get("range_x", "")
+            tmp_info["range_y"] = ""
+        else:
+            tmp_info["range_x"] = ""
+            tmp_info["range_y"] = axis_info.get("range_y", "")
         read_X_Y_from_excel(tmp_info)
         return tmp_info.get("X_values", []) if column == 0 else tmp_info.get("Y_values", [])
 

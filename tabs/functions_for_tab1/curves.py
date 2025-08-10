@@ -464,9 +464,9 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     # Если чекбокс легенды отмечен, добавляем поле для легенды
     if checkbox_var.get():
         label_legend = ttk.Label(input_frame, text="Подпись легенды:")
-        label_legend.place(x=10, y=180 + dy * (i - 1))
+        label_legend.place(x=10, y=150 + dy * (i - 1))
         legend_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-        legend_entry.place(x=10, y=200 + dy * (i - 1), width=300)
+        legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
         legend_entry._name = f"curve_{i}_legend"
 
     toggle_excel_options()
@@ -488,7 +488,7 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
         num_curves_int = int(num_curves)
 
     # Меняем высоту фрейма в зависимости от количества кривых
-    frame_height = 300 * num_curves_int if checkbox_var.get() else 180 * num_curves_int
+    frame_height = 210 * num_curves_int if checkbox_var.get() else 180 * num_curves_int
     frame.place_configure(height=frame_height)
 
     # Восстанавливаем данные, если они есть

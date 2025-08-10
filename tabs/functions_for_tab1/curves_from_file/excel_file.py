@@ -67,6 +67,18 @@ def read_X_Y_from_excel(curve_info):
             logger.error("Неподдерживаемый формат файла: %s", suffix)
             return
 
+        if curve_info.get('offset'):
+            try:
+                dx = float(str(curve_info.get('offset_x', 0)).replace(',', '.'))
+            except ValueError:
+                dx = 0.0
+            try:
+                dy = float(str(curve_info.get('offset_y', 0)).replace(',', '.'))
+            except ValueError:
+                dy = 0.0
+            X_data = [x + dx for x in X_data]
+            Y_data = [y + dy for y in Y_data]
+
         curve_info['X_values'] = X_data
         curve_info['Y_values'] = Y_data
     except FileNotFoundError:

@@ -202,6 +202,7 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
             curve_info['X_source']['column'] = 0
         if 'Y_source' in curve_info and 'column' not in curve_info['Y_source']:
             curve_info['Y_source']['column'] = 1
+
         get_X_Y_data(curve_info)
         curves_info.append(curve_info)
 

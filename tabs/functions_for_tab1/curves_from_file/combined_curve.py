@@ -56,6 +56,7 @@ def read_X_Y_from_combined(curve_info):
     Ожидается, что в ``curve_info`` находятся два словаря ``X_source`` и
     ``Y_source`` с описанием источника для соответствующей оси.
     """
+
     x_vals = _read_axis(curve_info.get("X_source", {}), column=0)
     y_vals = _read_axis(curve_info.get("Y_source", {}), column=1)
     n = min(len(x_vals), len(y_vals))

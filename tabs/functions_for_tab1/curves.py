@@ -20,7 +20,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     label_curve_type.place(x=10, y=30 + dy * (i - 1))
 
     # Создание выпадающего меню для типа кривой
-    combo_curve_type = ttk.Combobox(input_frame, values=["Частотный анализ", "2", "3"], state='readonly')
+    combo_curve_type = ttk.Combobox(input_frame, values=["Частотный анализ", "Текстовой файл"], state='readonly')
     combo_curve_type.place(x=250, y=30 + dy * (i - 1), width=150)
     combo_curve_type._name = f"curve_{i}_type"
 

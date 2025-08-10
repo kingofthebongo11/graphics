@@ -27,3 +27,7 @@ Start the application with:
 python main.py
 ```
 This opens the GUI where you can create and customize plots across multiple tabs.
+
+## Supported Curve File Formats
+- Custom frequency analysis format.
+- Plain text files where each line contains two numbers: X and Y.

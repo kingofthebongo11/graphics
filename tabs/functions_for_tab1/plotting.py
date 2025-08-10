@@ -150,6 +150,14 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                     curve_info.setdefault('X_source', {}).update({'source': widget.get()})
                 elif widget_name == f"curve_{i}_Y_source":
                     curve_info.setdefault('Y_source', {}).update({'source': widget.get()})
+                elif widget_name == f"curve_{i}_X_column":
+                    value = widget.get()
+                    column = 0 if value != 'Y' else 1
+                    curve_info.setdefault('X_source', {}).update({'column': column})
+                elif widget_name == f"curve_{i}_Y_column":
+                    value = widget.get()
+                    column = 1 if value != 'X' else 0
+                    curve_info.setdefault('Y_source', {}).update({'column': column})
 
                 # Получаем имя файла для каждой кривой
                 if widget_name == f"curve_{i}_filename":
@@ -190,6 +198,10 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                     curve_info['curve_legend'] = widget.get()
 
         # Добавляем информацию о кривой в общий список
+        if 'X_source' in curve_info and 'column' not in curve_info['X_source']:
+            curve_info['X_source']['column'] = 0
+        if 'Y_source' in curve_info and 'column' not in curve_info['Y_source']:
+            curve_info['Y_source']['column'] = 1
         get_X_Y_data(curve_info)
         curves_info.append(curve_info)
 

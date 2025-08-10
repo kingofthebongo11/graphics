@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from mylibproject.myutils_widgets import select_path
+from widgets.select_path import select_path
 from .functions_for_tab3.processing import function1
 
 

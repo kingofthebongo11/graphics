@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from tabs.functions_for_tab3.tab3_work_with_file import extract_data_frec_from_file
-from mylibproject.myutils_widgets import message_log
+from widgets.message_log import message_log
 
 from .plotting import create_png_plots
 from .file_io import create_txt_file_with_result, create_xlsx_file_with_result

@@ -1,5 +1,5 @@
 import openpyxl
-from mylibproject.myutils_widgets import message_log
+from widgets.message_log import message_log
 
 
 def create_txt_file_with_result(file_out_txt, data_for_file, log_text):

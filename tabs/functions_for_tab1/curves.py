@@ -1,12 +1,12 @@
 from tkinter import ttk
-from mylibproject.myutils_widgets import select_path
+from widgets.select_path import select_path
 
 from .events import on_combobox_event, on_combo_change_curve_type
 
 
 def create_curve_box(input_frame, i, checkbox_var, saved_data):
     """Создает ячейку для настройки параметров кривой."""
-    from main import create_text  # локальный импорт для избегания циклической зависимости
+    from widgets.text_widget import create_text  # локальный импорт для избегания циклической зависимости
 
     # Определяем высоту ячейки на основе состояния чекбокса
     dy = 190 if checkbox_var.get() else 130

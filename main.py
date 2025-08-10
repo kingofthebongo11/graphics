@@ -7,8 +7,7 @@ from matplotlib.ticker import FuncFormatter
 import logging
 
 from mylibproject.myutils import to_percent
-
-from mylibproject.myutils_widgets import make_context_menu, add_hotkeys
+from widgets.text_widget import create_text, clear_text
 from tabs.tab3 import create_tab3
 from tabs.tab2 import create_tab2
 from tabs.tab1 import create_tab1
@@ -31,66 +30,6 @@ def configure_matplotlib():
 
 
 
-
-
-def create_text(parent, method='text', height=10, wrap='word', state='normal', scrollbar=False, max_lines=0):
-    """Создает текстовое поле с возможностью прокрутки и контекстного меню."""
-    # Создаем текстовое поле с заданными параметрами
-    if method == 'entry':
-        text_widget = tk.Entry(parent, state=state)
-        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # Заполнение области фрейма
-
-    elif method == 'text':
-        text_widget = tk.Text(parent, height=height, wrap=wrap, state=state)
-        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # Заполнение области фрейма
-        if max_lines > 0:
-            def limit_text_lines(text_widget, max_lines):
-                """Ограничивает количество строк в текстовом поле."""
-
-                def check_lines(event):
-                    if max_lines > 0:
-                        current_text = text_widget.get("1.0", tk.END)  # Получаем текущий текст
-                        lines = current_text.splitlines()  # Разбиваем на строки
-                        if len(lines) > max_lines:  # Если строк больше чем допустимо
-                            text_widget.delete(f"{max_lines + 1}.0", tk.END)  # Удаляем лишние строки
-
-                text_widget.bind("<KeyRelease>", check_lines)  # Проверяем после каждой клавиши
-            limit_text_lines(text_widget, max_lines)  # Применяем ограничение по количеству строк
-
-        if scrollbar:
-            def bind_scrollbar(log_text, log_scrollbar):
-                def update_scrollbar(log_text, log_scrollbar):
-                    # Обновление позиции и размера скроллбара в зависимости от содержимого текстового поля
-                    log_scrollbar.config(command=log_text.yview)
-                    log_text['yscrollcommand'] = log_scrollbar.set
-
-                # Привязываем события к текстовому полю и скроллбару
-                log_text.bind("<KeyRelease>", lambda event: update_scrollbar(log_text, log_scrollbar))
-                log_text.bind("<MouseWheel>", lambda event: update_scrollbar(log_text, log_scrollbar))
-                log_text.bind("<Configure>", lambda event: update_scrollbar(log_text, log_scrollbar))
-            # Создаем и размещаем скроллбар, если требуется
-            text_scrollbar = ttk.Scrollbar(parent, command=text_widget.yview)
-            text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)  # Размещение скроллбара справа
-            text_widget['yscrollcommand'] = text_scrollbar.set  # Привязываем скроллбар к текстовому полю
-            bind_scrollbar(text_widget, text_scrollbar)  # Привязываем события для скроллбара
-    else:
-        raise ValueError("Некорректное значение параметра method. Должно быть 'entry' или 'text'.")
-    # Применяем контекстное меню к текстовому полю
-    make_context_menu(text_widget)
-    # Добавляем горячие клавиши для текстового поля
-    add_hotkeys(text_widget)
-    return text_widget
-
-
-def clear_text(text_widget):
-    """
-    Функция для очистки текстового виджета (лога).
-
-    :param text_widget: Виджет текста для очистки.
-    """
-    text_widget.config(state='normal')  # Разрешаем редактирование
-    text_widget.delete(1.0, tk.END)  # Удаляем весь текст
-    text_widget.config(state='disabled')  # Запрещаем редактирование
 
 
 def create_plot(curves_info, X_label, Y_label, title, prY=False, savefile=False, file_plt='', fig=None, ax=None, legend=None):

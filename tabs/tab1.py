@@ -116,13 +116,25 @@ def create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
     combo_curves = ttk.Combobox(input_frame, values=curve_options, state='readonly')
     combo_curves.place(x=250, y=120, width=150)
 
-    # Фрейм для полей ввода кривых
-    curves_frame = ttk.Frame(tab1)
-    curves_frame.place(x=10, y=170, width=1500, height=200)
+    # Прокручиваемая область для полей ввода кривых
+    curves_canvas = tk.Canvas(tab1)
+    curves_canvas.place(x=10, y=170, width=1460, height=200)
+
+    curves_scrollbar = ttk.Scrollbar(tab1, orient="vertical", command=curves_canvas.yview)
+    curves_canvas.configure(yscrollcommand=curves_scrollbar.set)
+    curves_scrollbar.place_forget()
+
+    curves_frame = ttk.Frame(curves_canvas)
+    curves_frame.bind(
+        "<Configure>",
+        lambda e: curves_canvas.configure(scrollregion=curves_canvas.bbox("all"))
+    )
+    curves_canvas.create_window((0, 0), window=curves_frame, anchor="nw", width=1460)
+
     combo_curves.bind(
         "<<ComboboxSelected>>",
         lambda e: update_curves(
-            curves_frame, combo_curves.get(), save_frame, checkbox_var, saved_data_curves
+            curves_frame, combo_curves.get(), save_frame, checkbox_var, saved_data_curves, curves_canvas, curves_scrollbar
         )
     )
 
@@ -170,7 +182,7 @@ def create_tab1(notebook, create_text, update_curves, generate_graph, save_file)
         text="Легенда",
         variable=checkbox_var,
         command=lambda: update_curves(
-            curves_frame, combo_curves.get(), save_frame, checkbox_var, saved_data_curves
+            curves_frame, combo_curves.get(), save_frame, checkbox_var, saved_data_curves, curves_canvas, curves_scrollbar
         )
     )
     checkbox.place(x=450, y=120)

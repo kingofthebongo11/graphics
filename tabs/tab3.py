@@ -1,10 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 from widgets.select_path import select_path
+from widgets.text_widget import create_text, clear_text
 from .functions_for_tab3.processing import function1
 
 
-def create_tab3(notebook, create_text, clear_text):
+def create_tab3(notebook):
     """Создает вкладку для извлечения частотных параметров из LS-DYNA."""
     # Создание третьей вкладки
     tab3 = ttk.Frame(notebook)

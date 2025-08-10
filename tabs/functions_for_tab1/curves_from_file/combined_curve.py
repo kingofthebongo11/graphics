@@ -27,11 +27,13 @@ def _read_axis(axis_info, column=0):
 
     if source_type == "Текстовой файл":
         read_X_Y_from_text_file(tmp_info)
-        return tmp_info.get("X_values", []) if column == 0 else tmp_info.get("Y_values", [])
+        col = axis_info.get("column", column)
+        return tmp_info.get("X_values", []) if col == 0 else tmp_info.get("Y_values", [])
 
     if source_type == "Файл кривой LS-Dyna":
         read_X_Y_from_ls_dyna(tmp_info)
-        return tmp_info.get("X_values", []) if column == 0 else tmp_info.get("Y_values", [])
+        col = axis_info.get("column", column)
+        return tmp_info.get("X_values", []) if col == 0 else tmp_info.get("Y_values", [])
 
     if source_type == "Excel файл":
         tmp_info.update({

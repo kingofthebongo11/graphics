@@ -8,11 +8,10 @@ import logging
 
 from mylibproject.myutils import to_percent
 
-from mylibproject.myutils_widgets import make_context_menu, message_log, add_hotkeys
+from mylibproject.myutils_widgets import make_context_menu, add_hotkeys
 from tabs.tab3 import create_tab3
 from tabs.tab2 import create_tab2
 from tabs.tab1 import create_tab1
-from tabs.functions_for_tab3.processing import function1
 
 
 
@@ -167,7 +166,7 @@ def main():
     create_tab1(notebook, create_text)
     create_tab2(notebook)
 
-    create_tab3(notebook, create_text, function1, clear_text)
+    create_tab3(notebook, create_text, clear_text)
 
     # Привязка обработчика закрытия окна
     root.protocol("WM_DELETE_WINDOW", lambda: on_closing(root))

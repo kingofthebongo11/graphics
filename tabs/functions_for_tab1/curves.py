@@ -1,4 +1,4 @@
-from tkinter import ttk, BooleanVar
+from tkinter import ttk
 from widgets.select_path import select_path
 
 from .events import on_combobox_event, on_combo_change_curve_type
@@ -22,7 +22,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     # Создание выпадающего меню для типа кривой
     combo_curve_type = ttk.Combobox(
         input_frame,
-        values=["Частотный анализ", "Текстовой файл", "Файл кривой LS-Dyna", "Excel файл"],
+        values=["Частотный анализ", "Текстовой файл", "Файл кривой LS-Dyna"],
         state='readonly'
     )
     combo_curve_type.place(x=250, y=30 + dy * (i - 1), width=150)
@@ -47,25 +47,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     combo_curve_typeY_type = ttk.Combobox(input_frame, values=["X", "Y", "Z", "XR", "YR", "ZR"],
                                           state='readonly')
     combo_curve_typeY_type._name = f"curve_{i}_typeYFtype"
-
-    # Элементы для чтения из Excel
-    horizontal_var = BooleanVar()
-    checkbox_horizontal = ttk.Checkbutton(input_frame, text="По горизонтали", variable=horizontal_var)
-    checkbox_horizontal._name = f"curve_{i}_horizontal"
-    checkbox_horizontal.var = horizontal_var
-    label_rangeX = ttk.Label(input_frame, text="Диапазон X:")
-    entry_rangeX = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    entry_rangeX._name = f"curve_{i}_rangeX"
-    label_rangeY = ttk.Label(input_frame, text="Диапазон Y:")
-    entry_rangeY = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
-    entry_rangeY._name = f"curve_{i}_rangeY"
-
-    # Скрываем элементы по умолчанию
-    checkbox_horizontal.place_forget()
-    label_rangeX.place_forget()
-    entry_rangeX.place_forget()
-    label_rangeY.place_forget()
-    entry_rangeY.place_forget()
 
     # Установка позиций для параметров X и Y
     input_frame.update_idletasks()
@@ -99,12 +80,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                                                                                                label_curve_typeX_type,
                                                                                                combo_curve_typeX_type,
                                                                                                label_curve_typeY_type,
-                                                                                               combo_curve_typeY_type,
-                                                                                               checkbox_horizontal,
-                                                                                               label_rangeX,
-                                                                                               entry_rangeX,
-                                                                                               label_rangeY,
-                                                                                               entry_rangeY),
+                                                                                               combo_curve_typeY_type),
                                                           lambda e: saved_data[i - 1].update(
                                                               {'curve_type': combo_curve_type.get()})))
 
@@ -152,8 +128,7 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
         saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
-                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False,
-                           'rangeX': "", 'rangeY': ""})
+                           'curve_typeX_type': "", 'curve_typeY_type': ""})
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)

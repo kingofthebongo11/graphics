@@ -150,6 +150,14 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                     curve_info.setdefault('X_source', {}).update({'source': widget.get()})
                 elif widget_name == f"curve_{i}_Y_source":
                     curve_info.setdefault('Y_source', {}).update({'source': widget.get()})
+                elif widget_name == f"curve_{i}_X_parameter":
+                    curve_info.setdefault('X_source', {}).update({'parameter': widget.get()})
+                elif widget_name == f"curve_{i}_Y_parameter":
+                    curve_info.setdefault('Y_source', {}).update({'parameter': widget.get()})
+                elif widget_name == f"curve_{i}_X_direction":
+                    curve_info.setdefault('X_source', {}).update({'direction': widget.get()})
+                elif widget_name == f"curve_{i}_Y_direction":
+                    curve_info.setdefault('Y_source', {}).update({'direction': widget.get()})
                 elif widget_name == f"curve_{i}_X_column":
                     value = widget.get()
                     column = 0 if value != 'Y' else 1

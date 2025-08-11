@@ -35,42 +35,56 @@ def read_X_Y_from_excel(curve_info):
                 def read_cells(rng: str):
                     sheet, cells = split_sheet_range(rng)
                     ws = wb[sheet] if sheet else wb.active
-                    return [cell.value for row in ws[cells] for cell in row]
+                    try:
+                        return [cell.value for row in ws[cells] for cell in row]
+                    except ValueError:
+                        from tkinter import messagebox
+                        messagebox.showerror("Ошибка", "Неверный формат диапазона Excel")
+                        raise
 
-                if range_x and range_y:
-                    values_x = read_cells(range_x)
-                    values_y = read_cells(range_y)
-                    for x, y in zip(values_x, values_y):
-                        if x is None or y is None:
-                            continue
-                        try:
-                            X_data.append(float(str(x).replace(',', '.')))
-                            Y_data.append(float(str(y).replace(',', '.')))
-                        except (ValueError, TypeError):
-                            logger.error("Некорректная пара данных: %s, %s", x, y)
-                elif range_x:
-                    for x in read_cells(range_x):
-                        if x is None:
-                            continue
-                        try:
-                            X_data.append(float(str(x).replace(',', '.')))
-                        except (ValueError, TypeError):
-                            logger.error("Некорректное значение данных: %s", x)
-                else:
-                    for y in read_cells(range_y):
-                        if y is None:
-                            continue
-                        try:
-                            Y_data.append(float(str(y).replace(',', '.')))
-                        except (ValueError, TypeError):
-                            logger.error("Некорректное значение данных: %s", y)
+                try:
+                    if range_x and range_y:
+                        values_x = read_cells(range_x)
+                        values_y = read_cells(range_y)
+                        for x, y in zip(values_x, values_y):
+                            if x is None or y is None:
+                                continue
+                            try:
+                                X_data.append(float(str(x).replace(',', '.')))
+                                Y_data.append(float(str(y).replace(',', '.')))
+                            except (ValueError, TypeError):
+                                logger.error("Некорректная пара данных: %s, %s", x, y)
+                    elif range_x:
+                        for x in read_cells(range_x):
+                            if x is None:
+                                continue
+                            try:
+                                X_data.append(float(str(x).replace(',', '.')))
+                            except (ValueError, TypeError):
+                                logger.error("Некорректное значение данных: %s", x)
+                    else:
+                        for y in read_cells(range_y):
+                            if y is None:
+                                continue
+                            try:
+                                Y_data.append(float(str(y).replace(',', '.')))
+                            except (ValueError, TypeError):
+                                logger.error("Некорректное значение данных: %s", y)
+                except ValueError:
+                    return
+
             elif suffix == '.csv':
                 with open(path, 'r', encoding='utf-8') as f:
                     rows = list(csv.reader(f))
 
                 def get_range_vals(rng):
                     _, cells = split_sheet_range(rng)
-                    min_col, min_row, max_col, max_row = range_boundaries(cells)
+                    try:
+                        min_col, min_row, max_col, max_row = range_boundaries(cells)
+                    except ValueError:
+                        from tkinter import messagebox
+                        messagebox.showerror("Ошибка", "Неверный формат диапазона Excel")
+                        raise
                     vals = []
                     for r_idx in range(min_row, max_row + 1):
                         if r_idx - 1 >= len(rows):
@@ -81,27 +95,30 @@ def read_X_Y_from_excel(curve_info):
                                 vals.append(row[c_idx - 1])
                     return vals
 
-                if range_x and range_y:
-                    values_x = get_range_vals(range_x)
-                    values_y = get_range_vals(range_y)
-                    for x, y in zip(values_x, values_y):
-                        try:
-                            X_data.append(float(str(x).replace(',', '.')))
-                            Y_data.append(float(str(y).replace(',', '.')))
-                        except (ValueError, TypeError):
-                            logger.error("Некорректная пара данных: %s, %s", x, y)
-                elif range_x:
-                    for x in get_range_vals(range_x):
-                        try:
-                            X_data.append(float(str(x).replace(',', '.')))
-                        except (ValueError, TypeError):
-                            logger.error("Некорректное значение данных: %s", x)
-                else:
-                    for y in get_range_vals(range_y):
-                        try:
-                            Y_data.append(float(str(y).replace(',', '.')))
-                        except (ValueError, TypeError):
-                            logger.error("Некорректное значение данных: %s", y)
+                try:
+                    if range_x and range_y:
+                        values_x = get_range_vals(range_x)
+                        values_y = get_range_vals(range_y)
+                        for x, y in zip(values_x, values_y):
+                            try:
+                                X_data.append(float(str(x).replace(',', '.')))
+                                Y_data.append(float(str(y).replace(',', '.')))
+                            except (ValueError, TypeError):
+                                logger.error("Некорректная пара данных: %s, %s", x, y)
+                    elif range_x:
+                        for x in get_range_vals(range_x):
+                            try:
+                                X_data.append(float(str(x).replace(',', '.')))
+                            except (ValueError, TypeError):
+                                logger.error("Некорректное значение данных: %s", x)
+                    else:
+                        for y in get_range_vals(range_y):
+                            try:
+                                Y_data.append(float(str(y).replace(',', '.')))
+                            except (ValueError, TypeError):
+                                logger.error("Некорректное значение данных: %s", y)
+                except ValueError:
+                    return
             else:
                 logger.error("Неподдерживаемый формат файла: %s", suffix)
                 return

@@ -23,6 +23,38 @@ class AxisTitleProcessor:
                 "Русский": "Время $t$",
                 "Английский": "Time $t$",
             },
+            "Перемещение по X": {
+                "Русский": "Перемещение $x$",
+                "Английский": "Displacement $x$",
+            },
+            "Перемещение по Y": {
+                "Русский": "Перемещение $y$",
+                "Английский": "Displacement $y$",
+            },
+            "Перемещение по Z": {
+                "Русский": "Перемещение $z$",
+                "Английский": "Displacement $z$",
+            },
+            "Удлинение": {
+                "Русский": r"Удлинение $\Delta l$",
+                "Английский": r"Elongation $\Delta l$",
+            },
+            "Деформация": {
+                "Русский": r"Деформация $\varepsilon$",
+                "Английский": r"Strain $\varepsilon$",
+            },
+            "Сила": {
+                "Русский": "Сила $F$",
+                "Английский": "Force $F$",
+            },
+            "Масса": {
+                "Русский": "Масса $m$",
+                "Английский": "Mass $m$",
+            },
+            "Напряжение": {
+                "Русский": r"Напряжение $\sigma$",
+                "Английский": r"Stress $\sigma$",
+            },
             "Частота 1": {
                 "Русский": "Частота ${{f}}_{{\\mathit{1}}}$",
                 "Английский": "Frequency ${{f}}_{{\\mathit{1}}}$",
@@ -38,27 +70,10 @@ class AxisTitleProcessor:
         }
 
     def _get_units(self):
-        units = {
-            "Время": {
-                "Русский": "с",
-                "Английский": "s",
-            },
-            "Частота 1": {
-                "Русский": "Гц",
-                "Английский": "Hz",
-            },
-            "Частота 2": {
-                "Русский": "Гц",
-                "Английский": "Hz",
-            },
-            "Частота 3": {
-                "Русский": "Гц",
-                "Английский": "Hz",
-            },
-        }
-        selection = self.combo_title.get()
-        unit = units.get(selection, {}).get(self.language, "")
-        return f", {unit}" if unit else ""
+        unit = self.combo_size.get()
+        if unit in ("", "—"):
+            return ""
+        return f", {unit}"
 
     def _get_title(self):
         selection = self.combo_title.get()

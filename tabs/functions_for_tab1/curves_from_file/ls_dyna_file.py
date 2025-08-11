@@ -5,9 +5,10 @@ logger = logging.getLogger(__name__)
 
 def read_X_Y_from_ls_dyna(curve_info):
     try:
+        path = curve_info['curve_file']
         X_data = []
         Y_data = []
-        with open(curve_info['curve_file'], 'r', encoding='utf-8') as file:
+        with open(path, 'r', encoding='utf-8') as file:
             for line in file:
                 line = line.strip()
                 if not line:
@@ -26,5 +27,9 @@ def read_X_Y_from_ls_dyna(curve_info):
         curve_info['Y_values'] = Y_data
     except FileNotFoundError:
         logger.error("Файл '%s' не найден.", curve_info['curve_file'])
-    except IOError:
+        from tkinter import messagebox
+        messagebox.showerror("Ошибка", f"Не удалось открыть файл {path}")
+    except Exception:
         logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
+        from tkinter import messagebox
+        messagebox.showerror("Ошибка", f"Не удалось открыть файл {path}")

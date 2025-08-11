@@ -6,7 +6,8 @@ logger = logging.getLogger(__name__)
 
 def read_X_Y_from_frequency_analysis(curve_info):
     try:
-        with open(curve_info['curve_file'], 'r') as file:
+        path = curve_info['curve_file']
+        with open(path, 'r') as file:
             lines = file.readlines()
 
         header_XF = (
@@ -89,5 +90,9 @@ def read_X_Y_from_frequency_analysis(curve_info):
 
     except FileNotFoundError:
         logger.error("Файл '%s' не найден.", curve_info['curve_file'])
-    except IOError:
+        from tkinter import messagebox
+        messagebox.showerror("Ошибка", f"Не удалось открыть файл {path}")
+    except Exception:
         logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
+        from tkinter import messagebox
+        messagebox.showerror("Ошибка", f"Не удалось открыть файл {path}")

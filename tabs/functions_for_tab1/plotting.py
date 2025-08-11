@@ -92,6 +92,11 @@ class AxisTitleProcessor:
 
 def save_file(entry_widget, format_widget, graph_info):
 
+    fig = graph_info.get('fig')
+    if fig is None:
+        messagebox.showwarning("Предупреждение", "Сначала постройте график")
+        return
+
     file_name = entry_widget.get()
     file_format = format_widget.get()
     if file_name and file_format:
@@ -102,9 +107,6 @@ def save_file(entry_widget, format_widget, graph_info):
         )
         if file_path:
             try:
-                fig = graph_info.get('fig')
-                if fig is None:
-                    raise ValueError("Нет фигуры для сохранения")
                 fig.savefig(file_path, format=file_format)
                 messagebox.showinfo("Успех", f"График сохранен: {file_path}")
             except Exception as e:

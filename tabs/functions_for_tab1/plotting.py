@@ -1,4 +1,3 @@
-import numpy as np
 from tkinter import filedialog, messagebox
 
 from tabs.function_for_all_tabs import create_plot
@@ -10,16 +9,52 @@ from .curves_from_file import (
     read_X_Y_from_combined,
 )
 
+# Хранит информацию о последнем построенном графике для последующего сохранения
+last_graph = {}
+
 
 class AxisTitleProcessor:
-    def __init__(self, combo_title, combo_size, language='Русский'):
+    def __init__(self, combo_title, combo_size, entry_title=None, language='Русский'):
         self.combo_title = combo_title
         self.combo_size = combo_size
+        self.entry_title = entry_title
         self.language = language
         self.title_mapping = {
             "Время": {
                 "Русский": "Время $t$",
                 "Английский": "Time $t$",
+            },
+            "Перемещение по X": {
+                "Русский": "Перемещение $x$",
+                "Английский": "Displacement $x$",
+            },
+            "Перемещение по Y": {
+                "Русский": "Перемещение $y$",
+                "Английский": "Displacement $y$",
+            },
+            "Перемещение по Z": {
+                "Русский": "Перемещение $z$",
+                "Английский": "Displacement $z$",
+            },
+            "Удлинение": {
+                "Русский": r"Удлинение $\Delta l$",
+                "Английский": r"Elongation $\Delta l$",
+            },
+            "Деформация": {
+                "Русский": r"Деформация $\varepsilon$",
+                "Английский": r"Strain $\varepsilon$",
+            },
+            "Сила": {
+                "Русский": "Сила $F$",
+                "Английский": "Force $F$",
+            },
+            "Масса": {
+                "Русский": "Масса $m$",
+                "Английский": "Mass $m$",
+            },
+            "Напряжение": {
+                "Русский": r"Напряжение $\sigma$",
+                "Английский": r"Stress $\sigma$",
             },
             "Частота 1": {
                 "Русский": "Частота ${{f}}_{{\\mathit{1}}}$",
@@ -36,60 +71,48 @@ class AxisTitleProcessor:
         }
 
     def _get_units(self):
-        units = {
-            "Время": {
-                "Русский": "с",
-                "Английский": "s",
-            },
-            "Частота 1": {
-                "Русский": "Гц",
-                "Английский": "Hz",
-            },
-            "Частота 2": {
-                "Русский": "Гц",
-                "Английский": "Hz",
-            },
-            "Частота 3": {
-                "Русский": "Гц",
-                "Английский": "Hz",
-            },
-        }
-        selection = self.combo_title.get()
-        unit = units.get(selection, {}).get(self.language, "")
-        return f", {unit}" if unit else ""
+        unit = self.combo_size.get()
+        if unit in ("", "—"):
+            return ""
+        return f", {unit}"
 
     def _get_title(self):
         selection = self.combo_title.get()
         return self.title_mapping.get(selection, {}).get(self.language, selection)
 
     def get_processed_title(self):
-        if self.combo_title.get() == "Другое" and self.combo_size.get():
-            return f"{self.combo_size.get()}"
+        selection = self.combo_title.get()
+        if selection == "Другое":
+            return self.entry_title.get() if self.entry_title else ""
+        if selection == "Нет":
+            return ""
         title = self._get_title()
         return f"{title}{self._get_units()}"
 
 
-def save_file(entry_widget, graph_info):
+def save_file(entry_widget, format_widget, graph_info):
 
     file_name = entry_widget.get()
-    if file_name:
-        file_path = filedialog.asksaveasfilename(defaultextension=".png",
-                                                 filetypes=[("PNG files", "*.png"), ("All files", "*.*")],
-                                                 initialfile=file_name)
+    file_format = format_widget.get()
+    if file_name and file_format:
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=f".{file_format}",
+            filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")],
+            initialfile=f"{file_name}.{file_format}",
+        )
         if file_path:
             try:
-                curves_info = [{
-                    'X_values': graph_info['X_values'],
-                    'Y_values': graph_info['Y_values']
-                }]
-                create_plot(curves_info, graph_info['X_label'], graph_info['Y_label'], graph_info['title'],
-                            savefile=True,
-                            file_plt=file_path)  # Генерация и сохранение графика
+                fig = graph_info.get('fig')
+                if fig is None:
+                    raise ValueError("Нет фигуры для сохранения")
+                fig.savefig(file_path, format=file_format)
                 messagebox.showinfo("Успех", f"График сохранен: {file_path}")
             except Exception as e:
                 messagebox.showerror("Ошибка", f"Не удалось сохранить файл: {str(e)}")
-    else:
+    elif not file_name:
         messagebox.showerror("Ошибка", "Имя файла не может быть пустым!")
+    else:
+        messagebox.showerror("Ошибка", "Не выбран формат файла!")
 
 
 def get_X_Y_data(curve_info):
@@ -105,24 +128,22 @@ def get_X_Y_data(curve_info):
         read_X_Y_from_combined(curve_info)
 
 
-def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,
-                   legend_checkbox, curves_frame, combo_curves, combo_language):
+def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, entry_titleX,
+                   combo_titleY, combo_titleY_size, entry_titleY, legend_checkbox, curves_frame, combo_curves, combo_language):
 
     # Очистка предыдущего графика
     ax.clear()
     # Считываем заголовок из поля ввода
     title = path_entry_title.get()
     language = combo_language.get() or 'Русский'
-    xlabel_processor = AxisTitleProcessor(combo_titleX, combo_titleX_size, language)
-    ylabel_processor = AxisTitleProcessor(combo_titleY, combo_titleY_size, language)
+    xlabel_processor = AxisTitleProcessor(combo_titleX, combo_titleX_size, entry_titleX, language)
+    ylabel_processor = AxisTitleProcessor(combo_titleY, combo_titleY_size, entry_titleY, language)
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
 
     # Считываем количество кривых из combobox
     num_curves = int(combo_curves.get())
 
-    # Генерация данных для графика (пример - синусоида)
-    x = np.linspace(0, 10, 100)
     curves_info = []
     # Построение каждой кривой в цикле
     for i in range(1, num_curves + 1):
@@ -210,6 +231,18 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
                     curve_info['curve_legend'] = widget.get()
+        # Проверяем, указан ли файл данных для кривой
+        if curve_info.get('curve_type') == 'Комбинированный':
+            x_file = curve_info.get('X_source', {}).get('curve_file')
+            y_file = curve_info.get('Y_source', {}).get('curve_file')
+            if not x_file or not y_file:
+                messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
+                return
+        else:
+            if not curve_info.get('curve_file'):
+                messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
+                return
+
         # Добавляем информацию о кривой в общий список
         if 'X_source' in curve_info and 'column' not in curve_info['X_source']:
             curve_info['X_source']['column'] = 0
@@ -220,6 +253,17 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
 
     create_plot(curves_info, xlabel, ylabel, title,
                 fig=fig, ax=ax, legend=legend_checkbox.get())
+
+    # Сохраняем данные графика для последующего сохранения в файл
+    global last_graph
+    last_graph.clear()
+    last_graph.update({
+        'curves_info': curves_info,
+        'X_label': xlabel,
+        'Y_label': ylabel,
+        'title': title,
+        'fig': fig,
+    })
 
     # Перерисовка графика
     canvas.draw()

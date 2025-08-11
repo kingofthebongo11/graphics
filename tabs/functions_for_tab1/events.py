@@ -18,6 +18,20 @@ def on_combo_change_curve_type(frame, combo, label_curve_typeX, combo_curve_type
                                label_path, path_entry, select_button,
                                label_path_X, path_entry_X, select_button_X,
                                label_path_Y, path_entry_Y, select_button_Y):
+    def _init_geom(widget):
+        if not hasattr(widget, "_orig_geom"):
+            frame.update_idletasks()
+            widget._orig_geom = {
+                "x": widget.winfo_x(),
+                "y": widget.winfo_y(),
+                "w": widget.winfo_width(),
+            }
+        return widget._orig_geom
+
+    label_path_geom = _init_geom(label_path)
+    path_entry_geom = _init_geom(path_entry)
+    select_button_geom = _init_geom(select_button)
+
     if combo.get() == "Частотный анализ":
         if not label_curve_typeX.winfo_viewable():  # Проверяем, отображается ли виджет
             frame.update_idletasks()
@@ -44,9 +58,9 @@ def on_combo_change_curve_type(frame, combo, label_curve_typeX, combo_curve_type
         label_source_Y.place_forget()
         combo_source_Y.place_forget()
 
-        label_path.place(x=label_path.winfo_x(), y=label_path.winfo_y())
-        path_entry.place(x=path_entry.winfo_x(), y=path_entry.winfo_y(), width=path_entry.winfo_width())
-        select_button.place(x=select_button.winfo_x(), y=select_button.winfo_y())
+        label_path.place(x=label_path_geom["x"], y=label_path_geom["y"])
+        path_entry.place(x=path_entry_geom["x"], y=path_entry_geom["y"], width=path_entry_geom["w"])
+        select_button.place(x=select_button_geom["x"], y=select_button_geom["y"])
         label_path_X.place_forget()
         path_entry_X.place_forget()
         select_button_X.place_forget()
@@ -81,11 +95,11 @@ def on_combo_change_curve_type(frame, combo, label_curve_typeX, combo_curve_type
 
         frame.update_idletasks()
 
-        base_x = path_entry.winfo_x()
-        width = (label_source_X.winfo_x() - base_x - select_button.winfo_width() - 20)
-        base_y_label = label_path.winfo_y() - 30
-        base_y_entry = path_entry.winfo_y() - 30
-        base_y_button = select_button.winfo_y() - 30
+        base_x = path_entry_geom["x"]
+        width = (label_source_X.winfo_x() - base_x - select_button_geom["w"] - 20)
+        base_y_label = label_path_geom["y"] - 30
+        base_y_entry = path_entry_geom["y"] - 30
+        base_y_button = select_button_geom["y"] - 30
         button_x = base_x + width + 10
 
         label_path_X.place(x=base_x, y=base_y_label)
@@ -108,9 +122,9 @@ def on_combo_change_curve_type(frame, combo, label_curve_typeX, combo_curve_type
         label_source_Y.place_forget()
         combo_source_Y.place_forget()
 
-        label_path.place(x=label_path.winfo_x(), y=label_path.winfo_y())
-        path_entry.place(x=path_entry.winfo_x(), y=path_entry.winfo_y(), width=path_entry.winfo_width())
-        select_button.place(x=select_button.winfo_x(), y=select_button.winfo_y())
+        label_path.place(x=label_path_geom["x"], y=label_path_geom["y"])
+        path_entry.place(x=path_entry_geom["x"], y=path_entry_geom["y"], width=path_entry_geom["w"])
+        select_button.place(x=select_button_geom["x"], y=select_button_geom["y"])
         label_path_X.place_forget()
         path_entry_X.place_forget()
         select_button_X.place_forget()

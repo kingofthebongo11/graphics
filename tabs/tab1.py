@@ -1,7 +1,8 @@
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk
 
-from .functions_for_tab1 import update_curves, generate_graph, save_file
+from .functions_for_tab1 import update_curves, generate_graph, save_file, last_graph
+from widgets import PlotEditor
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -20,7 +21,7 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
         "Перемещение по Y": ["мм", "см", "м"],
         "Перемещение по Z": ["мм", "см", "м"],
         "Удлинение": ["мм", "см", "м"],
-        "Деформация": ["%"],
+        "Деформация": ["—", "%"],
         "Сила": ["мН", "Н", "кН"],
         "Масса": ["г", "кг", "т"],
         "Напряжение": ["Па", "кПа", "МПа"],
@@ -29,6 +30,20 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
         "Частота 3": ["Гц", "кГц"],
         "Другое": []
     }
+    DEFAULT_UNITS = {
+        "Время": "с",
+        "Перемещение по X": "м",
+        "Перемещение по Y": "м",
+        "Перемещение по Z": "м",
+        "Удлинение": "м",
+        "Деформация": "—",
+        "Сила": "Н",
+        "Масса": "кг",
+        "Напряжение": "Па",
+        "Частота 1": "Гц",
+        "Частота 2": "Гц",
+        "Частота 3": "Гц",
+    }
     selection = combo.get()
     if selection == "Другое":
         if not entry.winfo_ismapped():
@@ -36,13 +51,25 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
             entry.config(state='normal')
         label_size.place_forget()
         size_combo.place_forget()
+        size_combo['values'] = []
+        size_combo.set("")
+    elif selection == "Нет":
+        entry.place_forget()
+        label_size.place_forget()
+        size_combo.place_forget()
+        size_combo['values'] = []
+        size_combo.set("")
     else:
         entry.place_forget()
         label_size.place(x=combo.winfo_x() + 200, y=combo.winfo_y())
         values = UNITS_MAPPING.get(selection, [])
         size_combo['values'] = values
+        size_combo.set("")
         if values:
             size_combo.place(x=combo.winfo_x() + 350, y=combo.winfo_y(), width=150)
+            default_unit = DEFAULT_UNITS.get(selection)
+            if default_unit in values:
+                size_combo.current(values.index(default_unit))
         else:
             size_combo.place_forget()
 
@@ -50,7 +77,7 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
 def create_tab1(notebook):
     # Список физических величин для прочностных расчетов
     PHYSICAL_QUANTITIES = [
-        "Время", "Деформация", "Масса", "Напряжение",
+        "Нет", "Время", "Деформация", "Масса", "Напряжение",
         "Перемещение по X", "Перемещение по Y", "Перемещение по Z",
         "Сила", "Удлинение", "Частота 1", "Частота 2", "Частота 3",
         "Другое",
@@ -70,6 +97,7 @@ def create_tab1(notebook):
         label.place(x=10, y=y_pos)
         combo = ttk.Combobox(parent, values=options, state='readonly')
         combo.place(x=200, y=y_pos, width=150)
+        combo.current(0)
         entry = create_text(parent, method="entry", height=1, state='disabled', scrollbar=False)
         entry.place(x=400, y=y_pos, width=300)
         entry.place_forget()
@@ -111,6 +139,13 @@ def create_tab1(notebook):
     combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size = add_axis_control(
         input_frame, "Выберите величину для оси Y:", PHYSICAL_QUANTITIES, 90
     )
+    # Фрейм для сохранения файла
+    save_frame = ttk.Frame(tab1)
+    save_frame.place(x=10, y=300, width=600, height=100)
+
+    # Переменная для чекбокса легенды
+    checkbox_var = tk.BooleanVar(value=False)
+
 
     # Управление количеством кривых
     label_curves = ttk.Label(input_frame, text="Выберите количество кривых на графике:")
@@ -119,10 +154,12 @@ def create_tab1(notebook):
     curve_options = [str(i) for i in range(1, 6)]
     combo_curves = ttk.Combobox(input_frame, values=curve_options, state='readonly')
     combo_curves.place(x=250, y=120, width=150)
+    combo_curves.current(0)  # select '1'
 
     # Фрейм для полей ввода кривых
     curves_frame = ttk.Frame(tab1)
     curves_frame.place(x=10, y=170, width=1500, height=200)
+    update_curves(curves_frame, '1', save_frame, checkbox_var, saved_data_curves)
     combo_curves.bind(
         "<<ComboboxSelected>>",
         lambda e: update_curves(
@@ -132,43 +169,57 @@ def create_tab1(notebook):
 
     # Фрейм для предпросмотра графика
     preview_frame = ttk.Frame(tab1)
-    preview_frame.place(x=800, y=200, width=640, height=480)
+    preview_frame.place(x=800, y=30, width=640, height=480)
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master=preview_frame)
     canvas.draw()
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
+    editor_visible = {"shown": False}
+    plot_editor = PlotEditor(tab1, ax, canvas)
+    plot_editor.place(x=800, y=560, width=640, height=180)
+    plot_editor.place_forget()
+
+    def build_graph():
+        generate_graph(
+            ax, fig, canvas, path_entry_title,
+            combo_titleX, combo_titleX_size, path_entry_titleX,
+            combo_titleY, combo_titleY_size, path_entry_titleY,
+            checkbox_var, curves_frame, combo_curves, combo_language
+        )
+        plot_editor.refresh()
+        if not editor_visible["shown"]:
+            plot_editor.place(x=800, y=560, width=640, height=180)
+            editor_visible["shown"] = True
+
     # Кнопка построения графика
     btn_generate_graph = ttk.Button(
         tab1,
         text="Построить график",
-        command=lambda: generate_graph(
-            ax, fig, canvas, path_entry_title,
-            combo_titleX, combo_titleX_size,
-            combo_titleY, combo_titleY_size,
-            checkbox_var, curves_frame, combo_curves, combo_language
-        )
+        command=build_graph
     )
-    btn_generate_graph.place(x=1050, y=690)
+    btn_generate_graph.place(x=1050, y=520)
 
-    # Фрейм и элементы для сохранения файла
-    save_frame = ttk.Frame(tab1)
-    save_frame.place(x=10, y=300, width=600, height=100)
+    # Элементы для сохранения файла
     label_save = ttk.Label(save_frame, text="Введите имя файла:")
     label_save.place(x=10, y=0)
     entry_save = create_text(
         save_frame, method="entry", height=1, state='normal', scrollbar=False
     )
     entry_save.place(x=10, y=30, width=300)
+    label_format = ttk.Label(save_frame, text="Формат:")
+    label_format.place(x=330, y=0)
+    combo_format = ttk.Combobox(save_frame, values=["png", "jpg", "svg", "pdf"], state='readonly')
+    combo_format.place(x=330, y=30, width=80)
+    combo_format.current(0)
     save_button = ttk.Button(
         save_frame,
         text="Сохранить",
-        command=lambda: save_file(entry_save, {})
+        command=lambda: save_file(entry_save, combo_format, last_graph)
     )
-    save_button.place(x=330, y=30)
+    save_button.place(x=420, y=30)
 
     # Чекбокс легенды
-    checkbox_var = tk.BooleanVar(value=False)
     checkbox = ttk.Checkbutton(
         input_frame,
         text="Легенда",

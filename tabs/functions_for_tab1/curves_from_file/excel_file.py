@@ -168,5 +168,9 @@ def read_X_Y_from_excel(curve_info):
         curve_info['Y_values'] = Y_data
     except FileNotFoundError:
         logger.error("Файл '%s' не найден.", curve_info['curve_file'])
+        from tkinter import messagebox
+        messagebox.showerror("Ошибка", f"Не удалось открыть файл {path}")
     except Exception:
         logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
+        from tkinter import messagebox
+        messagebox.showerror("Ошибка", f"Не удалось открыть файл {path}")

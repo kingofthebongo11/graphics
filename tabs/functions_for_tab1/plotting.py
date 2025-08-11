@@ -1,4 +1,5 @@
 from tkinter import filedialog, messagebox
+from pathlib import Path
 
 from tabs.function_for_all_tabs import create_plot
 from .curves_from_file import (
@@ -252,16 +253,24 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
             messagebox.showerror("Ошибка", f"Не указан источник Y для кривой {i}")
             return
 
-        # Проверяем, указан ли файл данных для кривой
+        # Проверяем, указан ли файл данных для кривой и существует ли он
         if curve_info.get('curve_type') == 'Комбинированный':
             x_file = curve_info.get('X_source', {}).get('curve_file')
             y_file = curve_info.get('Y_source', {}).get('curve_file')
             if not x_file or not y_file:
                 messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
                 return
+            for file in [x_file, y_file]:
+                if not Path(file).exists():
+                    messagebox.showerror("Ошибка", f"Файл {file} не найден")
+                    return
         else:
-            if not curve_info.get('curve_file'):
+            file = curve_info.get('curve_file')
+            if not file:
                 messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
+                return
+            if not Path(file).exists():
+                messagebox.showerror("Ошибка", f"Файл {file} не найден")
                 return
 
         # Добавляем информацию о кривой в общий список

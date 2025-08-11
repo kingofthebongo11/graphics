@@ -14,9 +14,10 @@ last_graph = {}
 
 
 class AxisTitleProcessor:
-    def __init__(self, combo_title, combo_size, language='Русский'):
+    def __init__(self, combo_title, combo_size, entry_title=None, language='Русский'):
         self.combo_title = combo_title
         self.combo_size = combo_size
+        self.entry_title = entry_title
         self.language = language
         self.title_mapping = {
             "Время": {
@@ -80,8 +81,8 @@ class AxisTitleProcessor:
         return self.title_mapping.get(selection, {}).get(self.language, selection)
 
     def get_processed_title(self):
-        if self.combo_title.get() == "Другое" and self.combo_size.get():
-            return f"{self.combo_size.get()}"
+        if self.combo_title.get() == "Другое":
+            return self.entry_title.get() if self.entry_title else ""
         title = self._get_title()
         return f"{title}{self._get_units()}"
 
@@ -126,16 +127,16 @@ def get_X_Y_data(curve_info):
         read_X_Y_from_combined(curve_info)
 
 
-def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, combo_titleY, combo_titleY_size,
-                   legend_checkbox, curves_frame, combo_curves, combo_language):
+def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, entry_titleX,
+                   combo_titleY, combo_titleY_size, entry_titleY, legend_checkbox, curves_frame, combo_curves, combo_language):
 
     # Очистка предыдущего графика
     ax.clear()
     # Считываем заголовок из поля ввода
     title = path_entry_title.get()
     language = combo_language.get() or 'Русский'
-    xlabel_processor = AxisTitleProcessor(combo_titleX, combo_titleX_size, language)
-    ylabel_processor = AxisTitleProcessor(combo_titleY, combo_titleY_size, language)
+    xlabel_processor = AxisTitleProcessor(combo_titleX, combo_titleX_size, entry_titleX, language)
+    ylabel_processor = AxisTitleProcessor(combo_titleY, combo_titleY_size, entry_titleY, language)
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
 

@@ -510,33 +510,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         legend_entry.insert(0, saved_data[i - 1].get('legend', ''))
         legend_entry.bind('<KeyRelease>', lambda e: saved_data[i - 1].update({'legend': legend_entry.get()}))
 
-    # Устанавливаем корректную видимость элементов в зависимости от типа кривой
-    on_combo_change_curve_type(
-        input_frame,
-        combo_curve_type,
-        label_curve_typeX,
-        combo_curve_typeX,
-        label_curve_typeY,
-        combo_curve_typeY,
-        label_curve_typeX_type,
-        combo_curve_typeX_type,
-        label_curve_typeY_type,
-        combo_curve_typeY_type,
-        label_source_X,
-        combo_source_X,
-        label_source_Y,
-        combo_source_Y,
-        label_path,
-        path_entry,
-        select_button,
-        label_path_X,
-        path_entry_X,
-        select_button_X,
-        label_path_Y,
-        path_entry_Y,
-        select_button_Y,
-    )
-
     toggle_excel_options()
     toggle_X_source_options()
     toggle_Y_source_options()

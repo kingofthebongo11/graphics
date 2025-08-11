@@ -2,6 +2,7 @@ import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk
 
 from .functions_for_tab1 import update_curves, generate_graph, save_file, last_graph
+from widgets import PlotEditor
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -168,24 +169,36 @@ def create_tab1(notebook):
 
     # Фрейм для предпросмотра графика
     preview_frame = ttk.Frame(tab1)
-    preview_frame.place(x=800, y=200, width=640, height=480)
+    preview_frame.place(x=800, y=0, width=640, height=480)
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master=preview_frame)
     canvas.draw()
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
-    # Кнопка построения графика
-    btn_generate_graph = ttk.Button(
-        tab1,
-        text="Построить график",
-        command=lambda: generate_graph(
+    editor_visible = {"shown": False}
+    plot_editor = PlotEditor(tab1, ax, canvas)
+    plot_editor.place(x=800, y=530, width=640, height=180)
+    plot_editor.place_forget()
+
+    def build_graph():
+        generate_graph(
             ax, fig, canvas, path_entry_title,
             combo_titleX, combo_titleX_size, path_entry_titleX,
             combo_titleY, combo_titleY_size, path_entry_titleY,
             checkbox_var, curves_frame, combo_curves, combo_language
         )
+        plot_editor.refresh()
+        if not editor_visible["shown"]:
+            plot_editor.place(x=800, y=530, width=640, height=180)
+            editor_visible["shown"] = True
+
+    # Кнопка построения графика
+    btn_generate_graph = ttk.Button(
+        tab1,
+        text="Построить график",
+        command=build_graph
     )
-    btn_generate_graph.place(x=1050, y=690)
+    btn_generate_graph.place(x=1050, y=490)
 
     # Элементы для сохранения файла
     label_save = ttk.Label(save_frame, text="Введите имя файла:")

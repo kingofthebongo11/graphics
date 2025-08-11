@@ -126,13 +126,7 @@ def create_tab1(notebook):
     combo_curves.bind(
         "<<ComboboxSelected>>",
         lambda e: update_curves(
-            curves_frame,
-            combo_curves.get(),
-            checkbox_var,
-            saved_data_curves,
-            save_frame,
-            preview_frame,
-            btn_generate_graph,
+            curves_frame, combo_curves.get(), save_frame, checkbox_var, saved_data_curves
         )
     )
 
@@ -180,13 +174,7 @@ def create_tab1(notebook):
         text="Легенда",
         variable=checkbox_var,
         command=lambda: update_curves(
-            curves_frame,
-            combo_curves.get(),
-            checkbox_var,
-            saved_data_curves,
-            save_frame,
-            preview_frame,
-            btn_generate_graph,
+            curves_frame, combo_curves.get(), save_frame, checkbox_var, saved_data_curves
         )
     )
     checkbox.place(x=450, y=120)

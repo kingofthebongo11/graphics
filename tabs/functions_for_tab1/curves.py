@@ -550,12 +550,8 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     return None
 
 
-def update_curves(frame, num_curves, checkbox_var, saved_data, *followers):
-    """Обновляет кривые в соответствии с выбранным количеством и состоянием чекбокса.
-
-    Дополнительно сдвигает последующие виджеты, переданные в ``followers``,
-    чтобы сохранить корректные отступы после изменения высоты ``frame``.
-    """
+def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
+    """Обновляет кривые в соответствии с выбранным количеством и состоянием чекбокса."""
     # Очищаем старые виджеты
     for widget in frame.winfo_children():
         widget.destroy()
@@ -569,13 +565,6 @@ def update_curves(frame, num_curves, checkbox_var, saved_data, *followers):
     frame_height = 210 * num_curves_int if checkbox_var.get() else 180 * num_curves_int
     frame.place_configure(height=frame_height)
 
-    # Пересчитываем координаты всех последующих элементов
-    y = frame.winfo_y() + frame_height + 10
-    for w in followers:
-        w.place_configure(y=y)
-        w.update_idletasks()
-        y += w.winfo_height() + 10
-
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
         saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
@@ -586,3 +575,5 @@ def update_curves(frame, num_curves, checkbox_var, saved_data, *followers):
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)
+
+    next_frame.place(x=10, y=frame.winfo_y() + frame_height + 10)  # Обновляем координаты следующего фрейма

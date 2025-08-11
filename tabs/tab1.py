@@ -115,7 +115,7 @@ def create_tab1(notebook):
     # Управление количеством кривых
     label_curves = ttk.Label(input_frame, text="Выберите количество кривых на графике:")
     label_curves.place(x=10, y=120)
-    saved_data_curves = {}
+    saved_data_curves = []
     curve_options = [str(i) for i in range(1, 6)]
     combo_curves = ttk.Combobox(input_frame, values=curve_options, state='readonly')
     combo_curves.place(x=250, y=120, width=150)

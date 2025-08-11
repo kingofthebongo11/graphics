@@ -231,6 +231,18 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
                     curve_info['curve_legend'] = widget.get()
+        # Проверяем, указан ли файл данных для кривой
+        if curve_info.get('curve_type') == 'Комбинированный':
+            x_file = curve_info.get('X_source', {}).get('curve_file')
+            y_file = curve_info.get('Y_source', {}).get('curve_file')
+            if not x_file or not y_file:
+                messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
+                return
+        else:
+            if not curve_info.get('curve_file'):
+                messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
+                return
+
         # Добавляем информацию о кривой в общий список
         if 'X_source' in curve_info and 'column' not in curve_info['X_source']:
             curve_info['X_source']['column'] = 0

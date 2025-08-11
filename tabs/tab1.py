@@ -169,7 +169,7 @@ def create_tab1(notebook):
 
     # Фрейм для предпросмотра графика
     preview_frame = ttk.Frame(tab1)
-    preview_frame.place(x=800, y=0, width=640, height=480)
+    preview_frame.place(x=800, y=30, width=640, height=480)
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master=preview_frame)
     canvas.draw()
@@ -177,7 +177,7 @@ def create_tab1(notebook):
 
     editor_visible = {"shown": False}
     plot_editor = PlotEditor(tab1, ax, canvas)
-    plot_editor.place(x=800, y=530, width=640, height=180)
+    plot_editor.place(x=800, y=560, width=640, height=180)
     plot_editor.place_forget()
 
     def build_graph():
@@ -189,7 +189,7 @@ def create_tab1(notebook):
         )
         plot_editor.refresh()
         if not editor_visible["shown"]:
-            plot_editor.place(x=800, y=530, width=640, height=180)
+            plot_editor.place(x=800, y=560, width=640, height=180)
             editor_visible["shown"] = True
 
     # Кнопка построения графика
@@ -198,7 +198,7 @@ def create_tab1(notebook):
         text="Построить график",
         command=build_graph
     )
-    btn_generate_graph.place(x=1050, y=490)
+    btn_generate_graph.place(x=1050, y=520)
 
     # Элементы для сохранения файла
     label_save = ttk.Label(save_frame, text="Введите имя файла:")

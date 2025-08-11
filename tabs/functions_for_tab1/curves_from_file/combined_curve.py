@@ -7,6 +7,31 @@ from .excel_file import read_X_Y_from_excel
 logger = logging.getLogger(__name__)
 
 
+def _column_to_index(value, default):
+    """Преобразует значение столбца в индекс 0/1.
+
+    Пользователь может сохранить выбор как число или как строку
+    ("X"/"Y"). Эта функция приводит такое значение к корректному
+    целому индексу. В случае ошибки возвращается значение по
+    умолчанию ``default``.
+    """
+
+    if isinstance(value, str):
+        val = value.strip().upper()
+        if val in {"X", "0"}:
+            return 0
+        if val in {"Y", "1"}:
+            return 1
+        try:
+            return int(val)
+        except ValueError:
+            return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def _read_axis(axis_info, column=0):
     """Считывает данные для одной оси из указанного источника.
 
@@ -27,12 +52,12 @@ def _read_axis(axis_info, column=0):
 
     if source_type == "Текстовой файл":
         read_X_Y_from_text_file(tmp_info)
-        col = axis_info.get("column", column)
+        col = _column_to_index(axis_info.get("column"), column)
         return tmp_info.get("X_values", []) if col == 0 else tmp_info.get("Y_values", [])
 
     if source_type == "Файл кривой LS-Dyna":
         read_X_Y_from_ls_dyna(tmp_info)
-        col = axis_info.get("column", column)
+        col = _column_to_index(axis_info.get("column"), column)
         return tmp_info.get("X_values", []) if col == 0 else tmp_info.get("Y_values", [])
 
     if source_type == "Excel файл":

@@ -121,6 +121,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
             input_frame.update_idletasks()
             label_column_X.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 30)
             combo_column_X.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 50, width=150)
+            saved_data[i - 1].setdefault('X_source', {}).setdefault('column', 0)
         elif source == "Excel файл":
             input_frame.update_idletasks()
             label_range_Xc.place(x=combo_source_X.winfo_x(), y=combo_source_X.winfo_y() + 30)
@@ -207,6 +208,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
             input_frame.update_idletasks()
             label_column_Y.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 30)
             combo_column_Y.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 50, width=150)
+            saved_data[i - 1].setdefault('Y_source', {}).setdefault('column', 1)
         elif source == "Excel файл":
             input_frame.update_idletasks()
             label_range_Yc.place(x=combo_source_Y.winfo_x(), y=combo_source_Y.winfo_y() + 30)

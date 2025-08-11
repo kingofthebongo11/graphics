@@ -23,13 +23,16 @@ def _column_to_index(value, default):
         if val in {"Y", "1"}:
             return 1
         try:
-            return int(val)
+            idx = int(val)
         except ValueError:
             return default
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return default
+    else:
+        try:
+            idx = int(value)
+        except (TypeError, ValueError):
+            return default
+
+    return idx if idx in (0, 1) else default
 
 
 def _read_axis(axis_info, column=0):

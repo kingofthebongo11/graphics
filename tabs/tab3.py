@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from widgets.select_path import select_path
 from widgets.text_widget import create_text, clear_text
+from widgets.context_menu import make_context_menu
+from widgets.hotkeys import add_hotkeys
 from .functions_for_tab3.processing import function1
 
 
@@ -32,10 +34,18 @@ def create_tab3(notebook):
 
     # Метка над окном логирования
     log_label = ttk.Label(log_frame, text="Окно логирования:")
-    log_label.pack(side=tk.TOP, anchor="w")
+    log_label.place(x=0, y=0)
 
     # Создаем текстовое поле для логов с прокруткой
-    log_text = create_text(log_frame, height=10, state='disabled', scrollbar=True)
+    log_text = tk.Text(log_frame, height=10, state='disabled')
+    log_text.place(x=0, y=20, width=1260, height=170)
+
+    log_scrollbar = ttk.Scrollbar(log_frame, orient='vertical', command=log_text.yview)
+    log_scrollbar.place(x=1260, y=20, width=20, height=170)
+    log_text.config(yscrollcommand=log_scrollbar.set)
+
+    make_context_menu(log_text)
+    add_hotkeys(log_text)
 
     # Кнопка "Получить данные" под текстовым полем
     get_data_button = ttk.Button(

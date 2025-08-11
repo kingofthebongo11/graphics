@@ -227,12 +227,13 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
 
     # Сохраняем данные графика для последующего сохранения в файл
     global last_graph
-    last_graph = {
+    last_graph.clear()
+    last_graph.update({
         'curves_info': curves_info,
         'X_label': xlabel,
         'Y_label': ylabel,
         'title': title,
-    }
+    })
 
     # Перерисовка графика
     canvas.draw()

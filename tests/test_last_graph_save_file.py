@@ -27,11 +27,12 @@ def test_save_file_uses_updated_last_graph(tmp_path):
     })
 
     entry = SimpleNamespace(get=lambda: 'graph')
+    fmt_widget = SimpleNamespace(get=lambda: 'png')
     file_path = tmp_path / 'out.png'
 
     with patch('tabs.functions_for_tab1.plotting.filedialog.asksaveasfilename', return_value=str(file_path)), \
          patch('tabs.functions_for_tab1.plotting.messagebox.showinfo'), \
          patch('tabs.functions_for_tab1.plotting.messagebox.showerror'):
-        tab1.save_file(entry, tab1.last_graph)
+        tab1.save_file(entry, fmt_widget, tab1.last_graph)
 
     assert file_path.exists()

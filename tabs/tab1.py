@@ -1,7 +1,7 @@
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk
 
-from .functions_for_tab1 import update_curves, generate_graph, save_file
+from .functions_for_tab1 import update_curves, generate_graph, save_file, last_graph
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -163,7 +163,7 @@ def create_tab1(notebook):
     save_button = ttk.Button(
         save_frame,
         text="Сохранить",
-        command=lambda: save_file(entry_save, {})
+        command=lambda: save_file(entry_save, last_graph)
     )
     save_button.place(x=330, y=30)
 

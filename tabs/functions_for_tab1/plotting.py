@@ -241,6 +241,9 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
                     curve_info['curve_legend'] = widget.get()
+        if legend_checkbox.get() and not curve_info.get('curve_legend', '').strip():
+            messagebox.showwarning("Предупреждение", f"Введите подпись легенды для кривой {i}")
+            return
         # Проверяем наличие источников X и Y
         if not curve_info.get('X_source', {}).get('source'):
             messagebox.showerror("Ошибка", f"Не указан источник X для кривой {i}")

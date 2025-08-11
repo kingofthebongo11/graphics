@@ -28,6 +28,8 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     )
     combo_curve_type.place(x=250, y=30 + dy * (i - 1), width=150)
     combo_curve_type._name = f"curve_{i}_type"
+    combo_curve_type.current(1)
+    saved_data[i-1]['curve_type'] = "Текстовой файл"
 
     # Создане элементов для параметров X и Y
     label_curve_typeX = ttk.Label(input_frame, text="Выберите параметр для Х:")

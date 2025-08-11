@@ -111,6 +111,13 @@ def create_tab1(notebook):
     combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size = add_axis_control(
         input_frame, "Выберите величину для оси Y:", PHYSICAL_QUANTITIES, 90
     )
+    # Фрейм для сохранения файла
+    save_frame = ttk.Frame(tab1)
+    save_frame.place(x=10, y=300, width=600, height=100)
+
+    # Переменная для чекбокса легенды
+    checkbox_var = tk.BooleanVar(value=False)
+
 
     # Управление количеством кривых
     label_curves = ttk.Label(input_frame, text="Выберите количество кривых на графике:")
@@ -119,10 +126,12 @@ def create_tab1(notebook):
     curve_options = [str(i) for i in range(1, 6)]
     combo_curves = ttk.Combobox(input_frame, values=curve_options, state='readonly')
     combo_curves.place(x=250, y=120, width=150)
+    combo_curves.current(0)  # select '1'
 
     # Фрейм для полей ввода кривых
     curves_frame = ttk.Frame(tab1)
     curves_frame.place(x=10, y=170, width=1500, height=200)
+    update_curves(curves_frame, '1', save_frame, checkbox_var, saved_data_curves)
     combo_curves.bind(
         "<<ComboboxSelected>>",
         lambda e: update_curves(
@@ -151,9 +160,7 @@ def create_tab1(notebook):
     )
     btn_generate_graph.place(x=1050, y=690)
 
-    # Фрейм и элементы для сохранения файла
-    save_frame = ttk.Frame(tab1)
-    save_frame.place(x=10, y=300, width=600, height=100)
+    # Элементы для сохранения файла
     label_save = ttk.Label(save_frame, text="Введите имя файла:")
     label_save.place(x=10, y=0)
     entry_save = create_text(
@@ -168,7 +175,6 @@ def create_tab1(notebook):
     save_button.place(x=330, y=30)
 
     # Чекбокс легенды
-    checkbox_var = tk.BooleanVar(value=False)
     checkbox = ttk.Checkbutton(
         input_frame,
         text="Легенда",

@@ -40,6 +40,7 @@ def _read_axis(axis_info, column=0):
 
     Параметр ``column`` задаёт требуемую ось: ``0`` для X, ``1`` для Y.
     """
+    column = _column_to_index(column, 0)
     source_type = axis_info.get("source")
     tmp_info = {"curve_file": axis_info.get("curve_file", "")}
 
@@ -55,13 +56,11 @@ def _read_axis(axis_info, column=0):
 
     if source_type == "Текстовой файл":
         read_X_Y_from_text_file(tmp_info)
-        col = _column_to_index(axis_info.get("column"), column)
-        return tmp_info.get("X_values", []) if col == 0 else tmp_info.get("Y_values", [])
+        return tmp_info.get("X_values", []) if column == 0 else tmp_info.get("Y_values", [])
 
     if source_type == "Файл кривой LS-Dyna":
         read_X_Y_from_ls_dyna(tmp_info)
-        col = _column_to_index(axis_info.get("column"), column)
-        return tmp_info.get("X_values", []) if col == 0 else tmp_info.get("Y_values", [])
+        return tmp_info.get("X_values", []) if column == 0 else tmp_info.get("Y_values", [])
 
     if source_type == "Excel файл":
         tmp_info.update({
@@ -91,8 +90,13 @@ def read_X_Y_from_combined(curve_info):
     ``Y_source`` с описанием источника для соответствующей оси.
     """
 
-    x_vals = _read_axis(curve_info.get("X_source", {}), column=0)
-    y_vals = _read_axis(curve_info.get("Y_source", {}), column=1)
+    x_source = curve_info.get("X_source", {})
+    y_source = curve_info.get("Y_source", {})
+    x_col = _column_to_index(x_source.get("column"), 0)
+    y_col = _column_to_index(y_source.get("column"), 1)
+
+    x_vals = _read_axis(x_source, column=x_col)
+    y_vals = _read_axis(y_source, column=y_col)
     n = min(len(x_vals), len(y_vals))
     curve_info["X_values"] = x_vals[:n]
     curve_info["Y_values"] = y_vals[:n]

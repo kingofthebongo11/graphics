@@ -28,6 +28,12 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     )
     combo_curve_type.place(x=250, y=30 + dy * (i - 1), width=150)
     combo_curve_type._name = f"curve_{i}_type"
+    saved_type = saved_data[i - 1].get('curve_type')
+    if saved_type:
+        combo_curve_type.set(saved_type)
+    else:
+        combo_curve_type.set("Текстовой файл")
+        saved_data[i - 1]['curve_type'] = "Текстовой файл"
 
     # Создане элементов для параметров X и Y
     label_curve_typeX = ttk.Label(input_frame, text="Выберите параметр для Х:")
@@ -57,6 +63,9 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state='readonly'
     )
     combo_source_X._name = f"curve_{i}_X_source"
+    saved_source_x = saved_data[i - 1].get('X_source', {}).get('source')
+    if saved_source_x:
+        combo_source_X.set(saved_source_x)
 
     label_param_X = ttk.Label(input_frame, text="Параметр:")
     combo_param_X = ttk.Combobox(
@@ -70,6 +79,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         "<<ComboboxSelected>>",
         lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'parameter': combo_param_X.get()})
     )
+    if saved_source_x == "Частотный анализ":
+        saved_param_x = saved_data[i - 1].get('X_source', {}).get('parameter')
+        if saved_param_x:
+            combo_param_X.set(saved_param_x)
 
     label_axis_X = ttk.Label(input_frame, text="По какой оси:")
     combo_axis_X = ttk.Combobox(
@@ -82,6 +95,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         "<<ComboboxSelected>>",
         lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'direction': combo_axis_X.get()})
     )
+    if saved_source_x == "Частотный анализ":
+        saved_dir_x = saved_data[i - 1].get('X_source', {}).get('direction')
+        if saved_dir_x:
+            combo_axis_X.set(saved_dir_x)
 
     label_column_X = ttk.Label(input_frame, text="Столбец:")
     combo_column_X = ttk.Combobox(
@@ -147,6 +164,9 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state='readonly'
     )
     combo_source_Y._name = f"curve_{i}_Y_source"
+    saved_source_y = saved_data[i - 1].get('Y_source', {}).get('source')
+    if saved_source_y:
+        combo_source_Y.set(saved_source_y)
 
     label_param_Y = ttk.Label(input_frame, text="Параметр:")
     combo_param_Y = ttk.Combobox(
@@ -160,6 +180,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         "<<ComboboxSelected>>",
         lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'parameter': combo_param_Y.get()})
     )
+    if saved_source_y == "Частотный анализ":
+        saved_param_y = saved_data[i - 1].get('Y_source', {}).get('parameter')
+        if saved_param_y:
+            combo_param_Y.set(saved_param_y)
 
     label_axis_Y = ttk.Label(input_frame, text="По какой оси:")
     combo_axis_Y = ttk.Combobox(
@@ -172,6 +196,10 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         "<<ComboboxSelected>>",
         lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'direction': combo_axis_Y.get()})
     )
+    if saved_source_y == "Частотный анализ":
+        saved_dir_y = saved_data[i - 1].get('Y_source', {}).get('direction')
+        if saved_dir_y:
+            combo_axis_Y.set(saved_dir_y)
 
     label_column_Y = ttk.Label(input_frame, text="Столбец:")
     combo_column_Y = ttk.Combobox(
@@ -414,6 +442,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     path_entry.place(x=10, y=110 + dy * (i - 1), width=600)
 
     path_entry._name = f"curve_{i}_filename"
+    path_entry.insert(0, saved_data[i - 1].get('path', ''))
 
     # Кнопка для выбора файла
     select_button = ttk.Button(
@@ -429,6 +458,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     path_entry_X = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
     path_entry_X.place(x=10, y=110 + dy * (i - 1), width=600)
     path_entry_X._name = f"curve_{i}_filename_X"
+    path_entry_X.insert(0, saved_data[i - 1].get('X_source', {}).get('curve_file', ''))
     path_entry_X.bind(
         '<KeyRelease>',
         lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'curve_file': path_entry_X.get()})
@@ -448,6 +478,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     path_entry_Y = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
     path_entry_Y.place(x=10, y=160 + dy * (i - 1), width=600)
     path_entry_Y._name = f"curve_{i}_filename_Y"
+    path_entry_Y.insert(0, saved_data[i - 1].get('Y_source', {}).get('curve_file', ''))
     path_entry_Y.bind(
         '<KeyRelease>',
         lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'curve_file': path_entry_Y.get()})
@@ -476,6 +507,8 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         legend_entry = create_text(input_frame, method="entry", height=1, state='normal', scrollbar=False)
         legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
         legend_entry._name = f"curve_{i}_legend"
+        legend_entry.insert(0, saved_data[i - 1].get('legend', ''))
+        legend_entry.bind('<KeyRelease>', lambda e: saved_data[i - 1].update({'legend': legend_entry.get()}))
 
     toggle_excel_options()
     toggle_X_source_options()

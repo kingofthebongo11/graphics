@@ -90,6 +90,9 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state='readonly'
     )
     combo_column_X._name = f"curve_{i}_X_column"
+    saved_column_x = saved_data[i - 1].get('X_source', {}).get('column')
+    if saved_column_x in (0, 1):
+        combo_column_X.set('X' if saved_column_x == 0 else 'Y')
     combo_column_X.bind(
         "<<ComboboxSelected>>",
         lambda e: saved_data[i - 1].setdefault('X_source', {}).update({'column': 0 if combo_column_X.get() == 'X' else 1})
@@ -177,6 +180,9 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state='readonly'
     )
     combo_column_Y._name = f"curve_{i}_Y_column"
+    saved_column_y = saved_data[i - 1].get('Y_source', {}).get('column')
+    if saved_column_y in (0, 1):
+        combo_column_Y.set('X' if saved_column_y == 0 else 'Y')
     combo_column_Y.bind(
         "<<ComboboxSelected>>",
         lambda e: saved_data[i - 1].setdefault('Y_source', {}).update({'column': 0 if combo_column_Y.get() == 'X' else 1})

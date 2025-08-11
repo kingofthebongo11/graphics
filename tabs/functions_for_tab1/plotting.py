@@ -141,6 +141,14 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
 
+    if combo_titleX.get() == "Другое" and (entry_titleX is None or not entry_titleX.get().strip()):
+        messagebox.showwarning("Предупреждение", "Заполните название оси X")
+        return
+
+    if combo_titleY.get() == "Другое" and (entry_titleY is None or not entry_titleY.get().strip()):
+        messagebox.showwarning("Предупреждение", "Заполните название оси Y")
+        return
+
     # Считываем количество кривых из combobox
     num_curves = int(combo_curves.get())
 

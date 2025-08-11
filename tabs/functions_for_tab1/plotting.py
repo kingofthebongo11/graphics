@@ -159,9 +159,10 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                     column = 1 if value != 'X' else 0
                     curve_info.setdefault('Y_source', {}).update({'column': column})
                 elif widget_name == f"curve_{i}_X_range":
-                    curve_info.setdefault('X_source', {}).update({'range_x': widget.get(), 'use_ranges': True, 'column': 0})
+                    curve_info.setdefault('X_source', {}).update({'range_x': widget.get(), 'use_ranges': True})
                 elif widget_name == f"curve_{i}_Y_range":
-                    curve_info.setdefault('Y_source', {}).update({'range_y': widget.get(), 'use_ranges': True, 'column': 1})
+                    curve_info.setdefault('Y_source', {}).update({'range_y': widget.get(), 'use_ranges': True})
+
 
                 # Получаем имя файла для каждой кривой
                 if widget_name == f"curve_{i}_filename":
@@ -201,13 +202,11 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
                     curve_info['curve_legend'] = widget.get()
-
         # Добавляем информацию о кривой в общий список
         if 'X_source' in curve_info and 'column' not in curve_info['X_source']:
             curve_info['X_source']['column'] = 0
         if 'Y_source' in curve_info and 'column' not in curve_info['Y_source']:
             curve_info['Y_source']['column'] = 1
-
         get_X_Y_data(curve_info)
         curves_info.append(curve_info)
 

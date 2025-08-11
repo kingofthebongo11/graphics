@@ -258,6 +258,26 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         )
     )
 
+    # Установка позиций для параметров X и Y
+    input_frame.update_idletasks()
+    label_curve_typeX.place(x=combo_curve_type.winfo_x() + 170,
+                            y=combo_curve_type.winfo_y() - 20)  # Отступ от типа кривой
+    combo_curve_typeX.place(x=combo_curve_type.winfo_x() + 170,
+                            y=combo_curve_type.winfo_y(), width=150)  # Позиция для X
+    label_curve_typeX_type.place(x=combo_curve_type.winfo_x() + 170,
+                                 y=combo_curve_type.winfo_y() + 25)  # Отступ от параметра X
+    combo_curve_typeX_type.place(x=combo_curve_type.winfo_x() + 170,
+                                 y=combo_curve_type.winfo_y() + 45, width=150)  # Позиция для оси X
+    input_frame.update_idletasks()
+    label_curve_typeY.place(x=combo_curve_typeX_type.winfo_x() + 170,
+                            y=combo_curve_type.winfo_y() - 20)  # Отступ от параметра X
+    combo_curve_typeY.place(x=combo_curve_typeX_type.winfo_x() + 170,
+                            y=combo_curve_type.winfo_y(), width=150)  # Позиция для Y
+    label_curve_typeY_type.place(x=combo_curve_typeX_type.winfo_x() + 170,
+                                 y=combo_curve_type.winfo_y() + 25)  # Отступ от параметра X
+    combo_curve_typeY_type.place(x=combo_curve_typeX_type.winfo_x() + 170,
+                                 y=combo_curve_type.winfo_y() + 45, width=150)  # Позиция для оси Y
+
     horizontal_var = tk.BooleanVar(value=saved_data[i - 1].get('horizontal', False))
     checkbox_horizontal = ttk.Checkbutton(
         input_frame,
@@ -479,32 +499,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     label_path_Y.place_forget()
     path_entry_Y.place_forget()
     select_button_Y.place_forget()
-
-    on_combo_change_curve_type(
-        input_frame,
-        combo_curve_type,
-        label_curve_typeX,
-        combo_curve_typeX,
-        label_curve_typeY,
-        combo_curve_typeY,
-        label_curve_typeX_type,
-        combo_curve_typeX_type,
-        label_curve_typeY_type,
-        combo_curve_typeY_type,
-        label_source_X,
-        combo_source_X,
-        label_source_Y,
-        combo_source_Y,
-        label_path,
-        path_entry,
-        select_button,
-        label_path_X,
-        path_entry_X,
-        select_button_X,
-        label_path_Y,
-        path_entry_Y,
-        select_button_Y,
-    )
 
     # Если чекбокс легенды отмечен, добавляем поле для легенды
     if checkbox_var.get():

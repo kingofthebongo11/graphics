@@ -99,17 +99,10 @@ def save_file(entry_widget, graph_info):
                                                  initialfile=file_name)
         if file_path:
             try:
-                curves_info = graph_info.get('curves_info', [])
-                if not curves_info:
-                    raise ValueError("Нет данных графика")
-                create_plot(
-                    curves_info,
-                    graph_info.get('X_label', ''),
-                    graph_info.get('Y_label', ''),
-                    graph_info.get('title', ''),
-                    savefile=True,
-                    file_plt=file_path,
-                )  # Генерация и сохранение графика
+                fig = graph_info.get('fig')
+                if fig is None:
+                    raise ValueError("Нет фигуры для сохранения")
+                fig.savefig(file_path)
                 messagebox.showinfo("Успех", f"График сохранен: {file_path}")
             except Exception as e:
                 messagebox.showerror("Ошибка", f"Не удалось сохранить файл: {str(e)}")
@@ -252,6 +245,7 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
         'X_label': xlabel,
         'Y_label': ylabel,
         'title': title,
+        'fig': fig,
     })
 
     # Перерисовка графика

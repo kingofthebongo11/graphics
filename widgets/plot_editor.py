@@ -19,6 +19,7 @@ class _RowWidgets:
     """Stores widgets associated with a single line."""
 
     frame: ttk.Frame
+    label: ttk.Label
     colour: tk.Label
     style: ttk.Combobox
     width: ttk.Scale
@@ -41,13 +42,16 @@ class PlotEditor(ttk.Frame):
             row.frame.destroy()
         self._rows.clear()
 
-        for line in self.ax.lines:
-            self._append_row(line)
+        for idx, line in enumerate(self.ax.lines, start=1):
+            self._append_row(line, idx)
 
     # ------------------------------------------------------------------
-    def _append_row(self, line) -> None:
+    def _append_row(self, line, index: int) -> None:
         row_frame = ttk.Frame(self)
         row_frame.pack(fill=tk.X, pady=2)
+
+        name_lbl = ttk.Label(row_frame, text=f"Кривая {index}")
+        name_lbl.pack(side=tk.LEFT, padx=5)
 
         colour_lbl = tk.Label(row_frame, bg=line.get_color(), width=4)
         colour_lbl.pack(side=tk.LEFT, padx=5)
@@ -71,7 +75,7 @@ class PlotEditor(ttk.Frame):
         )
 
         self._rows.append(
-            _RowWidgets(row_frame, colour_lbl, style_box, width_scale)
+            _RowWidgets(row_frame, name_lbl, colour_lbl, style_box, width_scale)
         )
 
     # ------------------------------------------------------------------

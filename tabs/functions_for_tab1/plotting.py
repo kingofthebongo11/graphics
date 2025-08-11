@@ -1,4 +1,3 @@
-import numpy as np
 from tkinter import filedialog, messagebox
 
 from tabs.function_for_all_tabs import create_plot
@@ -9,6 +8,9 @@ from .curves_from_file import (
     read_X_Y_from_excel,
     read_X_Y_from_combined,
 )
+
+# Хранит информацию о последнем построенном графике для последующего сохранения
+last_graph = {}
 
 
 class AxisTitleProcessor:
@@ -78,13 +80,17 @@ def save_file(entry_widget, graph_info):
                                                  initialfile=file_name)
         if file_path:
             try:
-                curves_info = [{
-                    'X_values': graph_info['X_values'],
-                    'Y_values': graph_info['Y_values']
-                }]
-                create_plot(curves_info, graph_info['X_label'], graph_info['Y_label'], graph_info['title'],
-                            savefile=True,
-                            file_plt=file_path)  # Генерация и сохранение графика
+                curves_info = graph_info.get('curves_info', [])
+                if not curves_info:
+                    raise ValueError("Нет данных графика")
+                create_plot(
+                    curves_info,
+                    graph_info.get('X_label', ''),
+                    graph_info.get('Y_label', ''),
+                    graph_info.get('title', ''),
+                    savefile=True,
+                    file_plt=file_path,
+                )  # Генерация и сохранение графика
                 messagebox.showinfo("Успех", f"График сохранен: {file_path}")
             except Exception as e:
                 messagebox.showerror("Ошибка", f"Не удалось сохранить файл: {str(e)}")
@@ -121,8 +127,6 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
     # Считываем количество кривых из combobox
     num_curves = int(combo_curves.get())
 
-    # Генерация данных для графика (пример - синусоида)
-    x = np.linspace(0, 10, 100)
     curves_info = []
     # Построение каждой кривой в цикле
     for i in range(1, num_curves + 1):
@@ -220,6 +224,15 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
 
     create_plot(curves_info, xlabel, ylabel, title,
                 fig=fig, ax=ax, legend=legend_checkbox.get())
+
+    # Сохраняем данные графика для последующего сохранения в файл
+    global last_graph
+    last_graph = {
+        'curves_info': curves_info,
+        'X_label': xlabel,
+        'Y_label': ylabel,
+        'title': title,
+    }
 
     # Перерисовка графика
     canvas.draw()

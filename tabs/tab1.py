@@ -173,8 +173,8 @@ def create_tab1(notebook):
         text="Построить график",
         command=lambda: generate_graph(
             ax, fig, canvas, path_entry_title,
-            combo_titleX, combo_titleX_size,
-            combo_titleY, combo_titleY_size,
+            combo_titleX, combo_titleX_size, path_entry_titleX,
+            combo_titleY, combo_titleY_size, path_entry_titleY,
             checkbox_var, curves_frame, combo_curves, combo_language
         )
     )

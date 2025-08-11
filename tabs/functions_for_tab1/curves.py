@@ -125,6 +125,32 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     )
 
     def toggle_X_source_options():
+        if not combo_source_X.winfo_viewable():
+            on_combo_change_curve_type(
+                input_frame,
+                combo_curve_type,
+                label_curve_typeX,
+                combo_curve_typeX,
+                label_curve_typeY,
+                combo_curve_typeY,
+                label_curve_typeX_type,
+                combo_curve_typeX_type,
+                label_curve_typeY_type,
+                combo_curve_typeY_type,
+                label_source_X,
+                combo_source_X,
+                label_source_Y,
+                combo_source_Y,
+                label_path,
+                path_entry,
+                select_button,
+                label_path_X,
+                path_entry_X,
+                select_button_X,
+                label_path_Y,
+                path_entry_Y,
+                select_button_Y,
+            )
         for w in [label_param_X, combo_param_X, label_axis_X, combo_axis_X,
                   label_column_X, combo_column_X, label_range_Xc, entry_range_Xc]:
             w.place_forget()
@@ -226,6 +252,32 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     )
 
     def toggle_Y_source_options():
+        if not combo_source_Y.winfo_viewable():
+            on_combo_change_curve_type(
+                input_frame,
+                combo_curve_type,
+                label_curve_typeX,
+                combo_curve_typeX,
+                label_curve_typeY,
+                combo_curve_typeY,
+                label_curve_typeX_type,
+                combo_curve_typeX_type,
+                label_curve_typeY_type,
+                combo_curve_typeY_type,
+                label_source_X,
+                combo_source_X,
+                label_source_Y,
+                combo_source_Y,
+                label_path,
+                path_entry,
+                select_button,
+                label_path_X,
+                path_entry_X,
+                select_button_X,
+                label_path_Y,
+                path_entry_Y,
+                select_button_Y,
+            )
         for w in [label_param_Y, combo_param_Y, label_axis_Y, combo_axis_Y,
                   label_column_Y, combo_column_Y, label_range_Yc, entry_range_Yc]:
             w.place_forget()
@@ -491,6 +543,31 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         legend_entry.bind('<KeyRelease>', lambda e: saved_data[i - 1].update({'legend': legend_entry.get()}))
 
     toggle_excel_options()
+    on_combo_change_curve_type(
+        input_frame,
+        combo_curve_type,
+        label_curve_typeX,
+        combo_curve_typeX,
+        label_curve_typeY,
+        combo_curve_typeY,
+        label_curve_typeX_type,
+        combo_curve_typeX_type,
+        label_curve_typeY_type,
+        combo_curve_typeY_type,
+        label_source_X,
+        combo_source_X,
+        label_source_Y,
+        combo_source_Y,
+        label_path,
+        path_entry,
+        select_button,
+        label_path_X,
+        path_entry_X,
+        select_button_X,
+        label_path_Y,
+        path_entry_Y,
+        select_button_Y,
+    )
     toggle_X_source_options()
     toggle_Y_source_options()
 

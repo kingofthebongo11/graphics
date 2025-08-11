@@ -5,6 +5,7 @@ from .hotkeys import add_hotkeys
 from .select_path import select_path
 from .message_log import message_log
 from .text_widget import create_text, clear_text
+from .plot_editor import PlotEditor
 
 __all__ = [
     "make_context_menu",
@@ -13,5 +14,6 @@ __all__ = [
     "message_log",
     "create_text",
     "clear_text",
+    "PlotEditor",
 ]
 

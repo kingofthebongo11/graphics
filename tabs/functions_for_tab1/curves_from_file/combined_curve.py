@@ -1,4 +1,9 @@
 import logging
+try:
+    from tkinter import messagebox
+except Exception:  # pragma: no cover - безопасное выполнение без GUI
+    messagebox = None
+
 from .frequency_analysis import read_X_Y_from_frequency_analysis
 from .text_file import read_X_Y_from_text_file
 from .ls_dyna_file import read_X_Y_from_ls_dyna
@@ -96,6 +101,22 @@ def read_X_Y_from_combined(curve_info):
 
     x_vals = _read_axis(x_source, column=x_col)
     y_vals = _read_axis(y_source, column=y_col)
-    n = min(len(x_vals), len(y_vals))
+    len_x = len(x_vals)
+    len_y = len(y_vals)
+    n = min(len_x, len_y)
+
+    if len_x != len_y:
+        warning_msg = (
+            f"Количество точек по X ({len_x}) и Y ({len_y}) не совпадает. "
+            f"Будут использованы первые {n} значений."
+        )
+        if messagebox:
+            try:
+                messagebox.showwarning("Предупреждение", warning_msg)
+            except Exception:
+                logger.warning(warning_msg)
+        else:
+            logger.warning(warning_msg)
+
     curve_info["X_values"] = x_vals[:n]
     curve_info["Y_values"] = y_vals[:n]

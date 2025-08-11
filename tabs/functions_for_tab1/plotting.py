@@ -81,8 +81,11 @@ class AxisTitleProcessor:
         return self.title_mapping.get(selection, {}).get(self.language, selection)
 
     def get_processed_title(self):
-        if self.combo_title.get() == "Другое":
+        selection = self.combo_title.get()
+        if selection == "Другое":
             return self.entry_title.get() if self.entry_title else ""
+        if selection == "Нет":
+            return ""
         title = self._get_title()
         return f"{title}{self._get_units()}"
 

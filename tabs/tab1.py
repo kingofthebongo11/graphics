@@ -52,6 +52,12 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
         size_combo.place_forget()
         size_combo['values'] = []
         size_combo.set("")
+    elif selection == "Нет":
+        entry.place_forget()
+        label_size.place_forget()
+        size_combo.place_forget()
+        size_combo['values'] = []
+        size_combo.set("")
     else:
         entry.place_forget()
         label_size.place(x=combo.winfo_x() + 200, y=combo.winfo_y())
@@ -70,7 +76,7 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
 def create_tab1(notebook):
     # Список физических величин для прочностных расчетов
     PHYSICAL_QUANTITIES = [
-        "Время", "Деформация", "Масса", "Напряжение",
+        "Нет", "Время", "Деформация", "Масса", "Напряжение",
         "Перемещение по X", "Перемещение по Y", "Перемещение по Z",
         "Сила", "Удлинение", "Частота 1", "Частота 2", "Частота 3",
         "Другое",
@@ -90,6 +96,7 @@ def create_tab1(notebook):
         label.place(x=10, y=y_pos)
         combo = ttk.Combobox(parent, values=options, state='readonly')
         combo.place(x=200, y=y_pos, width=150)
+        combo.current(0)
         entry = create_text(parent, method="entry", height=1, state='disabled', scrollbar=False)
         entry.place(x=400, y=y_pos, width=300)
         entry.place_forget()

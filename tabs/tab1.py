@@ -29,6 +29,20 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
         "Частота 3": ["Гц", "кГц"],
         "Другое": []
     }
+    DEFAULT_UNITS = {
+        "Время": "с",
+        "Перемещение по X": "м",
+        "Перемещение по Y": "м",
+        "Перемещение по Z": "м",
+        "Удлинение": "м",
+        "Деформация": "—",
+        "Сила": "Н",
+        "Масса": "кг",
+        "Напряжение": "Па",
+        "Частота 1": "Гц",
+        "Частота 2": "Гц",
+        "Частота 3": "Гц",
+    }
     selection = combo.get()
     if selection == "Другое":
         if not entry.winfo_ismapped():
@@ -36,13 +50,19 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
             entry.config(state='normal')
         label_size.place_forget()
         size_combo.place_forget()
+        size_combo['values'] = []
+        size_combo.set("")
     else:
         entry.place_forget()
         label_size.place(x=combo.winfo_x() + 200, y=combo.winfo_y())
         values = UNITS_MAPPING.get(selection, [])
         size_combo['values'] = values
+        size_combo.set("")
         if values:
             size_combo.place(x=combo.winfo_x() + 350, y=combo.winfo_y(), width=150)
+            default_unit = DEFAULT_UNITS.get(selection)
+            if default_unit in values:
+                size_combo.current(values.index(default_unit))
         else:
             size_combo.place_forget()
 

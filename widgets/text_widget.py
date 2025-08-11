@@ -9,11 +9,9 @@ def create_text(parent, method='text', height=10, wrap='word', state='normal', s
     """Создает текстовый или строковый виджет с необязательной прокруткой."""
     if method == 'entry':
         text_widget = tk.Entry(parent, state=state)
-        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     elif method == 'text':
         text_widget = tk.Text(parent, height=height, wrap=wrap, state=state)
-        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         if max_lines > 0:
             def limit_text_lines(text_widget, max_lines):
                 def check_lines(event):
@@ -31,21 +29,22 @@ def create_text(parent, method='text', height=10, wrap='word', state='normal', s
             def bind_scrollbar(log_text, log_scrollbar):
                 def update_scrollbar(log_text, log_scrollbar):
                     log_scrollbar.config(command=log_text.yview)
-                    log_text['yscrollcommand'] = log_scrollbar.set
+                    log_text["yscrollcommand"] = log_scrollbar.set
 
                 log_text.bind("<KeyRelease>", lambda event: update_scrollbar(log_text, log_scrollbar))
                 log_text.bind("<MouseWheel>", lambda event: update_scrollbar(log_text, log_scrollbar))
                 log_text.bind("<Configure>", lambda event: update_scrollbar(log_text, log_scrollbar))
 
             text_scrollbar = ttk.Scrollbar(parent, command=text_widget.yview)
-            text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-            text_widget['yscrollcommand'] = text_scrollbar.set
+            text_widget["yscrollcommand"] = text_scrollbar.set
             bind_scrollbar(text_widget, text_scrollbar)
     else:
         raise ValueError("Некорректное значение параметра method. Должно быть 'entry' или 'text'.")
 
     make_context_menu(text_widget)
     add_hotkeys(text_widget)
+    if scrollbar and method == "text":
+        return text_widget, text_scrollbar
     return text_widget
 
 

@@ -32,10 +32,12 @@ def create_tab3(notebook):
 
     # Метка над окном логирования
     log_label = ttk.Label(log_frame, text="Окно логирования:")
-    log_label.pack(side=tk.TOP, anchor="w")
+    log_label.place(x=0, y=0)
 
     # Создаем текстовое поле для логов с прокруткой
-    log_text = create_text(log_frame, height=10, state='disabled', scrollbar=True)
+    log_text, log_scrollbar = create_text(log_frame, height=10, state='disabled', scrollbar=True)
+    log_text.place(x=0, y=20, width=1260, height=180)
+    log_scrollbar.place(x=1260, y=20, width=20, height=180)
 
     # Кнопка "Получить данные" под текстовым полем
     get_data_button = ttk.Button(

@@ -10,7 +10,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     from widgets.text_widget import create_text  # локальный импорт для избегания циклической зависимости
 
     # Определяем высоту ячейки на основе состояния чекбокса
-    dy = 280 if checkbox_var.get() else 160
+    dy = 210 if checkbox_var.get() else 180
 
     # Метка о параметрах кривой
     label_curve_box = ttk.Label(input_frame, text=f"Настройка параметров кривой {i}:")

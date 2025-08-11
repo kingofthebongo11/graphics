@@ -207,12 +207,17 @@ def create_tab1(notebook):
         save_frame, method="entry", height=1, state='normal', scrollbar=False
     )
     entry_save.place(x=10, y=30, width=300)
+    label_format = ttk.Label(save_frame, text="Формат:")
+    label_format.place(x=330, y=0)
+    combo_format = ttk.Combobox(save_frame, values=["png", "jpg", "svg", "pdf"], state='readonly')
+    combo_format.place(x=330, y=30, width=80)
+    combo_format.current(0)
     save_button = ttk.Button(
         save_frame,
         text="Сохранить",
-        command=lambda: save_file(entry_save, last_graph)
+        command=lambda: save_file(entry_save, combo_format, last_graph)
     )
-    save_button.place(x=330, y=30)
+    save_button.place(x=420, y=30)
 
     # Чекбокс легенды
     checkbox = ttk.Checkbutton(

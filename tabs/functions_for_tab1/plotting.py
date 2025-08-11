@@ -90,24 +90,29 @@ class AxisTitleProcessor:
         return f"{title}{self._get_units()}"
 
 
-def save_file(entry_widget, graph_info):
+def save_file(entry_widget, format_widget, graph_info):
 
     file_name = entry_widget.get()
-    if file_name:
-        file_path = filedialog.asksaveasfilename(defaultextension=".png",
-                                                 filetypes=[("PNG files", "*.png"), ("All files", "*.*")],
-                                                 initialfile=file_name)
+    file_format = format_widget.get()
+    if file_name and file_format:
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=f".{file_format}",
+            filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")],
+            initialfile=f"{file_name}.{file_format}",
+        )
         if file_path:
             try:
                 fig = graph_info.get('fig')
                 if fig is None:
                     raise ValueError("Нет фигуры для сохранения")
-                fig.savefig(file_path)
+                fig.savefig(file_path, format=file_format)
                 messagebox.showinfo("Успех", f"График сохранен: {file_path}")
             except Exception as e:
                 messagebox.showerror("Ошибка", f"Не удалось сохранить файл: {str(e)}")
-    else:
+    elif not file_name:
         messagebox.showerror("Ошибка", "Имя файла не может быть пустым!")
+    else:
+        messagebox.showerror("Ошибка", "Не выбран формат файла!")
 
 
 def get_X_Y_data(curve_info):

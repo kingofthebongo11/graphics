@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from tkinter import messagebox
 
 logger = logging.getLogger(__name__)
@@ -6,7 +7,13 @@ logger = logging.getLogger(__name__)
 
 def read_X_Y_from_text_file(curve_info):
     try:
-        path = curve_info['curve_file']
+        path = Path(curve_info['curve_file'])
+        suffix = path.suffix.lower()
+        if suffix and suffix != '.txt':
+            logger.error("Неподдерживаемый формат файла: %s", suffix)
+            messagebox.showerror("Ошибка", f"Ожидался файл с расширением .txt, получен {suffix}")
+            return
+
         X_data = []
         Y_data = []
         with open(path, 'r', encoding='utf-8') as file:

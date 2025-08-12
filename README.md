@@ -29,7 +29,7 @@ python main.py
 This opens the GUI where you can create and customize plots across multiple tabs.
 
 ## Axis Units
-The axis dimension selectors support both SI units and engineering units based on kilogram-force and ton-force. For forces you can choose units like `kgf` and `tf`, while stress values may also be expressed in `kgf/mm²`, `kgf/cm²`, `kgf/m²`, `tf/cm²`, or `tf/m²`.
+The axis dimension selectors support both SI units and engineering units based on kilogram-force and ton-force. For forces you can choose units like `kgf` and `tf`, while stress values may be expressed in standard units such as `Pa`, `kPa`, `MPa`, combinations of force (`N`, `kN`, `MN`) and area (`mm²`, `cm²`, `m²`), or engineering units like `kgf/mm²`, `kgf/cm²`, `kgf/m²`, `tf/cm²`, and `tf/m²`.
 
 ## Supported Curve File Formats
 - Custom frequency analysis format.

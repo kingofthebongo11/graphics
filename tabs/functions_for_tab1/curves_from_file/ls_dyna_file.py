@@ -5,29 +5,35 @@ logger = logging.getLogger(__name__)
 
 
 def read_X_Y_from_ls_dyna(curve_info):
+    """Читает значения X и Y из файла LS-Dyna.
+
+    Строки, не содержащие хотя бы двух числовых значений (заголовки,
+    комментарии и т.п.), пропускаются без генерации сообщения об ошибке.
+    """
     try:
         path = curve_info['curve_file']
-        X_data = []
-        Y_data = []
+        X_data: list[float] = []
+        Y_data: list[float] = []
         with open(path, 'r', encoding='utf-8') as file:
-            for line in file:
-                line = line.strip()
+            for raw_line in file:
+                line = raw_line.strip()
                 if not line:
                     continue
+                if line.startswith('*') or line.startswith('#'):
+                    continue
+                if '#' in line:
+                    line = line.split('#', 1)[0].strip()
                 parts = line.split()
-                if len(parts) < 2:
-                    logger.error("Некорректная строка данных: %s", line)
-                    messagebox.showerror("Ошибка", f"Некорректные данные в строке: {line}")
-                    return
-                try:
-                    x = float(parts[0])
-                    y = float(parts[1])
-                except ValueError:
-                    logger.error("Некорректная строка данных: %s", line)
-                    messagebox.showerror("Ошибка", f"Некорректные данные в строке: {line}")
-                    return
-                X_data.append(x)
-                Y_data.append(y)
+                numbers = []
+                for part in parts:
+                    try:
+                        numbers.append(float(part))
+                    except ValueError:
+                        continue
+                if len(numbers) < 2:
+                    continue
+                X_data.append(numbers[0])
+                Y_data.append(numbers[1])
         curve_info['X_values'] = X_data
         curve_info['Y_values'] = Y_data
     except FileNotFoundError:

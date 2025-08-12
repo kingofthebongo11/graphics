@@ -5,9 +5,14 @@ logger = logging.getLogger(__name__)
 
 def read_X_Y_from_text_file(curve_info):
     try:
+        file_path = curve_info.get('curve_file', '')
+        if not str(file_path).lower().endswith('.txt'):
+            logger.error("Файл '%s' имеет некорректное расширение. Ожидается '.txt'.", file_path)
+            return
+
         X_data = []
         Y_data = []
-        with open(curve_info['curve_file'], 'r', encoding='utf-8') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             for line in file:
                 line = line.strip()
                 if not line:

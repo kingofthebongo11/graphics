@@ -4,10 +4,11 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 from tabs.functions_for_tab1.curves_from_file.combined_curve import read_X_Y_from_combined
+from tabs.functions_for_tab1.curves_from_file.text_file import read_X_Y_from_text_file
 
 
-def _create_temp_file(content: str):
-    tmp = tempfile.NamedTemporaryFile('w+', delete=False)
+def _create_temp_file(content: str, suffix: str = '.txt'):
+    tmp = tempfile.NamedTemporaryFile('w+', delete=False, suffix=suffix)
     tmp.write(content)
     tmp.flush()
     return tmp
@@ -107,3 +108,11 @@ def test_invalid_column_defaults_to_axis():
     # используется колонка по умолчанию: X -> 0, Y -> 1
     assert curve_info['X_values'] == [1.0, 2.0, 3.0]
     assert curve_info['Y_values'] == [10.0, 20.0, 30.0]
+
+
+def test_text_file_wrong_extension():
+    tmp = _create_temp_file('1,10\n2,20\n', suffix='.csv')
+    curve_info = {'curve_file': tmp.name}
+    read_X_Y_from_text_file(curve_info)
+    assert curve_info.get('X_values', []) == []
+    assert curve_info.get('Y_values', []) == []

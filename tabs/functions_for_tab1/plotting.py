@@ -245,23 +245,17 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
         if legend_checkbox.get() and not curve_info.get('curve_legend', '').strip():
             messagebox.showwarning("Предупреждение", f"Введите подпись легенды для кривой {i}")
             return
-        # Проверяем наличие источников X и Y только для комбинированных кривых
+        # Проверяем источники и файлы данных для кривой
         if curve_info.get('curve_type') == 'Комбинированный':
-            if not curve_info.get('X_source', {}).get('source'):
-                messagebox.showerror("Ошибка", f"Не указан источник X для кривой {i}")
-                return
-            if not curve_info.get('Y_source', {}).get('source'):
-                messagebox.showerror("Ошибка", f"Не указан источник Y для кривой {i}")
-                return
-
-        # Проверяем, указан ли файл данных для кривой и существует ли он
-        if curve_info.get('curve_type') == 'Комбинированный':
-            x_file = curve_info.get('X_source', {}).get('curve_file')
-            y_file = curve_info.get('Y_source', {}).get('curve_file')
-            if not x_file or not y_file:
-                messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
-                return
-            for file in [x_file, y_file]:
+            for axis in ['X', 'Y']:
+                source_info = curve_info.get(f'{axis}_source', {})
+                if not source_info.get('source'):
+                    messagebox.showerror("Ошибка", f"Не указан источник {axis} для кривой {i}")
+                    return
+                file = source_info.get('curve_file')
+                if not file:
+                    messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
+                    return
                 if not Path(file).exists():
                     messagebox.showerror("Ошибка", f"Файл {file} не найден")
                     return

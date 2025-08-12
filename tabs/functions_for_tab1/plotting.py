@@ -245,13 +245,14 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
         if legend_checkbox.get() and not curve_info.get('curve_legend', '').strip():
             messagebox.showwarning("Предупреждение", f"Введите подпись легенды для кривой {i}")
             return
-        # Проверяем наличие источников X и Y
-        if not curve_info.get('X_source', {}).get('source'):
-            messagebox.showerror("Ошибка", f"Не указан источник X для кривой {i}")
-            return
-        if not curve_info.get('Y_source', {}).get('source'):
-            messagebox.showerror("Ошибка", f"Не указан источник Y для кривой {i}")
-            return
+        # Проверяем наличие источников X и Y только для комбинированных кривых
+        if curve_info.get('curve_type') == 'Комбинированный':
+            if not curve_info.get('X_source', {}).get('source'):
+                messagebox.showerror("Ошибка", f"Не указан источник X для кривой {i}")
+                return
+            if not curve_info.get('Y_source', {}).get('source'):
+                messagebox.showerror("Ошибка", f"Не указан источник Y для кривой {i}")
+                return
 
         # Проверяем, указан ли файл данных для кривой и существует ли он
         if curve_info.get('curve_type') == 'Комбинированный':

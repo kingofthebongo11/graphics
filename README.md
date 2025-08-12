@@ -34,5 +34,7 @@ The axis dimension selectors support both SI units and engineering units based o
 ## Supported Curve File Formats
 - Custom frequency analysis format.
 - Plain text files where each line contains two numbers: X and Y.
-- LS-Dyna curve files.
+- LS-Dyna curve files. The first lines are checked for markers like
+  `LS-DYNA` or `*KEYWORD`; if they are absent, the user is notified that
+  the file is not a valid LS-DYNA curve.
 - Excel or CSV tables (first two columns are treated as X and Y).

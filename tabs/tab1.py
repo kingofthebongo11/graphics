@@ -116,7 +116,7 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
     selection = combo.get()
     if selection == "Другое":
         if not entry.winfo_ismapped():
-            entry.place(x=combo.winfo_x() + 200, y=combo.winfo_y(), width=300)
+            entry.place(x=combo.winfo_x() + 250, y=combo.winfo_y(), width=300)
             entry.config(state='normal')
         label_size.place_forget()
         size_combo.place_forget()
@@ -130,12 +130,12 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
         size_combo.set("")
     else:
         entry.place_forget()
-        label_size.place(x=combo.winfo_x() + 200, y=combo.winfo_y())
+        label_size.place(x=combo.winfo_x() + 250, y=combo.winfo_y())
         values = UNITS_MAPPING.get(selection, [])
         size_combo['values'] = values
         size_combo.set("")
         if values:
-            size_combo.place(x=combo.winfo_x() + 350, y=combo.winfo_y(), width=150)
+            size_combo.place(x=combo.winfo_x() + 400, y=combo.winfo_y(), width=100)
             default_unit = DEFAULT_UNITS.get(selection)
             if default_unit in values:
                 size_combo.current(values.index(default_unit))
@@ -194,16 +194,16 @@ def create_tab1(notebook):
         label = ttk.Label(parent, text=label_text)
         label.place(x=10, y=y_pos)
         combo = ttk.Combobox(parent, values=options, state='readonly')
-        combo.place(x=200, y=y_pos, width=150)
+        combo.place(x=200, y=y_pos, width=200)
         combo.current(0)
         entry = create_text(parent, method="entry", height=1, state='disabled', scrollbar=False)
-        entry.place(x=400, y=y_pos, width=300)
+        entry.place(x=450, y=y_pos, width=300)
         entry.place_forget()
         size_label = ttk.Label(parent, text="Выберите размерность:")
-        size_label.place(x=combo.winfo_x() + 200, y=combo.winfo_y())
+        size_label.place(x=combo.winfo_x() + 250, y=combo.winfo_y())
         size_label.place_forget()
         size_combo = ttk.Combobox(parent, values=[], state='readonly')
-        size_combo.place(x=combo.winfo_x() + 350, y=combo.winfo_y(), width=150)
+        size_combo.place(x=combo.winfo_x() + 400, y=combo.winfo_y(), width=100)
         size_combo.place_forget()
         combo.bind(
             "<<ComboboxSelected>>",

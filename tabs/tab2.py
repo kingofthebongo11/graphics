@@ -1,10 +1,11 @@
 """Каркас второй вкладки приложения."""
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 from function_for_all_tabs import create_plot_canvas, plot_on_canvas
-from functions_for_tab2.models import ComputedSegment, IntervalSpec
+from functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
+from functions_for_tab2.segment_builder import build_segment
 from widgets.select_path import select_path
 from dataclasses import replace
 
@@ -315,6 +316,16 @@ class Tab2Frame(ttk.Frame):
         preview_frame.place(x=800, y=30, width=640, height=480)
         self.fig, self.ax, self.canvas = create_plot_canvas(preview_frame)
 
+        control_frame = ttk.Frame(self)
+        control_frame.place(x=800, y=520, width=640, height=40)
+        self.stitch_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(
+            control_frame, text="Стыковать интервалы", variable=self.stitch_var
+        ).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            control_frame, text="Построить", command=self.build_segments
+        ).pack(side=tk.LEFT, padx=5)
+
         # Создаём первый интервал по умолчанию
         self._add_interval()
 
@@ -392,6 +403,40 @@ class Tab2Frame(ttk.Frame):
         self._refresh_list()
 
     # методы для работы с графиком ----------------------------------
+    def build_segments(self) -> None:
+        """Строит сегменты и обновляет предпросмотр."""
+
+        if not self.specs:
+            messagebox.showwarning(
+                "Нет интервалов", "Добавьте хотя бы один интервал"
+            )
+            return
+
+        try:
+            self.intervals = [build_segment(spec) for spec in self.specs]
+        except Exception as exc:  # noqa: BLE001
+            messagebox.showerror("Ошибка построения", str(exc))
+            return
+
+        try:
+            stitched = stitch_segments(
+                self.intervals,
+                [spec.primary_axis for spec in self.specs],
+                require_continuity=bool(self.stitch_var.get()),
+            )
+        except Exception as exc:  # noqa: BLE001
+            messagebox.showerror("Ошибка склейки", str(exc))
+            return
+
+        plot_on_canvas(
+            self.ax,
+            self.fig,
+            self.canvas,
+            [{"X_values": stitched.X, "Y_values": stitched.Y}],
+            "X",
+            "Y",
+        )
+
     def on_data_changed(self) -> None:
         self.redraw_plot()
 

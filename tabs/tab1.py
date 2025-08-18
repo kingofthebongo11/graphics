@@ -274,6 +274,22 @@ def create_tab1(notebook):
     # Фрейм для предпросмотра графика
     preview_frame = ttk.Frame(tab1)
     preview_frame.place(x=800, y=30, width=640, height=480)
+    
+    def show_usage():
+        text = (
+            "1. Укажите название графика и подписи осей.\n"
+            "2. Выберите размерности осей при необходимости.\n"
+            "3. Выберите количество кривых и загрузите данные для каждой.\n"
+            "4. Нажмите «Построить график» для отображения.\n"
+            "5. Для сохранения изображения укажите имя файла и формат, затем нажмите «Сохранить»."
+        )
+        win = tk.Toplevel(tab1)
+        win.title("Как использовать")
+        tk.Label(win, text=text, justify=tk.LEFT, wraplength=400).pack(padx=10, pady=10)
+        ttk.Button(win, text="Ок", command=win.destroy).pack(pady=(0, 10))
+
+    info_button = ttk.Button(tab1, text="Как использовать", command=show_usage)
+    info_button.place(x=800, y=0)
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master=preview_frame)
     canvas.draw()

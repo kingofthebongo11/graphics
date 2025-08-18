@@ -1,7 +1,14 @@
+from __future__ import annotations
+
 from pathlib import Path
+import re
 from typing import List, Tuple
 
-from tabs.functions_for_tab1.curves_from_file.text_file import read_X_Y_from_text_file
+import numpy as np
+
+from tabs.functions_for_tab1.curves_from_file.text_file import (
+    read_X_Y_from_text_file,
+)
 
 
 def read_pairs(path: str) -> Tuple[List[float], List[float]]:
@@ -22,3 +29,38 @@ def read_pairs(path: str) -> Tuple[List[float], List[float]]:
         return curve_info["X_values"], curve_info["Y_values"]
     except KeyError as exc:
         raise ValueError("Некорректные данные в файле") from exc
+
+
+def parse_numbers(text: str) -> np.ndarray:
+    """Parse whitespace or comma separated numbers into an array.
+
+    Parameters
+    ----------
+    text:
+        String containing numbers separated by whitespace, commas or
+        semicolons.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array of parsed floats.  Empty tokens are ignored.
+
+    Raises
+    ------
+    ValueError
+        If any token cannot be converted to ``float``.
+    """
+
+    tokens = re.split(r"[\s,;]+", text.strip())
+    numbers: List[float] = []
+    for token in tokens:
+        if not token:
+            continue
+        try:
+            numbers.append(float(token))
+        except ValueError as exc:  # pragma: no cover - defensive branch
+            raise ValueError(f"Некорректное число: {token}") from exc
+    return np.asarray(numbers, dtype=float)
+
+
+__all__ = ["read_pairs", "parse_numbers"]

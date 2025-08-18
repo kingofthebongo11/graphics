@@ -6,6 +6,7 @@ from tkinter import ttk
 from function_for_all_tabs import create_plot_canvas, plot_on_canvas
 from functions_for_tab2.models import ComputedSegment, IntervalSpec
 from widgets.select_path import select_path
+from dataclasses import replace
 
 
 class IntervalEditor(ttk.Frame):
@@ -282,27 +283,119 @@ class IntervalEditor(ttk.Frame):
         )
 
 
-class Tab2:
-    """Класс-контейнер для логики второй вкладки."""
+class Tab2Frame(ttk.Frame):
+    """Основной виджет второй вкладки."""
 
     def __init__(self, parent: ttk.Notebook) -> None:
-        self.frame = ttk.Frame(parent)
+        super().__init__(parent)
         self._init_state()
 
-        preview_frame = ttk.Frame(self.frame)
+        # Панель со списком интервалов и кнопками управления
+        list_panel = ttk.Frame(self)
+        list_panel.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
+
+        self.listbox = tk.Listbox(list_panel, exportselection=False)
+        self.listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.listbox.bind("<<ListboxSelect>>", self._on_select)
+
+        btns = ttk.Frame(list_panel)
+        btns.pack(side=tk.TOP, fill=tk.X, pady=5)
+        ttk.Button(btns, text="Добавить", command=self._add_interval).pack(fill=tk.X)
+        ttk.Button(btns, text="Дублировать", command=self._duplicate_interval).pack(fill=tk.X)
+        ttk.Button(btns, text="Удалить", command=self._delete_interval).pack(fill=tk.X)
+        ttk.Button(btns, text="Вверх", command=lambda: self._move(-1)).pack(fill=tk.X)
+        ttk.Button(btns, text="Вниз", command=lambda: self._move(1)).pack(fill=tk.X)
+
+        # Редактор параметров
+        self.editor = IntervalEditor(self, on_change=self._on_editor_change)
+        self.editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Область предварительного просмотра графика
+        preview_frame = ttk.Frame(self)
         preview_frame.place(x=800, y=30, width=640, height=480)
         self.fig, self.ax, self.canvas = create_plot_canvas(preview_frame)
 
-    def _init_state(self) -> None:
-        """Инициализирует и хранит состояние интервалов."""
-        self.intervals: list[ComputedSegment] = []
+        # Создаём первый интервал по умолчанию
+        self._add_interval()
 
+    # работа со списком интервалов ---------------------------------
+    def _init_state(self) -> None:
+        self.intervals: list[ComputedSegment] = []
+        self.specs: list[IntervalSpec] = []
+        self._next_id = 1
+        self._current_index: int | None = None
+
+    def _generate_id(self) -> int:
+        iid = self._next_id
+        self._next_id += 1
+        return iid
+
+    def _refresh_list(self) -> None:
+        self.listbox.delete(0, tk.END)
+        for i, spec in enumerate(self.specs):
+            self.listbox.insert(tk.END, f"{i + 1}: id={spec.id}")
+        if self._current_index is not None and self.specs:
+            self.listbox.selection_set(self._current_index)
+
+    def _add_interval(self) -> None:
+        spec = IntervalSpec(id=self._generate_id(), primary_axis="X")
+        self.specs.append(spec)
+        self._current_index = len(self.specs) - 1
+        self._refresh_list()
+        self.editor.set_spec(spec)
+
+    def _duplicate_interval(self) -> None:
+        if self._current_index is None:
+            return
+        spec = replace(self.specs[self._current_index])
+        spec.id = self._generate_id()
+        self.specs.insert(self._current_index + 1, spec)
+        self._current_index += 1
+        self._refresh_list()
+        self.editor.set_spec(spec)
+
+    def _delete_interval(self) -> None:
+        if self._current_index is None:
+            return
+        del self.specs[self._current_index]
+        if self.specs:
+            if self._current_index >= len(self.specs):
+                self._current_index = len(self.specs) - 1
+            self.editor.set_spec(self.specs[self._current_index])
+        else:
+            self._current_index = None
+        self._refresh_list()
+
+    def _move(self, delta: int) -> None:
+        if self._current_index is None:
+            return
+        new_index = self._current_index + delta
+        if 0 <= new_index < len(self.specs):
+            self.specs[self._current_index], self.specs[new_index] = (
+                self.specs[new_index],
+                self.specs[self._current_index],
+            )
+            self._current_index = new_index
+            self._refresh_list()
+
+    def _on_select(self, _event) -> None:
+        selection = self.listbox.curselection()
+        if not selection:
+            return
+        self._current_index = selection[0]
+        self.editor.set_spec(self.specs[self._current_index])
+
+    def _on_editor_change(self, spec: IntervalSpec) -> None:
+        if self._current_index is None:
+            return
+        self.specs[self._current_index] = spec
+        self._refresh_list()
+
+    # методы для работы с графиком ----------------------------------
     def on_data_changed(self) -> None:
-        """Колбэк, вызываемый при изменении исходных данных."""
         self.redraw_plot()
 
     def redraw_plot(self) -> None:
-        """Перерисовывает график в соответствии с текущими данными."""
         curves = [
             {"X_values": seg.X, "Y_values": seg.Y}
             for seg in self.intervals
@@ -314,24 +407,21 @@ class Tab2:
             self.canvas.draw()
 
     def export_txt(self) -> None:
-        """Экспортирует данные в текстовый файл."""
         pass
 
     def save_project(self, path: str) -> None:
-        """Сохраняет проект во внешний файл."""
         pass
 
     def load_project(self, path: str) -> None:
-        """Загружает проект из файла."""
         pass
 
 
 def create_tab2(notebook: ttk.Notebook) -> ttk.Frame:
     """Создаёт вкладку и возвращает виджет-контейнер."""
-    tab = Tab2(notebook)
-    notebook.add(tab.frame, text="Создание графиков для LS-DYNA")
-    return tab.frame
+    tab = Tab2Frame(notebook)
+    notebook.add(tab, text="Создание графиков для LS-DYNA")
+    return tab
 
 
-__all__ = ["create_tab2", "Tab2", "IntervalEditor"]
+__all__ = ["create_tab2", "Tab2Frame", "IntervalEditor"]
 

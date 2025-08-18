@@ -288,6 +288,17 @@ def create_tab1(notebook):
         tk.Label(win, text=text, justify=tk.LEFT, wraplength=400).pack(padx=10, pady=10)
         ttk.Button(win, text="Ок", command=win.destroy).pack(pady=(0, 10))
 
+        win.update_idletasks()
+        width = win.winfo_width()
+        height = win.winfo_height()
+        x = (win.winfo_screenwidth() - width) // 2
+        y = (win.winfo_screenheight() - height) // 2
+        win.geometry(f"{width}x{height}+{x}+{y}")
+        win.transient(tab1.winfo_toplevel())
+        win.grab_set()
+        win.lift()
+        win.attributes("-topmost", True)
+
     info_button = ttk.Button(tab1, text="Как использовать", command=show_usage)
     info_button.place(x=800, y=0)
     fig, ax = plt.subplots()

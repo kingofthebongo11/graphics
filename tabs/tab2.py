@@ -3,6 +3,9 @@
 import tkinter as tk  # noqa: F401
 from tkinter import ttk
 
+from function_for_all_tabs import create_plot_canvas, plot_on_canvas
+from functions_for_tab2.models import ComputedSegment
+
 
 class Tab2:
     """Класс-контейнер для логики второй вкладки."""
@@ -11,17 +14,29 @@ class Tab2:
         self.frame = ttk.Frame(parent)
         self._init_state()
 
+        preview_frame = ttk.Frame(self.frame)
+        preview_frame.place(x=800, y=30, width=640, height=480)
+        self.fig, self.ax, self.canvas = create_plot_canvas(preview_frame)
+
     def _init_state(self) -> None:
         """Инициализирует и хранит состояние интервалов."""
-        self.intervals = []
+        self.intervals: list[ComputedSegment] = []
 
     def on_data_changed(self) -> None:
         """Колбэк, вызываемый при изменении исходных данных."""
-        pass
+        self.redraw_plot()
 
     def redraw_plot(self) -> None:
         """Перерисовывает график в соответствии с текущими данными."""
-        pass
+        curves = [
+            {"X_values": seg.X, "Y_values": seg.Y}
+            for seg in self.intervals
+        ]
+        if curves:
+            plot_on_canvas(self.ax, self.fig, self.canvas, curves, "X", "Y")
+        else:
+            self.ax.clear()
+            self.canvas.draw()
 
     def export_txt(self) -> None:
         """Экспортирует данные в текстовый файл."""

@@ -3,10 +3,8 @@ from tkinter import ttk
 
 from .functions_for_tab1 import update_curves, generate_graph, save_file, last_graph
 from widgets import PlotEditor
-
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from widgets.text_widget import create_text
+from function_for_all_tabs import create_plot_canvas
 
 
 def sort_options(options):
@@ -303,10 +301,7 @@ def create_tab1(notebook):
 
     info_button = ttk.Button(tab1, text="Как использовать", command=show_usage)
     info_button.place(x=800, y=0)
-    fig, ax = plt.subplots()
-    canvas = FigureCanvasTkAgg(fig, master=preview_frame)
-    canvas.draw()
-    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    fig, ax, canvas = create_plot_canvas(preview_frame)
 
     editor_visible = {"shown": False}
     plot_editor = PlotEditor(tab1, ax, canvas)

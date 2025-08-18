@@ -284,13 +284,14 @@ def create_tab1(notebook):
             "5. Для сохранения изображения укажите имя файла и формат, затем нажмите «Сохранить»."
         )
         win = tk.Toplevel(tab1)
+        win.withdraw()
         win.title("Как использовать")
         tk.Label(win, text=text, justify=tk.LEFT, wraplength=400).pack(padx=10, pady=10)
         ttk.Button(win, text="Ок", command=win.destroy).pack(pady=(0, 10))
 
         win.update_idletasks()
-        width = win.winfo_width()
-        height = win.winfo_height()
+        width = win.winfo_reqwidth()
+        height = win.winfo_reqheight()
         x = (win.winfo_screenwidth() - width) // 2
         y = (win.winfo_screenheight() - height) // 2
         win.geometry(f"{width}x{height}+{x}+{y}")
@@ -298,6 +299,7 @@ def create_tab1(notebook):
         win.grab_set()
         win.lift()
         win.attributes("-topmost", True)
+        win.deiconify()
 
     info_button = ttk.Button(tab1, text="Как использовать", command=show_usage)
     info_button.place(x=800, y=0)

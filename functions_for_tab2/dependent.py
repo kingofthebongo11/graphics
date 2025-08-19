@@ -1,20 +1,4 @@
-"""Utilities for computing dependent coordinate values for tab2.
-
-This module provides :func:`compute_dependent_values` which transforms the
-user configuration of the dependent coordinate into numeric arrays.  Several
-modes are supported:
-
-``const``
-    Return an array filled with a constant.
-``array``
-    Parse explicit array values from text.
-``expr``
-    Evaluate a mathematical expression using :func:`safe_eval_expr`.
-``from_file``
-    Load X/Y value pairs from a file using the same readers as tab1.
-``manual_pairs``
-    Parse X/Y pairs directly from a text block.
-"""
+"""Utilities for computing dependent coordinate values for tab2."""
 
 from __future__ import annotations
 
@@ -24,6 +8,10 @@ from typing import Literal, Optional, Tuple
 import numpy as np
 
 from function_for_all_tabs.safe_eval import safe_eval_expr
+from function_for_all_tabs.validation import (
+    InvalidFormatError,
+    SizeMismatchError,
+)
 from tabs.function_for_all_tabs.parsing_utils import parse_numbers
 from tabs.functions_for_tab1.curves_from_file import (
     read_X_Y_from_excel,
@@ -36,7 +24,6 @@ Array = np.ndarray
 
 def _parse_manual_pairs(text: str) -> Tuple[Array, Array]:
     """Parse ``(x, y)`` pairs from a multiline string."""
-
     xs: list[float] = []
     ys: list[float] = []
     for raw_line in text.splitlines():
@@ -45,7 +32,7 @@ def _parse_manual_pairs(text: str) -> Tuple[Array, Array]:
             continue
         numbers = parse_numbers(line)
         if numbers.size < 2:
-            raise ValueError(f"Некорректные данные в строке: {line}")
+            raise InvalidFormatError(f"Некорректные данные в строке: {line}")
         xs.append(float(numbers[0]))
         ys.append(float(numbers[1]))
     return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float)
@@ -53,14 +40,11 @@ def _parse_manual_pairs(text: str) -> Tuple[Array, Array]:
 
 def _read_pairs_from_file(path: str) -> Tuple[Array, Array]:
     """Read X and Y arrays from ``path`` using tab1 readers."""
-
     curve_info = {"curve_file": path}
     suffix = Path(path).suffix.lower()
     if suffix in {".xlsx", ".xlsm", ".csv"}:
         read_X_Y_from_excel(curve_info)
     else:
-        # LS-DYNA files often have ``.txt`` extension.  Try the specialised
-        # reader first and fall back to a plain text reader on error.
         try:
             read_X_Y_from_ls_dyna(curve_info)
         except Exception:
@@ -83,7 +67,6 @@ def compute_dependent_values(
     manual_pairs_text: str,
 ) -> Tuple[Optional[Array], Optional[Array]]:
     """Compute dependent coordinate values according to ``dep_mode``."""
-
     if dep_mode == "const":
         values = np.full_like(grid, const_value, dtype=float)
         return None, values
@@ -91,7 +74,7 @@ def compute_dependent_values(
     if dep_mode == "array":
         values = parse_numbers(array_values_text)
         if values.size != grid.size:
-            raise ValueError("Длины массива и сетки не совпадают")
+            raise SizeMismatchError("Длины массива и сетки не совпадают")
         return None, values
 
     if dep_mode == "expr":
@@ -104,7 +87,8 @@ def compute_dependent_values(
     if dep_mode == "manual_pairs":
         return _parse_manual_pairs(manual_pairs_text)
 
-    raise ValueError(f"Неизвестный режим: {dep_mode}")
+    raise InvalidFormatError(f"Неизвестный режим: {dep_mode}")
 
 
 __all__ = ["compute_dependent_values"]
+

@@ -1,10 +1,12 @@
 """Каркас второй вкладки приложения."""
 
+import json
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 
 from function_for_all_tabs import create_plot_canvas, plot_on_canvas
 from functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
+from functions_for_tab2.exporting import export_curve_txt
 from functions_for_tab2.segment_builder import build_segment
 from widgets.select_path import select_path
 from dataclasses import replace
@@ -325,6 +327,15 @@ class Tab2Frame(ttk.Frame):
         ttk.Button(
             control_frame, text="Построить", command=self.build_segments
         ).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            control_frame, text="Экспорт TXT", command=self.export_txt
+        ).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            control_frame, text="Сохранить проект", command=self.save_project
+        ).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            control_frame, text="Загрузить проект", command=self.load_project
+        ).pack(side=tk.LEFT, padx=5)
 
         # Создаём первый интервал по умолчанию
         self._add_interval()
@@ -452,13 +463,84 @@ class Tab2Frame(ttk.Frame):
             self.canvas.draw()
 
     def export_txt(self) -> None:
-        pass
+        """Экспортирует построенную кривую в текстовый файл."""
 
-    def save_project(self, path: str) -> None:
-        pass
+        if not self.specs:
+            messagebox.showwarning(
+                "Нет интервалов", "Добавьте хотя бы один интервал"
+            )
+            return
 
-    def load_project(self, path: str) -> None:
-        pass
+        try:
+            segments = [build_segment(spec) for spec in self.specs]
+            stitched = stitch_segments(
+                segments,
+                [spec.primary_axis for spec in self.specs],
+                require_continuity=bool(self.stitch_var.get()),
+            )
+        except Exception as exc:  # noqa: BLE001
+            messagebox.showerror("Ошибка построения", str(exc))
+            return
+
+        path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("TXT", "*.txt"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+
+        precision = max(spec.precision for spec in self.specs)
+        try:
+            export_curve_txt(path, stitched.X, stitched.Y, precision)
+            messagebox.showinfo("Успех", f"Кривая сохранена: {path}")
+        except Exception as exc:  # noqa: BLE001
+            messagebox.showerror("Ошибка экспорта", str(exc))
+
+    def save_project(self) -> None:
+        """Сохраняет текущую конфигурацию интервалов в JSON."""
+
+        path = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON", "*.json"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+        data = {
+            "specs": [spec.to_dict() for spec in self.specs],
+            "stitch": bool(self.stitch_var.get()),
+        }
+        try:
+            with open(path, "w", encoding="utf-8") as fh:
+                json.dump(data, fh, ensure_ascii=False, indent=2)
+            messagebox.showinfo("Успех", f"Проект сохранён: {path}")
+        except Exception as exc:  # noqa: BLE001
+            messagebox.showerror("Ошибка сохранения", str(exc))
+
+    def load_project(self) -> None:
+        """Загружает конфигурацию интервалов из JSON."""
+
+        path = filedialog.askopenfilename(
+            filetypes=[("JSON", "*.json"), ("All files", "*.*")]
+        )
+        if not path:
+            return
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+            self.specs = [
+                IntervalSpec.from_dict(d) for d in data.get("specs", [])
+            ]
+            self.stitch_var.set(bool(data.get("stitch", True)))
+            self._next_id = max((s.id for s in self.specs), default=0) + 1
+            self._current_index = 0 if self.specs else None
+            self.intervals = []
+            self._refresh_list()
+            if self.specs:
+                self.editor.set_spec(self.specs[0])
+            self.redraw_plot()
+            messagebox.showinfo("Успех", f"Проект загружен: {path}")
+        except Exception as exc:  # noqa: BLE001
+            messagebox.showerror("Ошибка загрузки", str(exc))
 
 
 def create_tab2(notebook: ttk.Notebook) -> ttk.Frame:

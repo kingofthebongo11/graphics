@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 
 from function_for_all_tabs import create_plot_canvas, plot_on_canvas
+from function_for_all_tabs.validation import ValidationError
 from functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
 from functions_for_tab2.exporting import export_curve_txt
 from functions_for_tab2.segment_builder import build_segment
@@ -425,8 +426,11 @@ class Tab2Frame(ttk.Frame):
 
         try:
             self.intervals = [build_segment(spec) for spec in self.specs]
-        except Exception as exc:  # noqa: BLE001
+        except ValidationError as exc:
             messagebox.showerror("Ошибка построения", str(exc))
+            return
+        except Exception:  # noqa: BLE001
+            messagebox.showerror("Ошибка построения", "Внутренняя ошибка")
             return
 
         try:
@@ -435,8 +439,11 @@ class Tab2Frame(ttk.Frame):
                 [spec.primary_axis for spec in self.specs],
                 require_continuity=bool(self.stitch_var.get()),
             )
-        except Exception as exc:  # noqa: BLE001
+        except ValidationError as exc:
             messagebox.showerror("Ошибка склейки", str(exc))
+            return
+        except Exception:  # noqa: BLE001
+            messagebox.showerror("Ошибка склейки", "Внутренняя ошибка")
             return
 
         plot_on_canvas(
@@ -478,8 +485,11 @@ class Tab2Frame(ttk.Frame):
                 [spec.primary_axis for spec in self.specs],
                 require_continuity=bool(self.stitch_var.get()),
             )
-        except Exception as exc:  # noqa: BLE001
+        except ValidationError as exc:
             messagebox.showerror("Ошибка построения", str(exc))
+            return
+        except Exception:  # noqa: BLE001
+            messagebox.showerror("Ошибка построения", "Внутренняя ошибка")
             return
 
         path = filedialog.asksaveasfilename(
@@ -493,8 +503,10 @@ class Tab2Frame(ttk.Frame):
         try:
             export_curve_txt(path, stitched.X, stitched.Y, precision)
             messagebox.showinfo("Успех", f"Кривая сохранена: {path}")
-        except Exception as exc:  # noqa: BLE001
+        except ValidationError as exc:
             messagebox.showerror("Ошибка экспорта", str(exc))
+        except Exception:  # noqa: BLE001
+            messagebox.showerror("Ошибка экспорта", "Внутренняя ошибка")
 
     def save_project(self) -> None:
         """Сохраняет текущую конфигурацию интервалов в JSON."""

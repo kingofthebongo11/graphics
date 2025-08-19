@@ -321,6 +321,7 @@ class Tab2Frame(ttk.Frame):
 
         control_frame = ttk.Frame(self)
         control_frame.place(x=800, y=520, width=640, height=40)
+        # Опция выравнивания соседних сегментов по оси аргумента
         self.stitch_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(
             control_frame, text="Стыковать интервалы", variable=self.stitch_var

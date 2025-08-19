@@ -44,7 +44,16 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
             size_combo.place_forget()
 
 
-def create_tab1(notebook):
+def create_tab1(notebook: ttk.Notebook) -> None:
+    """Создает первую вкладку для построения графика.
+
+    Параметры:
+        notebook: виджет, в который добавляется вкладка.
+
+    Возвращает:
+        None.
+    """
+
     # Создание первой вкладки
     tab1 = ttk.Frame(notebook)
     notebook.add(tab1, text="Создание изображения графика")

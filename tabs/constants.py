@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
 """Константы для вкладок приложения."""
 
+from collections.abc import Sequence
 
-def sort_options(options):
+
+def sort_options(options: Sequence[str]) -> list[str]:
+    """Сортирует список опций.
+
+    Параметры:
+        options: последовательность строк для упорядочивания.
+
+    Возвращает:
+        Отсортированный список, где «Нет» стоит первым,
+        а «Другое» — последним.
+    """
+
     first = ["Нет"] if "Нет" in options else []
     middle = sorted([opt for opt in options if opt not in ("Нет", "Другое")])
     last = ["Другое"] if "Другое" in options else []

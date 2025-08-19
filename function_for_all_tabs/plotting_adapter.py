@@ -38,7 +38,7 @@ def plot_on_canvas(
         x_label,
         y_label,
         title,
-        prY=pr_y,
+        pr_y=pr_y,
         fig=fig,
         ax=ax,
         legend=legend,

@@ -15,7 +15,7 @@ last_graph = {}
 
 
 class AxisTitleProcessor:
-    def __init__(self, combo_title, combo_size, entry_title=None, language='Русский'):
+    def __init__(self, combo_title, combo_size, entry_title=None, language="Русский"):
         self.combo_title = combo_title
         self.combo_size = combo_size
         self.entry_title = entry_title
@@ -181,7 +181,7 @@ class AxisTitleProcessor:
 
 def save_file(entry_widget, format_widget, graph_info):
 
-    fig = graph_info.get('fig')
+    fig = graph_info.get("fig")
     if fig is None:
         messagebox.showwarning("Предупреждение", "Сначала постройте график")
         return
@@ -191,7 +191,10 @@ def save_file(entry_widget, format_widget, graph_info):
     if file_name and file_format:
         file_path = filedialog.asksaveasfilename(
             defaultextension=f".{file_format}",
-            filetypes=[(f"{file_format.upper()} files", f"*.{file_format}"), ("All files", "*.*")],
+            filetypes=[
+                (f"{file_format.upper()} files", f"*.{file_format}"),
+                ("All files", "*.*"),
+            ],
             initialfile=f"{file_name}.{file_format}",
         )
         if file_path:
@@ -207,36 +210,58 @@ def save_file(entry_widget, format_widget, graph_info):
 
 
 def get_X_Y_data(curve_info):
-    if curve_info['curve_type'] == 'Частотный анализ':
+    if curve_info["curve_type"] == "Частотный анализ":
         read_X_Y_from_frequency_analysis(curve_info)
-    elif curve_info['curve_type'] == 'Текстовой файл':
+    elif curve_info["curve_type"] == "Текстовой файл":
         read_X_Y_from_text_file(curve_info)
-    elif curve_info['curve_type'] == 'Файл кривой LS-Dyna':
+    elif curve_info["curve_type"] == "Файл кривой LS-Dyna":
         read_X_Y_from_ls_dyna(curve_info)
-    elif curve_info['curve_type'] == 'Excel файл':
+    elif curve_info["curve_type"] == "Excel файл":
         read_X_Y_from_excel(curve_info)
-    elif curve_info['curve_type'] == 'Комбинированный':
+    elif curve_info["curve_type"] == "Комбинированный":
         read_X_Y_from_combined(curve_info)
 
 
-def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX_size, entry_titleX,
-                   combo_titleY, combo_titleY_size, entry_titleY, legend_checkbox, curves_frame, combo_curves, combo_language):
+def generate_graph(
+    ax,
+    fig,
+    canvas,
+    path_entry_title,
+    combo_titleX,
+    combo_titleX_size,
+    entry_titleX,
+    combo_titleY,
+    combo_titleY_size,
+    entry_titleY,
+    legend_checkbox,
+    curves_frame,
+    combo_curves,
+    combo_language,
+):
 
     # Очистка предыдущего графика
     ax.clear()
     # Считываем заголовок из поля ввода
     title = path_entry_title.get()
-    language = combo_language.get() or 'Русский'
-    xlabel_processor = AxisTitleProcessor(combo_titleX, combo_titleX_size, entry_titleX, language)
-    ylabel_processor = AxisTitleProcessor(combo_titleY, combo_titleY_size, entry_titleY, language)
+    language = combo_language.get() or "Русский"
+    xlabel_processor = AxisTitleProcessor(
+        combo_titleX, combo_titleX_size, entry_titleX, language
+    )
+    ylabel_processor = AxisTitleProcessor(
+        combo_titleY, combo_titleY_size, entry_titleY, language
+    )
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
 
-    if combo_titleX.get() == "Другое" and (entry_titleX is None or not entry_titleX.get().strip()):
+    if combo_titleX.get() == "Другое" and (
+        entry_titleX is None or not entry_titleX.get().strip()
+    ):
         messagebox.showwarning("Предупреждение", "Заполните название оси X")
         return
 
-    if combo_titleY.get() == "Другое" and (entry_titleY is None or not entry_titleY.get().strip()):
+    if combo_titleY.get() == "Другое" and (
+        entry_titleY is None or not entry_titleY.get().strip()
+    ):
         messagebox.showwarning("Предупреждение", "Заполните название оси Y")
         return
 
@@ -248,107 +273,139 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
     for i in range(1, num_curves + 1):
         curve_info = {}
         for widget in curves_frame.winfo_children():
-            if hasattr(widget, '_name'):
+            if hasattr(widget, "_name"):
                 widget_name = widget._name
 
                 # Проверяем тип кривой
                 if widget_name == f"curve_{i}_type":
-                    curve_info['curve_type'] = widget.get()
+                    curve_info["curve_type"] = widget.get()
 
                 # Если тип кривой "Частотный анализ", собираем дополнительные данные
-                if 'curve_type' in curve_info and curve_info['curve_type'] == "Частотный анализ":
+                if (
+                    "curve_type" in curve_info
+                    and curve_info["curve_type"] == "Частотный анализ"
+                ):
                     if widget_name == f"curve_{i}_typeXF":
-                        curve_info['curve_typeXF'] = widget.get()
+                        curve_info["curve_typeXF"] = widget.get()
                     elif widget_name == f"curve_{i}_typeYF":
-                        curve_info['curve_typeYF'] = widget.get()
+                        curve_info["curve_typeYF"] = widget.get()
                     elif widget_name == f"curve_{i}_typeXFtype":
-                        curve_info['curve_typeXF_type'] = widget.get()
+                        curve_info["curve_typeXF_type"] = widget.get()
                     elif widget_name == f"curve_{i}_typeYFtype":
-                        curve_info['curve_typeYF_type'] = widget.get()
+                        curve_info["curve_typeYF_type"] = widget.get()
 
                 if widget_name == f"curve_{i}_X_source":
-                    curve_info.setdefault('X_source', {}).update({'source': widget.get()})
+                    curve_info.setdefault("X_source", {}).update(
+                        {"source": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_Y_source":
-                    curve_info.setdefault('Y_source', {}).update({'source': widget.get()})
+                    curve_info.setdefault("Y_source", {}).update(
+                        {"source": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_X_parameter":
-                    curve_info.setdefault('X_source', {}).update({'parameter': widget.get()})
+                    curve_info.setdefault("X_source", {}).update(
+                        {"parameter": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_Y_parameter":
-                    curve_info.setdefault('Y_source', {}).update({'parameter': widget.get()})
+                    curve_info.setdefault("Y_source", {}).update(
+                        {"parameter": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_X_direction":
-                    curve_info.setdefault('X_source', {}).update({'direction': widget.get()})
+                    curve_info.setdefault("X_source", {}).update(
+                        {"direction": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_Y_direction":
-                    curve_info.setdefault('Y_source', {}).update({'direction': widget.get()})
+                    curve_info.setdefault("Y_source", {}).update(
+                        {"direction": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_X_column":
                     value = widget.get()
-                    column = 0 if value != 'Y' else 1
-                    curve_info.setdefault('X_source', {}).update({'column': column})
+                    column = 0 if value != "Y" else 1
+                    curve_info.setdefault("X_source", {}).update({"column": column})
                 elif widget_name == f"curve_{i}_Y_column":
                     value = widget.get()
-                    column = 1 if value != 'X' else 0
-                    curve_info.setdefault('Y_source', {}).update({'column': column})
+                    column = 1 if value != "X" else 0
+                    curve_info.setdefault("Y_source", {}).update({"column": column})
                 elif widget_name == f"curve_{i}_X_range":
-                    curve_info.setdefault('X_source', {}).update({'range_x': widget.get(), 'use_ranges': True})
+                    curve_info.setdefault("X_source", {}).update(
+                        {"range_x": widget.get(), "use_ranges": True}
+                    )
                 elif widget_name == f"curve_{i}_Y_range":
-                    curve_info.setdefault('Y_source', {}).update({'range_y': widget.get(), 'use_ranges': True})
-
+                    curve_info.setdefault("Y_source", {}).update(
+                        {"range_y": widget.get(), "use_ranges": True}
+                    )
 
                 # Получаем имя файла для каждой кривой
                 if widget_name == f"curve_{i}_filename":
-                    curve_info['curve_file'] = widget.get()
-                    if curve_info.get('curve_type') != "Комбинированный":
-                        if 'X_source' in curve_info:
-                            curve_info['X_source'].setdefault('curve_file', widget.get())
-                        if 'Y_source' in curve_info:
-                            curve_info['Y_source'].setdefault('curve_file', widget.get())
+                    curve_info["curve_file"] = widget.get()
+                    if curve_info.get("curve_type") != "Комбинированный":
+                        if "X_source" in curve_info:
+                            curve_info["X_source"].setdefault(
+                                "curve_file", widget.get()
+                            )
+                        if "Y_source" in curve_info:
+                            curve_info["Y_source"].setdefault(
+                                "curve_file", widget.get()
+                            )
                 elif widget_name == f"curve_{i}_filename_X":
-                    curve_info.setdefault('X_source', {}).update({'curve_file': widget.get()})
+                    curve_info.setdefault("X_source", {}).update(
+                        {"curve_file": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_filename_Y":
-                    curve_info.setdefault('Y_source', {}).update({'curve_file': widget.get()})
+                    curve_info.setdefault("Y_source", {}).update(
+                        {"curve_file": widget.get()}
+                    )
 
                 if widget_name == f"curve_{i}_horizontal":
-                    curve_info['horizontal'] = widget.var.get()
+                    curve_info["horizontal"] = widget.var.get()
 
                 if widget_name == f"curve_{i}_use_offset":
-                    curve_info['use_offset'] = widget.var.get()
+                    curve_info["use_offset"] = widget.var.get()
                 elif widget_name == f"curve_{i}_offset_h":
                     try:
-                        curve_info['offset_horizontal'] = int(widget.get())
+                        curve_info["offset_horizontal"] = int(widget.get())
                     except ValueError:
-                        curve_info['offset_horizontal'] = 0
+                        curve_info["offset_horizontal"] = 0
                 elif widget_name == f"curve_{i}_offset_v":
                     try:
-                        curve_info['offset_vertical'] = int(widget.get())
+                        curve_info["offset_vertical"] = int(widget.get())
                     except ValueError:
-                        curve_info['offset_vertical'] = 0
+                        curve_info["offset_vertical"] = 0
                 if widget_name == f"curve_{i}_use_ranges":
-                    curve_info['use_ranges'] = widget.var.get()
+                    curve_info["use_ranges"] = widget.var.get()
                 elif widget_name == f"curve_{i}_range_x":
-                    curve_info['range_x'] = widget.get()
+                    curve_info["range_x"] = widget.get()
                 elif widget_name == f"curve_{i}_range_y":
-                    curve_info['range_y'] = widget.get()
+                    curve_info["range_y"] = widget.get()
 
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
-                    curve_info['curve_legend'] = widget.get()
-        if legend_checkbox.get() and not curve_info.get('curve_legend', '').strip():
-            messagebox.showwarning("Предупреждение", f"Введите подпись легенды для кривой {i}")
+                    curve_info["curve_legend"] = widget.get()
+        if legend_checkbox.get() and not curve_info.get("curve_legend", "").strip():
+            messagebox.showwarning(
+                "Предупреждение", f"Введите подпись легенды для кривой {i}"
+            )
             return
         # Проверяем источники и файлы данных для кривой
-        if curve_info.get('curve_type') == 'Комбинированный':
-            for axis in ['X', 'Y']:
-                source_info = curve_info.get(f'{axis}_source', {})
-                if not source_info.get('source'):
-                    messagebox.showerror("Ошибка", f"Не указан источник {axis} для кривой {i}")
+        if curve_info.get("curve_type") == "Комбинированный":
+            for axis in ["X", "Y"]:
+                source_info = curve_info.get(f"{axis}_source", {})
+                if not source_info.get("source"):
+                    messagebox.showerror(
+                        "Ошибка", f"Не указан источник {axis} для кривой {i}"
+                    )
                     return
-                file = source_info.get('curve_file')
+                file = source_info.get("curve_file")
                 if not file:
-                    messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
+                    messagebox.showerror(
+                        "Ошибка", f"Не указан файл данных для кривой {i}"
+                    )
                     return
                 if not Path(file).exists():
                     messagebox.showerror("Ошибка", f"Файл {file} не найден")
                     return
         else:
-            file = curve_info.get('curve_file')
+            file = curve_info.get("curve_file")
             if not file:
                 messagebox.showerror("Ошибка", f"Не указан файл данных для кривой {i}")
                 return
@@ -357,26 +414,29 @@ def generate_graph(ax, fig, canvas, path_entry_title, combo_titleX, combo_titleX
                 return
 
         # Добавляем информацию о кривой в общий список
-        if 'X_source' in curve_info and 'column' not in curve_info['X_source']:
-            curve_info['X_source']['column'] = 0
-        if 'Y_source' in curve_info and 'column' not in curve_info['Y_source']:
-            curve_info['Y_source']['column'] = 1
+        if "X_source" in curve_info and "column" not in curve_info["X_source"]:
+            curve_info["X_source"]["column"] = 0
+        if "Y_source" in curve_info and "column" not in curve_info["Y_source"]:
+            curve_info["Y_source"]["column"] = 1
         get_X_Y_data(curve_info)
         curves_info.append(curve_info)
 
-    create_plot(curves_info, xlabel, ylabel, title,
-                fig=fig, ax=ax, legend=legend_checkbox.get())
+    create_plot(
+        curves_info, xlabel, ylabel, title, fig=fig, ax=ax, legend=legend_checkbox.get()
+    )
 
     # Сохраняем данные графика для последующего сохранения в файл
     global last_graph
     last_graph.clear()
-    last_graph.update({
-        'curves_info': curves_info,
-        'X_label': xlabel,
-        'Y_label': ylabel,
-        'title': title,
-        'fig': fig,
-    })
+    last_graph.update(
+        {
+            "curves_info": curves_info,
+            "x_label": xlabel,
+            "y_label": ylabel,
+            "title": title,
+            "fig": fig,
+        }
+    )
 
     # Перерисовка графика
     canvas.draw()

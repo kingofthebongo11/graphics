@@ -1,4 +1,10 @@
-"""Concatenate multiple segments into a continuous curve."""
+"""Concatenate multiple segments into a continuous curve.
+
+Функция склеивает несколько отдельных сегментов в одну непрерывную
+кривую.  При необходимости она выравнивает первую точку следующего
+сегмента по последней точке текущего сегмента, если их значения по
+соответствующей оси аргумента совпадают с заданной точностью.
+"""
 
 from __future__ import annotations
 
@@ -18,7 +24,30 @@ def stitch_segments(
     require_continuity: bool,
     tol: float = 1e-8,
 ) -> ComputedSegment:
-    """Concatenate segments into a single curve."""
+    """Concatenate segments into a single curve.
+
+    Parameters
+    ----------
+    segments:
+        Список сегментов, каждый из которых содержит массивы ``X`` и ``Y``.
+    primary_sequence:
+        Последовательность осей аргумента, используемых при построении
+        соответствующих сегментов (``"X"`` или ``"Y"``).
+    require_continuity:
+        Если ``True``, первая точка очередного сегмента будет приведена к
+        последней точке предыдущего по оси аргумента. Если разница по этой
+        оси меньше ``tol`` и обе координаты совпадают по значению, то
+        дублирующая точка исключается.
+    tol:
+        Допустимое расхождение между соседними сегментами. Значение по
+        умолчанию ``1e-8`` подобрано так, чтобы игнорировать накопленные
+        ошибки округления при вычислениях в числах двойной точности.
+
+    Returns
+    -------
+    ComputedSegment
+        Склеенный сегмент.
+    """
     if not segments:
         return ComputedSegment(X=np.array([], dtype=float), Y=np.array([], dtype=float))
     if len(segments) != len(primary_sequence):

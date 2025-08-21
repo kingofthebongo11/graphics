@@ -5,7 +5,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 
 from function_for_all_tabs import create_plot_canvas, plot_on_canvas
-from function_for_all_tabs.validation import ValidationError
+from function_for_all_tabs.validation import ValidationError, ensure_min_length
+from tabs.function_for_all_tabs.parsing_utils import parse_numbers
+from functions_for_tab2.dependent import _parse_manual_pairs
 from functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
 from functions_for_tab2.exporting import export_curve_txt
 from functions_for_tab2.segment_builder import build_segment
@@ -84,6 +86,20 @@ class IntervalEditor(ttk.Frame):
         self.manual_text = tk.Text(self.manual_frame, height=4)
         self.manual_text.pack(fill=tk.BOTH, expand=True)
         self.manual_text.bind("<<Modified>>", self._on_text_change)
+        self.manual_text.bind(
+            "<FocusOut>",
+            lambda _e: self._update_numbers_status(
+                self.manual_text, self.manual_count, highlight=True, min_count=2
+            ),
+        )
+        ttk.Label(
+            self.manual_frame,
+            text="Разделители: пробел, запятая, ;\nПример: 0 1 2",
+        ).pack(anchor="w", padx=5)
+        self.manual_count = ttk.Label(self.manual_frame, foreground="gray")
+        self.manual_count.pack(anchor="w", padx=5)
+        self._text_bg = self.manual_text.cget("background")
+        self._error_bg = "#ffcccc"
 
         # file_pairs grid
         self.file_frame = ttk.Frame(grid_frame)
@@ -122,6 +138,18 @@ class IntervalEditor(ttk.Frame):
         self.array_text = tk.Text(self.array_frame, height=4)
         self.array_text.pack(fill=tk.BOTH, expand=True)
         self.array_text.bind("<<Modified>>", self._on_text_change)
+        self.array_text.bind(
+            "<FocusOut>",
+            lambda _e: self._update_numbers_status(
+                self.array_text, self.array_count, highlight=True
+            ),
+        )
+        ttk.Label(
+            self.array_frame,
+            text="Разделители: пробел, запятая, ;\nПример: 0 1 2",
+        ).pack(anchor="w", padx=5)
+        self.array_count = ttk.Label(self.array_frame, foreground="gray")
+        self.array_count.pack(anchor="w", padx=5)
 
         self.expr_frame = ttk.Frame(dep_frame)
         self.expr_var = tk.StringVar()
@@ -145,6 +173,20 @@ class IntervalEditor(ttk.Frame):
         self.manual_pairs_text = tk.Text(self.manual_pairs_frame, height=4)
         self.manual_pairs_text.pack(fill=tk.BOTH, expand=True)
         self.manual_pairs_text.bind("<<Modified>>", self._on_text_change)
+        self.manual_pairs_text.bind(
+            "<FocusOut>",
+            lambda _e: self._update_pairs_status(
+                self.manual_pairs_text, self.manual_pairs_count, highlight=True
+            ),
+        )
+        ttk.Label(
+            self.manual_pairs_frame,
+            text="Каждая строка: X Y\nРазделители: пробел, запятая, ;\nПример: 0 1",
+        ).pack(anchor="w", padx=5)
+        self.manual_pairs_count = ttk.Label(
+            self.manual_pairs_frame, foreground="gray"
+        )
+        self.manual_pairs_count.pack(anchor="w", padx=5)
 
         dep_frame.pack(fill=tk.BOTH, pady=5)
 
@@ -168,6 +210,9 @@ class IntervalEditor(ttk.Frame):
 
         self._update_grid_visibility()
         self._update_dep_visibility()
+        self._update_numbers_status(self.manual_text, self.manual_count)
+        self._update_numbers_status(self.array_text, self.array_count)
+        self._update_pairs_status(self.manual_pairs_text, self.manual_pairs_count)
 
     # служебные методы -------------------------------------------------
     def _notify_var(self, *_args) -> None:
@@ -177,6 +222,14 @@ class IntervalEditor(ttk.Frame):
     def _on_text_change(self, event) -> None:
         widget = event.widget
         widget.edit_modified(False)
+        if widget is self.manual_text:
+            self._update_numbers_status(self.manual_text, self.manual_count)
+        elif widget is self.array_text:
+            self._update_numbers_status(self.array_text, self.array_count)
+        elif widget is self.manual_pairs_text:
+            self._update_pairs_status(
+                self.manual_pairs_text, self.manual_pairs_count
+            )
         if not self._updating:
             self._notify()
 
@@ -230,6 +283,48 @@ class IntervalEditor(ttk.Frame):
         if self.on_change and not self._updating:
             self.on_change(self.pull_to_spec())
 
+    def _update_numbers_status(
+        self,
+        widget: tk.Text,
+        label: ttk.Label,
+        *,
+        highlight: bool = False,
+        min_count: int = 0,
+    ) -> None:
+        text = widget.get("1.0", tk.END).strip()
+        try:
+            numbers = parse_numbers(text)
+            count = len(numbers)
+            if min_count and count < min_count:
+                raise ValidationError(f"Нужно минимум {min_count} чисел")
+            label.config(text=f"Распознано: {count} чисел", foreground="green")
+            widget.configure(background=self._text_bg)
+        except ValidationError as exc:
+            label.config(text=f"Ошибка: {exc}", foreground="red")
+            widget.configure(
+                background=self._error_bg if highlight else self._text_bg
+            )
+
+    def _update_pairs_status(
+        self,
+        widget: tk.Text,
+        label: ttk.Label,
+        *,
+        highlight: bool = False,
+        min_count: int = 1,
+    ) -> None:
+        text = widget.get("1.0", tk.END).strip()
+        try:
+            xs, _ = _parse_manual_pairs(text)
+            ensure_min_length(xs, min_count, name="пар")
+            label.config(text=f"Распознано: {len(xs)} пар", foreground="green")
+            widget.configure(background=self._text_bg)
+        except ValidationError as exc:
+            label.config(text=f"Ошибка: {exc}", foreground="red")
+            widget.configure(
+                background=self._error_bg if highlight else self._text_bg
+            )
+
     # публичные методы -------------------------------------------------
     def set_spec(self, spec: IntervalSpec) -> None:
         """Заполняет элементы управления данными интервала."""
@@ -261,6 +356,9 @@ class IntervalEditor(ttk.Frame):
         self._updating = False
         self._update_grid_visibility()
         self._update_dep_visibility()
+        self._update_numbers_status(self.manual_text, self.manual_count)
+        self._update_numbers_status(self.array_text, self.array_count)
+        self._update_pairs_status(self.manual_pairs_text, self.manual_pairs_count)
         self._notify()
 
     def pull_to_spec(self) -> IntervalSpec:

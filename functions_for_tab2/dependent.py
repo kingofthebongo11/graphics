@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Literal, Optional, Tuple
 
 import numpy as np
@@ -18,6 +17,7 @@ from tabs.functions_for_tab1.curves_from_file import (
     read_X_Y_from_ls_dyna,
     read_X_Y_from_text_file,
 )
+from function_for_all_tabs import read_pairs_any
 
 Array = np.ndarray
 
@@ -37,22 +37,6 @@ def _parse_manual_pairs(text: str) -> Tuple[Array, Array]:
         ys.append(float(numbers[1]))
     return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float)
 
-
-def _read_pairs_from_file(path: str) -> Tuple[Array, Array]:
-    """Read X and Y arrays from ``path`` using tab1 readers."""
-    curve_info = {"curve_file": path}
-    suffix = Path(path).suffix.lower()
-    if suffix in {".xlsx", ".xlsm", ".csv"}:
-        read_X_Y_from_excel(curve_info)
-    else:
-        try:
-            read_X_Y_from_ls_dyna(curve_info)
-        except Exception:
-            read_X_Y_from_text_file(curve_info)
-    return (
-        np.asarray(curve_info.get("X_values", []), dtype=float),
-        np.asarray(curve_info.get("Y_values", []), dtype=float),
-    )
 
 
 def compute_dependent_values(
@@ -82,7 +66,13 @@ def compute_dependent_values(
         return None, np.asarray(values, dtype=float)
 
     if dep_mode == "from_file":
-        return _read_pairs_from_file(dep_file_path)
+        xs, ys = read_pairs_any(
+            dep_file_path,
+            read_excel=read_X_Y_from_excel,
+            read_ls_dyna=read_X_Y_from_ls_dyna,
+            read_text=read_X_Y_from_text_file,
+        )
+        return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float)
 
     if dep_mode == "manual_pairs":
         return _parse_manual_pairs(manual_pairs_text)

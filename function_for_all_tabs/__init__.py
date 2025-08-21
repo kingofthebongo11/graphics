@@ -2,6 +2,7 @@
 
 from .safe_eval import safe_eval_expr
 from .plotting_adapter import create_plot_canvas, plot_on_canvas
+from .readers import read_pairs_any
 from .validation import (
     ValidationError,
     EmptyDataError,
@@ -20,6 +21,7 @@ __all__ = [
     "safe_eval_expr",
     "create_plot_canvas",
     "plot_on_canvas",
+    "read_pairs_any",
     "ValidationError",
     "EmptyDataError",
     "InvalidFormatError",

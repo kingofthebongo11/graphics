@@ -2,9 +2,11 @@ from tkinter import filedialog, messagebox
 from pathlib import Path
 
 from tabs.function_for_all_tabs import create_plot
-from tabs.function_for_all_tabs import read_pairs_any
 from .curves_from_file import (
     read_X_Y_from_frequency_analysis,
+    read_X_Y_from_text_file,
+    read_X_Y_from_ls_dyna,
+    read_X_Y_from_excel,
     read_X_Y_from_combined,
 )
 
@@ -209,14 +211,16 @@ def save_file(entry_widget, format_widget, graph_info):
 
 def get_X_Y_data(curve_info):
     curve_type = curve_info.get("curve_type")
-    if curve_type == "Частотный анализ":
+    if curve_type == "Текстовой файл":
+        read_X_Y_from_text_file(curve_info)
+    elif curve_type == "Файл кривой LS-Dyna":
+        read_X_Y_from_ls_dyna(curve_info)
+    elif curve_type == "Excel файл":
+        read_X_Y_from_excel(curve_info)
+    elif curve_type == "Частотный анализ":
         read_X_Y_from_frequency_analysis(curve_info)
     elif curve_type == "Комбинированный":
         read_X_Y_from_combined(curve_info)
-    else:
-        x_vals, y_vals = read_pairs_any(curve_info["curve_file"])
-        curve_info["X_values"] = list(x_vals)
-        curve_info["Y_values"] = list(y_vals)
 
 
 def generate_graph(

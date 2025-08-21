@@ -9,9 +9,12 @@ def read_X_Y_from_text_file(curve_info):
     try:
         path = Path(curve_info['curve_file'])
         suffix = path.suffix.lower()
-        if suffix and suffix != '.txt':
-            logger.error("Неподдерживаемый формат файла: %s", suffix)
-            messagebox.showerror("Ошибка", f"Ожидался файл с расширением .txt, получен {suffix}")
+        if suffix != '.txt':
+            logger.error("Неподдерживаемый формат файла: %s", suffix or '<без расширения>')
+            messagebox.showerror(
+                "Ошибка",
+                f"Ожидался файл с расширением .txt, получен {suffix or '<без расширения>'}"
+            )
             return
 
         X_data = []
@@ -22,7 +25,7 @@ def read_X_Y_from_text_file(curve_info):
                 if not line:
                     continue
                 parts = line.replace(',', ' ').split()
-                if len(parts) < 2:
+                if len(parts) != 2:
                     logger.error("Некорректная строка данных: %s", line)
                     messagebox.showerror("Ошибка", f"Некорректные данные в строке: {line}")
                     return

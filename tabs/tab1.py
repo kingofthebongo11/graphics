@@ -1,8 +1,7 @@
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk
 from .functions_for_tab1 import update_curves, generate_graph, save_file, last_graph
-from widgets import PlotEditor
-from widgets.text_widget import create_text
+from widgets import PlotEditor, create_text
 from function_for_all_tabs import create_plot_canvas
 from .constants import DEFAULT_UNITS, PHYSICAL_QUANTITIES, UNITS_MAPPING
 

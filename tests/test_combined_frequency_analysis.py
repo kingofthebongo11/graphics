@@ -4,7 +4,7 @@ from tabs.functions_for_tab1.curves_from_file.combined_curve import read_X_Y_fro
 
 
 def _create_temp_file(content: str):
-    tmp = tempfile.NamedTemporaryFile('w+', delete=False)
+    tmp = tempfile.NamedTemporaryFile('w+', suffix='.txt', delete=False)
     tmp.write(content)
     tmp.flush()
     return tmp

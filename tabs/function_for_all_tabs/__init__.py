@@ -1,7 +1,7 @@
 """Утилиты, общие для всех вкладок."""
 
 from .plotting import create_plot
-from .parsing_utils import read_pairs, parse_numbers
+from .parsing_utils import read_pairs, parse_numbers, parse_pairs_text
 from .plotting_adapter import create_plot_canvas, plot_on_canvas
 from .readers import read_pairs_any
 from .safe_eval import safe_eval_expr
@@ -23,6 +23,7 @@ __all__ = [
     "create_plot",
     "read_pairs",
     "parse_numbers",
+    "parse_pairs_text",
     "create_plot_canvas",
     "plot_on_canvas",
     "read_pairs_any",

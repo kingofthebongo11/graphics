@@ -4,10 +4,13 @@ import json
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 
-from tabs.function_for_all_tabs import create_plot_canvas, plot_on_canvas
+from tabs.function_for_all_tabs import (
+    create_plot_canvas,
+    plot_on_canvas,
+    parse_pairs_text,
+)
 from tabs.function_for_all_tabs.validation import ValidationError, ensure_min_length
 from tabs.function_for_all_tabs.parsing_utils import parse_numbers
-from tabs.functions_for_tab2.dependent import _parse_manual_pairs
 from tabs.functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
 from tabs.functions_for_tab2.presets import PRESETS
 from tabs.functions_for_tab2.exporting import export_curve_txt
@@ -316,7 +319,7 @@ class IntervalEditor(ttk.Frame):
     ) -> None:
         text = widget.get("1.0", tk.END).strip()
         try:
-            xs, _ = _parse_manual_pairs(text)
+            xs, _ = parse_pairs_text(text)
             ensure_min_length(xs, min_count, name="пар")
             label.config(text=f"Распознано: {len(xs)} пар", foreground="green")
             widget.configure(background=self._text_bg)

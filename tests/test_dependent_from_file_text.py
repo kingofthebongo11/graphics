@@ -1,7 +1,7 @@
 import numpy as np
 from pathlib import Path
 
-from functions_for_tab2.dependent import compute_dependent_values
+from tabs.functions_for_tab2.dependent import compute_dependent_values
 
 
 def test_from_file_with_blank_lines_and_spaces():

@@ -7,11 +7,11 @@ from tkinter import ttk, messagebox, filedialog
 from tabs.function_for_all_tabs import create_plot_canvas, plot_on_canvas
 from tabs.function_for_all_tabs.validation import ValidationError, ensure_min_length
 from tabs.function_for_all_tabs.parsing_utils import parse_numbers
-from functions_for_tab2.dependent import _parse_manual_pairs
-from functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
-from functions_for_tab2.presets import PRESETS
-from functions_for_tab2.exporting import export_curve_txt
-from functions_for_tab2.segment_builder import build_segment
+from tabs.functions_for_tab2.dependent import _parse_manual_pairs
+from tabs.functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
+from tabs.functions_for_tab2.presets import PRESETS
+from tabs.functions_for_tab2.exporting import export_curve_txt
+from tabs.functions_for_tab2.segment_builder import build_segment
 from widgets import select_path
 from dataclasses import replace
 

@@ -1,7 +1,7 @@
 import numpy as np
 
-from functions_for_tab2.models import ComputedSegment
-from functions_for_tab2.stitch import stitch_segments
+from tabs.functions_for_tab2.models import ComputedSegment
+from tabs.functions_for_tab2.stitch import stitch_segments
 
 
 def test_stitch_with_continuity_adjustment():

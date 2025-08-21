@@ -3,7 +3,7 @@ import re
 import numpy as np
 import pytest
 
-from functions_for_tab2.exporting import export_curve_txt
+from tabs.functions_for_tab2.exporting import export_curve_txt
 
 
 def test_export_curve_txt_structure(tmp_path):

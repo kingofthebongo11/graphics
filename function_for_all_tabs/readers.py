@@ -31,6 +31,8 @@ def read_pairs_any(
     suffix = Path(path).suffix.lower()
     if suffix in {".xlsx", ".xlsm", ".csv"}:
         read_excel(curve_info)
+    elif suffix == ".txt":
+        read_text(curve_info)
     else:
         try:
             read_ls_dyna(curve_info)

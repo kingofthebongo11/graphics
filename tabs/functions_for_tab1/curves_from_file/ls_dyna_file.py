@@ -9,8 +9,7 @@ def read_X_Y_from_ls_dyna(curve_info):
 
     Функция проверяет несколько первых строк файла на наличие маркеров
     формата LS-DYNA (``LS-DYNA``, ``*KEYWORD`` или ``Curveplot``). Если ни
-    один из них не найден, пользователю отображается сообщение об ошибке и
-    выбрасывается исключение :class:`ValueError`.
+    один из них не найден, выбрасывается исключение :class:`ValueError`.
 
     Строки, не содержащие хотя бы двух числовых значений (заголовки,
     комментарии и т.п.), пропускаются без генерации сообщения об ошибке.
@@ -24,7 +23,6 @@ def read_X_Y_from_ls_dyna(curve_info):
             markers = ("LS-DYNA", "*KEYWORD", "Curveplot")
             if not any(any(marker in line for marker in markers) for line in header_lines):
                 logger.error("Файл '%s' не является файлом LS-DYNA.", path)
-                messagebox.showerror("Ошибка", f"Файл {path} не является файлом LS-DYNA")
                 raise ValueError("Файл не соответствует формату LS-DYNA")
             file.seek(0)
             for raw_line in file:

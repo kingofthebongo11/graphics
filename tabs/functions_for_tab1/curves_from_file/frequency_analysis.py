@@ -1,5 +1,6 @@
 import ast
 import logging
+from pathlib import Path
 from tkinter import messagebox
 
 logger = logging.getLogger(__name__)
@@ -7,9 +8,18 @@ logger = logging.getLogger(__name__)
 
 def read_X_Y_from_frequency_analysis(curve_info):
     try:
-        path = curve_info['curve_file']
-        with open(path, 'r') as file:
-            lines = file.readlines()
+        path = Path(curve_info['curve_file'])
+        suffix = path.suffix.lower()
+        if suffix != '.txt':
+            logger.error("Неподдерживаемый формат файла: %s", suffix or '<без расширения>')
+            messagebox.showerror(
+                "Ошибка",
+                f"Ожидался файл с расширением .txt, получен {suffix or '<без расширения>'}"
+            )
+            return
+
+        with open(path, 'r', encoding='utf-8') as file:
+            lines = [line.strip() for line in file.readlines()]
 
         header_XF = (
             f"t {curve_info['curve_typeXF_type']}N {curve_info['curve_typeXF_type']}eig "
@@ -21,6 +31,10 @@ def read_X_Y_from_frequency_analysis(curve_info):
             f"{curve_info['curve_typeYF_type']}mass pr{curve_info['curve_typeYF_type']}mass "
             f"totalpr{curve_info['curve_typeYF_type']}mass"
         )
+
+        if header_XF not in lines and header_YF not in lines:
+            logger.error("Файл '%s' не содержит требуемых заголовков.", path)
+            raise ValueError("Отсутствуют необходимые заголовки")
 
         headers_map = {
             "Время": 0,
@@ -44,7 +58,6 @@ def read_X_Y_from_frequency_analysis(curve_info):
         current_block_Y = False
 
         for line in lines:
-            line = line.strip()
 
             if line == header_XF and line == header_YF:
                 current_block_X = True
@@ -104,6 +117,8 @@ def read_X_Y_from_frequency_analysis(curve_info):
     except FileNotFoundError:
         logger.error("Файл '%s' не найден.", curve_info['curve_file'])
         messagebox.showerror("Ошибка", f"Не удалось открыть файл {path}")
+    except ValueError:
+        raise
     except Exception:
         logger.error("Ошибка при чтении файла '%s'.", curve_info['curve_file'])
         messagebox.showerror("Ошибка", f"Не удалось открыть файл {path}")

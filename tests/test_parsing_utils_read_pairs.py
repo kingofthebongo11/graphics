@@ -1,11 +1,9 @@
-import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from tabs.function_for_all_tabs.parsing_utils import read_pairs
 
 

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graphics"
+version = "0.1.0"
+description = "Graphics utility project"
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "openpyxl",
+]
+
+[tool.flake8]
+max-line-length = 120
+
+[tool.ruff]
+line-length = 120

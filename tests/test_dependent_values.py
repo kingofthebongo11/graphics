@@ -1,11 +1,7 @@
-import sys
-from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
 import pytest
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from functions_for_tab2.dependent import compute_dependent_values
 

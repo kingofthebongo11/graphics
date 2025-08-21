@@ -1,9 +1,4 @@
-import sys
-from pathlib import Path
-
 import numpy as np
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from functions_for_tab2.models import ComputedSegment
 from functions_for_tab2.stitch import stitch_segments

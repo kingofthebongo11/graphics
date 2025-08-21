@@ -1,10 +1,5 @@
-import sys
-from pathlib import Path
-
 import numpy as np
 import pytest
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from functions_for_tab2.grid import build_grid_manual, build_grid_uniform
 

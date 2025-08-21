@@ -1,8 +1,5 @@
 import tempfile
-import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from tabs.functions_for_tab1.curves_from_file.combined_curve import read_X_Y_from_combined
 
 

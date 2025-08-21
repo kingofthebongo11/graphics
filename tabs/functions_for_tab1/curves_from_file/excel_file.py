@@ -150,6 +150,7 @@ def read_X_Y_from_excel(curve_info):
                     return
             else:
                 logger.error("Неподдерживаемый формат файла: %s", suffix)
+                messagebox.showerror("Ошибка", f"Неверный формат файла: {suffix}")
                 return
 
             curve_info['X_values'] = X_data
@@ -238,6 +239,7 @@ def read_X_Y_from_excel(curve_info):
                             return
         else:
             logger.error("Неподдерживаемый формат файла: %s", suffix)
+            messagebox.showerror("Ошибка", f"Неверный формат файла: {suffix}")
             return
 
         curve_info['X_values'] = X_data

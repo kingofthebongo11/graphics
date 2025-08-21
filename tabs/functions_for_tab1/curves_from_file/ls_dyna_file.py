@@ -40,12 +40,18 @@ def read_X_Y_from_ls_dyna(curve_info):
                         logger.error(
                             "Файл '%s' не является файлом LS-DYNA.", path
                         )
+                        messagebox.showerror(
+                            "Ошибка", f"Файл {path} не соответствует формату LS-DYNA"
+                        )
                         raise ValueError("Файл не соответствует формату LS-DYNA")
                     # Считываем строки после первой как источник точек
                     file.readline()  # пропускаем строку с количеством точек
                     lines_iterator = (file.readline() for _ in range(expected_points))
                 else:
                     logger.error("Файл '%s' не является файлом LS-DYNA.", path)
+                    messagebox.showerror(
+                        "Ошибка", f"Файл {path} не соответствует формату LS-DYNA"
+                    )
                     raise ValueError("Файл не соответствует формату LS-DYNA")
 
             for raw_line in lines_iterator:

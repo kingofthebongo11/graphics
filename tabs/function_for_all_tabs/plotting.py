@@ -1,3 +1,4 @@
+import logging
 import warnings
 from typing import Any, Dict, List, Optional
 
@@ -7,6 +8,9 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import FuncFormatter
 
 from mylibproject.myutils import to_percent
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_plot(
@@ -39,26 +43,32 @@ def create_plot(
         **kwargs: Поддержка устаревших имен параметров для обратной совместимости.
     """
 
+    logger.info("Начало построения графика")
     if "prY" in kwargs:
         warnings.warn("prY is deprecated, use pr_y", DeprecationWarning, stacklevel=2)
+        logger.warning("Использован устаревший параметр prY")
         pr_y = kwargs.pop("prY")
     if "savefile" in kwargs:
         warnings.warn(
             "savefile is deprecated, use save_file", DeprecationWarning, stacklevel=2
         )
+        logger.warning("Использован устаревший параметр savefile")
         save_file = kwargs.pop("savefile")
     if "X_label" in kwargs:
         warnings.warn(
             "X_label is deprecated, use x_label", DeprecationWarning, stacklevel=2
         )
+        logger.warning("Использован устаревший параметр X_label")
         x_label = kwargs.pop("X_label")
     if "Y_label" in kwargs:
         warnings.warn(
             "Y_label is deprecated, use y_label", DeprecationWarning, stacklevel=2
         )
+        logger.warning("Использован устаревший параметр Y_label")
         y_label = kwargs.pop("Y_label")
 
     if fig is None:
+        logger.debug("Создание новой фигуры (pr_y=%s)", pr_y)
         if pr_y:
             fig = plt.figure(figsize=(8, 4.8))
             formatter = FuncFormatter(to_percent)
@@ -80,9 +90,12 @@ def create_plot(
         fig.tight_layout()
         fig.subplots_adjust(bottom=0.15)
         if save_file:
+            logger.info("Сохранение графика в файл %s", file_plt)
             fig.savefig(file_plt)
         plt.close(fig)
+        logger.info("График построен и закрыт")
     else:
+        logger.debug("Построение на существующей оси (legend=%s)", legend)
         if legend:
             for curve_info in curves_info:
                 ax.plot(
@@ -107,4 +120,6 @@ def create_plot(
         fig.tight_layout()
         fig.subplots_adjust(bottom=0.15)
         if legend:
+            logger.debug("Добавление легенды")
             ax.legend()
+        logger.info("График построен")

@@ -5,6 +5,7 @@ from typing import Any, Dict
 from widgets import create_text, select_path
 
 from .events import on_combobox_event, on_combo_change_curve_type
+from ui import constants as ui_const
 
 
 def _build_source_section(axis: str, input_frame: tk.Widget, i: int, saved_data: list[dict]) -> Dict[str, Any]:
@@ -97,7 +98,7 @@ def _build_source_section(axis: str, input_frame: tk.Widget, i: int, saved_data:
     )
 
     label_range_c = ttk.Label(input_frame, text="Диапазон:")
-    entry_range_c = ttk.Entry(input_frame, width=10)
+    entry_range_c = ttk.Entry(input_frame, width=ui_const.ENTRY_CHAR_WIDTH)
     entry_range_c.insert(
         0, saved_data[i - 1].get(f"{axis}_source", {}).get(f"range_{axis.lower()}", "")
     )
@@ -162,7 +163,7 @@ def _create_excel_options(
     checkbox_offset.var = offset_var
 
     label_offset_h = ttk.Label(input_frame, text="Гор:")
-    entry_offset_h = ttk.Entry(input_frame, width=5)
+    entry_offset_h = ttk.Entry(input_frame, width=ui_const.OFFSET_CHAR_WIDTH)
     entry_offset_h.insert(0, str(saved_data[i - 1].get("offset_horizontal", 0)))
     entry_offset_h._name = f"curve_{i}_offset_h"
     entry_offset_h.bind(
@@ -177,7 +178,7 @@ def _create_excel_options(
     )
 
     label_offset_v = ttk.Label(input_frame, text="Верт:")
-    entry_offset_v = ttk.Entry(input_frame, width=5)
+    entry_offset_v = ttk.Entry(input_frame, width=ui_const.OFFSET_CHAR_WIDTH)
     entry_offset_v.insert(0, str(saved_data[i - 1].get("offset_vertical", 0)))
     entry_offset_v._name = f"curve_{i}_offset_v"
     entry_offset_v.bind(
@@ -205,7 +206,7 @@ def _create_excel_options(
     checkbox_ranges.var = ranges_var
 
     label_range_x = ttk.Label(input_frame, text="X:")
-    entry_range_x = ttk.Entry(input_frame, width=10)
+    entry_range_x = ttk.Entry(input_frame, width=ui_const.ENTRY_CHAR_WIDTH)
     entry_range_x.insert(0, saved_data[i - 1].get("range_x", ""))
     entry_range_x._name = f"curve_{i}_range_x"
     entry_range_x.bind(
@@ -214,7 +215,7 @@ def _create_excel_options(
     )
 
     label_range_y = ttk.Label(input_frame, text="Y:")
-    entry_range_y = ttk.Entry(input_frame, width=10)
+    entry_range_y = ttk.Entry(input_frame, width=ui_const.ENTRY_CHAR_WIDTH)
     entry_range_y.insert(0, saved_data[i - 1].get("range_y", ""))
     entry_range_y._name = f"curve_{i}_range_y"
     entry_range_y.bind(
@@ -224,9 +225,18 @@ def _create_excel_options(
 
     def toggle_excel_options() -> None:
         if combo_curve_type.get() == "Excel файл":
-            checkbox_horizontal.place(x=10, y=60 + dy * (i - 1))
-            checkbox_offset.place(x=150, y=60 + dy * (i - 1))
-            checkbox_ranges.place(x=410, y=60 + dy * (i - 1))
+            checkbox_horizontal.place(
+                x=ui_const.PADDING,
+                y=ui_const.CONTROL_Y + dy * (i - 1),
+            )
+            checkbox_offset.place(
+                x=ui_const.OFFSET_CHECKBOX_X,
+                y=ui_const.CONTROL_Y + dy * (i - 1),
+            )
+            checkbox_ranges.place(
+                x=ui_const.RANGES_CHECKBOX_X,
+                y=ui_const.CONTROL_Y + dy * (i - 1),
+            )
             if ranges_var.get():
                 checkbox_horizontal.var.set(False)
                 checkbox_offset.var.set(False)
@@ -237,10 +247,24 @@ def _create_excel_options(
                 entry_offset_h.place_forget()
                 label_offset_v.place_forget()
                 entry_offset_v.place_forget()
-                label_range_x.place(x=500, y=60 + dy * (i - 1))
-                entry_range_x.place(x=520, y=60 + dy * (i - 1), width=80)
-                label_range_y.place(x=610, y=60 + dy * (i - 1))
-                entry_range_y.place(x=630, y=60 + dy * (i - 1), width=80)
+                label_range_x.place(
+                    x=ui_const.RANGE_LABEL_X,
+                    y=ui_const.CONTROL_Y + dy * (i - 1),
+                )
+                entry_range_x.place(
+                    x=ui_const.RANGE_ENTRY_X,
+                    y=ui_const.CONTROL_Y + dy * (i - 1),
+                    width=ui_const.RANGE_ENTRY_WIDTH,
+                )
+                label_range_y.place(
+                    x=ui_const.RANGE_Y_LABEL_X,
+                    y=ui_const.CONTROL_Y + dy * (i - 1),
+                )
+                entry_range_y.place(
+                    x=ui_const.RANGE_Y_ENTRY_X,
+                    y=ui_const.CONTROL_Y + dy * (i - 1),
+                    width=ui_const.RANGE_ENTRY_WIDTH,
+                )
             else:
                 checkbox_horizontal.config(state="normal")
                 checkbox_offset.config(state="normal")
@@ -249,10 +273,24 @@ def _create_excel_options(
                 label_range_y.place_forget()
                 entry_range_y.place_forget()
                 if offset_var.get():
-                    label_offset_h.place(x=240, y=60 + dy * (i - 1))
-                    entry_offset_h.place(x=270, y=60 + dy * (i - 1), width=40)
-                    label_offset_v.place(x=320, y=60 + dy * (i - 1))
-                    entry_offset_v.place(x=360, y=60 + dy * (i - 1), width=40)
+                    label_offset_h.place(
+                        x=ui_const.OFFSET_H_LABEL_X,
+                        y=ui_const.CONTROL_Y + dy * (i - 1),
+                    )
+                    entry_offset_h.place(
+                        x=ui_const.OFFSET_H_ENTRY_X,
+                        y=ui_const.CONTROL_Y + dy * (i - 1),
+                        width=ui_const.OFFSET_ENTRY_WIDTH,
+                    )
+                    label_offset_v.place(
+                        x=ui_const.OFFSET_V_LABEL_X,
+                        y=ui_const.CONTROL_Y + dy * (i - 1),
+                    )
+                    entry_offset_v.place(
+                        x=ui_const.OFFSET_V_ENTRY_X,
+                        y=ui_const.CONTROL_Y + dy * (i - 1),
+                        width=ui_const.OFFSET_ENTRY_WIDTH,
+                    )
                 else:
                     label_offset_h.place_forget()
                     entry_offset_h.place_forget()
@@ -295,10 +333,19 @@ def _create_path_widgets(
     """Создает элементы для выбора путей к файлам."""
 
     label_path = ttk.Label(input_frame, text="Выберите файл с кривой:")
-    label_path.place(x=10, y=90 + dy * (i - 1))
+    label_path.place(
+        x=ui_const.PADDING,
+        y=ui_const.PATH_LABEL_Y + dy * (i - 1),
+    )
 
-    path_entry = create_text(input_frame, method="entry", height=1, state="normal", scrollbar=False)
-    path_entry.place(x=10, y=110 + dy * (i - 1), width=600)
+    path_entry = create_text(
+        input_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    path_entry.place(
+        x=ui_const.PADDING,
+        y=ui_const.PATH_ENTRY_Y + dy * (i - 1),
+        width=ui_const.PATH_ENTRY_WIDTH,
+    )
     path_entry._name = f"curve_{i}_filename"
     path_entry.insert(0, saved_data[i - 1].get("path", ""))
 
@@ -307,12 +354,24 @@ def _create_path_widgets(
         text="Выбор файла",
         command=lambda: select_path(path_entry, path_type="file", saved_data=saved_data[i - 1]),
     )
-    select_button.place(x=620, y=108 + dy * (i - 1))
+    select_button.place(
+        x=ui_const.SELECT_BUTTON_X,
+        y=ui_const.SELECT_BUTTON_Y + dy * (i - 1),
+    )
 
     label_path_X = ttk.Label(input_frame, text="Файл для X:")
-    label_path_X.place(x=10, y=90 + dy * (i - 1))
-    path_entry_X = create_text(input_frame, method="entry", height=1, state="normal", scrollbar=False)
-    path_entry_X.place(x=10, y=110 + dy * (i - 1), width=600)
+    label_path_X.place(
+        x=ui_const.PADDING,
+        y=ui_const.PATH_LABEL_Y + dy * (i - 1),
+    )
+    path_entry_X = create_text(
+        input_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    path_entry_X.place(
+        x=ui_const.PADDING,
+        y=ui_const.PATH_ENTRY_Y + dy * (i - 1),
+        width=ui_const.PATH_ENTRY_WIDTH,
+    )
     path_entry_X._name = f"curve_{i}_filename_X"
     path_entry_X.insert(0, saved_data[i - 1].get("X_source", {}).get("curve_file", ""))
     path_entry_X.bind(
@@ -331,12 +390,24 @@ def _create_path_widgets(
             .update({"curve_file": path_entry_X.get()}),
         ),
     )
-    select_button_X.place(x=620, y=108 + dy * (i - 1))
+    select_button_X.place(
+        x=ui_const.SELECT_BUTTON_X,
+        y=ui_const.SELECT_BUTTON_Y + dy * (i - 1),
+    )
 
     label_path_Y = ttk.Label(input_frame, text="Файл для Y:")
-    label_path_Y.place(x=10, y=140 + dy * (i - 1))
-    path_entry_Y = create_text(input_frame, method="entry", height=1, state="normal", scrollbar=False)
-    path_entry_Y.place(x=10, y=160 + dy * (i - 1), width=600)
+    label_path_Y.place(
+        x=ui_const.PADDING,
+        y=ui_const.PATH_LABEL_Y_2 + dy * (i - 1),
+    )
+    path_entry_Y = create_text(
+        input_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    path_entry_Y.place(
+        x=ui_const.PADDING,
+        y=ui_const.PATH_ENTRY_Y_2 + dy * (i - 1),
+        width=ui_const.PATH_ENTRY_WIDTH,
+    )
     path_entry_Y._name = f"curve_{i}_filename_Y"
     path_entry_Y.insert(0, saved_data[i - 1].get("Y_source", {}).get("curve_file", ""))
     path_entry_Y.bind(
@@ -355,7 +426,10 @@ def _create_path_widgets(
             .update({"curve_file": path_entry_Y.get()}),
         ),
     )
-    select_button_Y.place(x=620, y=158 + dy * (i - 1))
+    select_button_Y.place(
+        x=ui_const.SELECT_BUTTON_X,
+        y=ui_const.SELECT_BUTTON_Y_2 + dy * (i - 1),
+    )
 
     label_path_X.place_forget()
     path_entry_X.place_forget()
@@ -380,13 +454,24 @@ def _create_path_widgets(
 def create_curve_box(input_frame, i, checkbox_var, saved_data):
     """Создает ячейку для настройки параметров кривой."""
 
-    dy = 210 if checkbox_var.get() else 180
+    dy = (
+        ui_const.CURVE_HEIGHT_WITH_LEGEND
+        if checkbox_var.get()
+        else ui_const.CURVE_HEIGHT
+    )
 
-    label_curve_box = ttk.Label(input_frame, text=f"Настройка параметров кривой {i}:")
-    label_curve_box.place(x=10, y=0 + dy * (i - 1))
+    label_curve_box = ttk.Label(
+        input_frame, text=f"Настройка параметров кривой {i}:"
+    )
+    label_curve_box.place(x=ui_const.PADDING, y=dy * (i - 1))
 
-    label_curve_type = ttk.Label(input_frame, text=f"Выберите тип кривой {i}:")
-    label_curve_type.place(x=10, y=30 + dy * (i - 1))
+    label_curve_type = ttk.Label(
+        input_frame, text=f"Выберите тип кривой {i}:"
+    )
+    label_curve_type.place(
+        x=ui_const.PADDING,
+        y=ui_const.LINE_HEIGHT + dy * (i - 1),
+    )
 
     combo_curve_type = ttk.Combobox(
         input_frame,
@@ -399,7 +484,11 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         ],
         state="readonly",
     )
-    combo_curve_type.place(x=250, y=30 + dy * (i - 1), width=150)
+    combo_curve_type.place(
+        x=ui_const.CURVE_COMBO_X,
+        y=ui_const.LINE_HEIGHT + dy * (i - 1),
+        width=ui_const.SMALL_COMBO_WIDTH,
+    )
     combo_curve_type._name = f"curve_{i}_type"
     saved_type = saved_data[i - 1].get("curve_type")
     if saved_type:
@@ -502,30 +591,33 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         if source == "Частотный анализ":
             input_frame.update_idletasks()
             options["label_param"].place(
-                x=options["combo_source"].winfo_x(), y=options["combo_source"].winfo_y() + 30
+                x=options["combo_source"].winfo_x(),
+                y=options["combo_source"].winfo_y() + ui_const.SOURCE_LABEL_OFFSET,
             )
             options["combo_param"].place(
                 x=options["combo_source"].winfo_x(),
-                y=options["combo_source"].winfo_y() + 50,
-                width=150,
+                y=options["combo_source"].winfo_y() + ui_const.SOURCE_COMBO_OFFSET,
+                width=ui_const.SMALL_COMBO_WIDTH,
             )
             options["label_axis"].place(
-                x=options["combo_source"].winfo_x(), y=options["combo_source"].winfo_y() + 75
+                x=options["combo_source"].winfo_x(),
+                y=options["combo_source"].winfo_y() + ui_const.SOURCE_AXIS_LABEL_OFFSET,
             )
             options["combo_axis"].place(
                 x=options["combo_source"].winfo_x(),
-                y=options["combo_source"].winfo_y() + 95,
-                width=150,
+                y=options["combo_source"].winfo_y() + ui_const.SOURCE_AXIS_COMBO_OFFSET,
+                width=ui_const.SMALL_COMBO_WIDTH,
             )
         elif source in ("Текстовой файл", "Файл кривой LS-Dyna"):
             input_frame.update_idletasks()
             options["label_column"].place(
-                x=options["combo_source"].winfo_x(), y=options["combo_source"].winfo_y() + 30
+                x=options["combo_source"].winfo_x(),
+                y=options["combo_source"].winfo_y() + ui_const.SOURCE_LABEL_OFFSET,
             )
             options["combo_column"].place(
                 x=options["combo_source"].winfo_x(),
-                y=options["combo_source"].winfo_y() + 50,
-                width=150,
+                y=options["combo_source"].winfo_y() + ui_const.SOURCE_COMBO_OFFSET,
+                width=ui_const.SMALL_COMBO_WIDTH,
             )
             saved_data[i - 1].setdefault(
                 f"{'X' if options is x_source else 'Y'}_source", {}
@@ -533,12 +625,13 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         elif source == "Excel файл":
             input_frame.update_idletasks()
             options["label_range_c"].place(
-                x=options["combo_source"].winfo_x(), y=options["combo_source"].winfo_y() + 30
+                x=options["combo_source"].winfo_x(),
+                y=options["combo_source"].winfo_y() + ui_const.SOURCE_LABEL_OFFSET,
             )
             options["entry_range_c"].place(
                 x=options["combo_source"].winfo_x(),
-                y=options["combo_source"].winfo_y() + 50,
-                width=150,
+                y=options["combo_source"].winfo_y() + ui_const.SOURCE_COMBO_OFFSET,
+                width=ui_const.SMALL_COMBO_WIDTH,
             )
             saved_data[i - 1].setdefault(
                 f"{'X' if options is x_source else 'Y'}_source", {}
@@ -608,11 +701,18 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
 
     if checkbox_var.get():
         label_legend = ttk.Label(input_frame, text="Подпись легенды:")
-        label_legend.place(x=10, y=150 + dy * (i - 1))
+        label_legend.place(
+            x=ui_const.PADDING,
+            y=ui_const.LEGEND_LABEL_Y + dy * (i - 1),
+        )
         legend_entry = create_text(
             input_frame, method="entry", height=1, state="normal", scrollbar=False
         )
-        legend_entry.place(x=10, y=170 + dy * (i - 1), width=300)
+        legend_entry.place(
+            x=ui_const.PADDING,
+            y=ui_const.LEGEND_ENTRY_Y + dy * (i - 1),
+            width=ui_const.ENTRY_WIDTH,
+        )
         legend_entry._name = f"curve_{i}_legend"
         legend_entry.insert(0, saved_data[i - 1].get("legend", ""))
         legend_entry.bind(
@@ -664,7 +764,11 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
         num_curves_int = int(num_curves)
 
     # Меняем высоту фрейма в зависимости от количества кривых
-    frame_height = 210 * num_curves_int if checkbox_var.get() else 180 * num_curves_int
+    frame_height = (
+        ui_const.CURVE_HEIGHT_WITH_LEGEND * num_curves_int
+        if checkbox_var.get()
+        else ui_const.CURVE_HEIGHT * num_curves_int
+    )
     frame.place_configure(height=frame_height)
 
     # Восстанавливаем данные, если они есть
@@ -678,4 +782,7 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)
 
-    next_frame.place(x=10, y=frame.winfo_y() + frame_height + 10)  # Обновляем координаты следующего фрейма
+    next_frame.place(
+        x=ui_const.PADDING,
+        y=frame.winfo_y() + frame_height + ui_const.PADDING,
+    )  # Обновляем координаты следующего фрейма

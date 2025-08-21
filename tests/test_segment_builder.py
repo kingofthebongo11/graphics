@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 import numpy as np
 
-from functions_for_tab2 import IntervalSpec
-from functions_for_tab2.segment_builder import build_segment
+from tabs.functions_for_tab2 import IntervalSpec
+from tabs.functions_for_tab2.segment_builder import build_segment
 
 
 def test_uniform_const_rounding():
@@ -73,8 +73,8 @@ def test_dep_from_file_uses_project_readers(tmp_path):
         dep_mode="from_file",
         dep_file_path=str(dummy),
     )
-    with patch("functions_for_tab2.dependent.read_X_Y_from_ls_dyna", side_effect=fake_ls), \
-         patch("functions_for_tab2.dependent.read_X_Y_from_text_file", side_effect=fake_text):
+    with patch("tabs.functions_for_tab2.dependent.read_X_Y_from_ls_dyna", side_effect=fake_ls), \
+         patch("tabs.functions_for_tab2.dependent.read_X_Y_from_text_file", side_effect=fake_text):
         seg = build_segment(spec)
     assert np.allclose(seg.X, [1.0, 2.0])
     assert np.allclose(seg.Y, [3.0, 4.0])
@@ -108,8 +108,8 @@ def test_grid_file_pairs(tmp_path):
         grid_kind="file_pairs",
         file_pairs_path=str(dummy),
     )
-    with patch("functions_for_tab2.dependent.read_X_Y_from_ls_dyna", side_effect=fake_ls), \
-         patch("functions_for_tab2.dependent.read_X_Y_from_text_file", side_effect=fake_text):
+    with patch("tabs.functions_for_tab2.dependent.read_X_Y_from_ls_dyna", side_effect=fake_ls), \
+         patch("tabs.functions_for_tab2.dependent.read_X_Y_from_text_file", side_effect=fake_text):
         seg = build_segment(spec)
     assert np.allclose(seg.X, [5.0, 6.0])
     assert np.allclose(seg.Y, [7.0, 8.0])

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from functions_for_tab2.grid import build_grid_manual, build_grid_uniform
+from tabs.functions_for_tab2.grid import build_grid_manual, build_grid_uniform
 
 
 def test_uniform_includes_endpoint():

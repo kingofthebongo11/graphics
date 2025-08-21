@@ -3,7 +3,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from functions_for_tab2.dependent import compute_dependent_values
+from tabs.functions_for_tab2.dependent import compute_dependent_values
 
 
 def test_const_mode():
@@ -53,8 +53,8 @@ def test_from_file_uses_tab1_reader(tmp_path):
         info["X_values"] = [1.0, 2.0]
         info["Y_values"] = [3.0, 4.0]
 
-    with patch("functions_for_tab2.dependent.read_X_Y_from_ls_dyna", side_effect=fake_ls_dyna), \
-         patch("functions_for_tab2.dependent.read_X_Y_from_text_file", side_effect=fake_text) as mock_text:
+    with patch("tabs.functions_for_tab2.dependent.read_X_Y_from_ls_dyna", side_effect=fake_ls_dyna), \
+         patch("tabs.functions_for_tab2.dependent.read_X_Y_from_text_file", side_effect=fake_text) as mock_text:
         X, Y = compute_dependent_values(
             "from_file", grid, arg_name="x", const_value=0.0,
             array_values_text="", expr_text="", dep_file_path=str(dummy_path), manual_pairs_text=""

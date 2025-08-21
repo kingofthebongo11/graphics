@@ -34,6 +34,10 @@ def read_X_Y_from_frequency_analysis(curve_info):
 
         if header_XF not in lines and header_YF not in lines:
             logger.error("Файл '%s' не содержит требуемых заголовков.", path)
+            messagebox.showerror(
+                "Ошибка",
+                f"Файл {path.name} не содержит требуемых заголовков"
+            )
             raise ValueError("Отсутствуют необходимые заголовки")
 
         headers_map = {
@@ -50,6 +54,10 @@ def read_X_Y_from_frequency_analysis(curve_info):
 
         if index_X is None or index_Y is None:
             logger.error("Ошибка: некорректные параметры curve_typeXF или curve_typeYF.")
+            messagebox.showerror(
+                "Ошибка",
+                f"Некорректные параметры curve_typeXF или curve_typeYF для файла {path.name}"
+            )
             return
 
         X_data = []

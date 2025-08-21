@@ -9,7 +9,7 @@ from function_for_all_tabs.validation import ValidationError
 from functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
 from functions_for_tab2.exporting import export_curve_txt
 from functions_for_tab2.segment_builder import build_segment
-from widgets.select_path import select_path
+from widgets import select_path
 from dataclasses import replace
 
 

@@ -2,8 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Any, Dict
 
-from widgets.select_path import select_path
-from widgets.text_widget import create_text
+from widgets import create_text, select_path
 
 from .events import on_combobox_event, on_combo_change_curve_type
 

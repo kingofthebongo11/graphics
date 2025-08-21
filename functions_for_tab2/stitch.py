@@ -12,7 +12,7 @@ from typing import List, Literal
 
 import numpy as np
 
-from function_for_all_tabs.validation import SizeMismatchError
+from tabs.function_for_all_tabs.validation import SizeMismatchError
 from .models import ComputedSegment
 
 Array = np.ndarray

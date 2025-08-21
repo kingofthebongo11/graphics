@@ -6,7 +6,7 @@ from typing import Tuple
 
 import numpy as np
 
-from function_for_all_tabs.validation import (
+from tabs.function_for_all_tabs.validation import (
     InvalidFormatError,
     SizeMismatchError,
     EmptyDataError,

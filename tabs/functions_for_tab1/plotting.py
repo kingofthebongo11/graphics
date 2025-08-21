@@ -2,7 +2,7 @@ from tkinter import filedialog, messagebox
 from pathlib import Path
 
 from tabs.function_for_all_tabs import create_plot
-from function_for_all_tabs import read_pairs_any
+from tabs.function_for_all_tabs import read_pairs_any
 from .curves_from_file import (
     read_X_Y_from_frequency_analysis,
     read_X_Y_from_combined,

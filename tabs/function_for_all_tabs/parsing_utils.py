@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from function_for_all_tabs.validation import (
+from tabs.function_for_all_tabs.validation import (
     ensure_not_empty,
     InvalidFormatError,
 )

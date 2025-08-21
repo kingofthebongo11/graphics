@@ -12,30 +12,14 @@ from tabs.function_for_all_tabs.validation import (
     SizeMismatchError,
 )
 from tabs.function_for_all_tabs.parsing_utils import parse_numbers
+from tabs.function_for_all_tabs import parse_pairs_text, read_pairs_any
 from tabs.functions_for_tab1.curves_from_file import (
     read_X_Y_from_excel,
     read_X_Y_from_ls_dyna,
     read_X_Y_from_text_file,
 )
-from tabs.function_for_all_tabs import read_pairs_any
 
 Array = np.ndarray
-
-
-def _parse_manual_pairs(text: str) -> Tuple[Array, Array]:
-    """Parse ``(x, y)`` pairs from a multiline string."""
-    xs: list[float] = []
-    ys: list[float] = []
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line:
-            continue
-        numbers = parse_numbers(line)
-        if numbers.size < 2:
-            raise InvalidFormatError(f"Некорректные данные в строке: {line}")
-        xs.append(float(numbers[0]))
-        ys.append(float(numbers[1]))
-    return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float)
 
 
 
@@ -75,7 +59,7 @@ def compute_dependent_values(
         return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float)
 
     if dep_mode == "manual_pairs":
-        return _parse_manual_pairs(manual_pairs_text)
+        return parse_pairs_text(manual_pairs_text)
 
     raise InvalidFormatError(f"Неизвестный режим: {dep_mode}")
 

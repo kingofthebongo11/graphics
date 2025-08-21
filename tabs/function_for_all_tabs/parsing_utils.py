@@ -43,5 +43,21 @@ def parse_numbers(text: str) -> np.ndarray:
     return np.asarray(numbers, dtype=float)
 
 
-__all__ = ["read_pairs", "parse_numbers"]
+def parse_pairs_text(text: str) -> Tuple[np.ndarray, np.ndarray]:
+    """Parse ``(x, y)`` pairs from a multiline string."""
+    xs: List[float] = []
+    ys: List[float] = []
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        numbers = parse_numbers(line)
+        if numbers.size < 2:
+            raise InvalidFormatError(f"Некорректные данные в строке: {line}")
+        xs.append(float(numbers[0]))
+        ys.append(float(numbers[1]))
+    return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float)
+
+
+__all__ = ["read_pairs", "parse_numbers", "parse_pairs_text"]
 

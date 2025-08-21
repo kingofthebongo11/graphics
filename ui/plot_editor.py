@@ -128,7 +128,7 @@ class PlotEditor(QWidget):
 
     def _update_width(self, line, width: int) -> None:
         line.set_linewidth(width)
-        self._refresh_legend()
+        self.canvas.draw()
 
     # ------------------------------------------------------------------
     # Saving

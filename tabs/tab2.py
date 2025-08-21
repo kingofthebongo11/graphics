@@ -9,6 +9,7 @@ from function_for_all_tabs.validation import ValidationError, ensure_min_length
 from tabs.function_for_all_tabs.parsing_utils import parse_numbers
 from functions_for_tab2.dependent import _parse_manual_pairs
 from functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments
+from functions_for_tab2.presets import PRESETS
 from functions_for_tab2.exporting import export_curve_txt
 from functions_for_tab2.segment_builder import build_segment
 from widgets import select_path
@@ -403,6 +404,14 @@ class Tab2Frame(ttk.Frame):
         btns = ttk.Frame(list_panel)
         btns.pack(side=tk.TOP, fill=tk.X, pady=5)
         ttk.Button(btns, text="Добавить", command=self._add_interval).pack(fill=tk.X)
+        preset_btn = ttk.Menubutton(btns, text="Добавить пресет")
+        preset_menu = tk.Menu(preset_btn, tearoff=False)
+        for label, factory in PRESETS.items():
+            preset_menu.add_command(
+                label=label, command=lambda f=factory: self._add_preset(f)
+            )
+        preset_btn["menu"] = preset_menu
+        preset_btn.pack(fill=tk.X)
         ttk.Button(btns, text="Дублировать", command=self._duplicate_interval).pack(fill=tk.X)
         ttk.Button(btns, text="Удалить", command=self._delete_interval).pack(fill=tk.X)
         ttk.Button(btns, text="Вверх", command=lambda: self._move(-1)).pack(fill=tk.X)
@@ -461,6 +470,13 @@ class Tab2Frame(ttk.Frame):
 
     def _add_interval(self) -> None:
         spec = IntervalSpec(id=self._generate_id(), primary_axis="X")
+        self.specs.append(spec)
+        self._current_index = len(self.specs) - 1
+        self._refresh_list()
+        self.editor.set_spec(spec)
+
+    def _add_preset(self, factory) -> None:
+        spec = factory(self._generate_id())
         self.specs.append(spec)
         self._current_index = len(self.specs) - 1
         self._refresh_list()

@@ -4,8 +4,8 @@ import json
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 
-from function_for_all_tabs import create_plot_canvas, plot_on_canvas
-from function_for_all_tabs.validation import ValidationError, ensure_min_length
+from tabs.function_for_all_tabs import create_plot_canvas, plot_on_canvas
+from tabs.function_for_all_tabs.validation import ValidationError, ensure_min_length
 from tabs.function_for_all_tabs.parsing_utils import parse_numbers
 from functions_for_tab2.dependent import _parse_manual_pairs
 from functions_for_tab2 import ComputedSegment, IntervalSpec, stitch_segments

@@ -4,7 +4,7 @@ from tkinter import ttk
 from typing import List, Tuple
 from .functions_for_tab1 import update_curves, generate_graph, save_file, last_graph
 from widgets import PlotEditor, create_text
-from function_for_all_tabs import create_plot_canvas
+from tabs.function_for_all_tabs import create_plot_canvas
 from .constants import DEFAULT_UNITS, PHYSICAL_QUANTITIES, UNITS_MAPPING
 from ui import constants as ui_const
 

@@ -6,8 +6,8 @@ from typing import Literal, Optional, Tuple
 
 import numpy as np
 
-from function_for_all_tabs.safe_eval import safe_eval_expr
-from function_for_all_tabs.validation import (
+from tabs.function_for_all_tabs.safe_eval import safe_eval_expr
+from tabs.function_for_all_tabs.validation import (
     InvalidFormatError,
     SizeMismatchError,
 )
@@ -17,7 +17,7 @@ from tabs.functions_for_tab1.curves_from_file import (
     read_X_Y_from_ls_dyna,
     read_X_Y_from_text_file,
 )
-from function_for_all_tabs import read_pairs_any
+from tabs.function_for_all_tabs import read_pairs_any
 
 Array = np.ndarray
 

@@ -98,4 +98,4 @@ class PlotEditor(ttk.Frame):
 
     def _update_width(self, line, width: float) -> None:
         line.set_linewidth(width)
-        self._refresh_legend()
+        self.canvas.draw()

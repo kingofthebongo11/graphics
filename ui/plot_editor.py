@@ -100,6 +100,12 @@ class PlotEditor(QWidget):
         self.table.setCellWidget(row, 2, width_slider)
 
     # ------------------------------------------------------------------
+    def _refresh_legend(self) -> None:
+        if self.ax.get_legend():
+            self.ax.legend()
+        self.canvas.draw()
+
+    # ------------------------------------------------------------------
     # Update handlers
     # ------------------------------------------------------------------
     def _handle_colour_click(self, row: int, column: int) -> None:
@@ -114,15 +120,15 @@ class PlotEditor(QWidget):
             item = self.table.item(row, 0)
             if item is not None:
                 item.setBackground(colour)
-            self.canvas.draw()
+            self._refresh_legend()
 
     def _update_style(self, line, style: str) -> None:
         line.set_linestyle(style)
-        self.canvas.draw()
+        self._refresh_legend()
 
     def _update_width(self, line, width: int) -> None:
         line.set_linewidth(width)
-        self.canvas.draw()
+        self._refresh_legend()
 
     # ------------------------------------------------------------------
     # Saving

@@ -79,17 +79,23 @@ class PlotEditor(ttk.Frame):
         )
 
     # ------------------------------------------------------------------
+    def _refresh_legend(self) -> None:
+        if self.ax.get_legend():
+            self.ax.legend()
+        self.canvas.draw()
+
+    # ------------------------------------------------------------------
     def _choose_colour(self, line, label: tk.Label) -> None:
         colour_code = colorchooser.askcolor(color=line.get_color())[1]
         if colour_code:
             line.set_color(colour_code)
             label.config(bg=colour_code)
-            self.canvas.draw()
+            self._refresh_legend()
 
     def _update_style(self, line, style: str) -> None:
         line.set_linestyle(style)
-        self.canvas.draw()
+        self._refresh_legend()
 
     def _update_width(self, line, width: float) -> None:
         line.set_linewidth(width)
-        self.canvas.draw()
+        self._refresh_legend()

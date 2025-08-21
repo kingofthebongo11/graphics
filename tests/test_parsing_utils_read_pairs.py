@@ -29,6 +29,17 @@ def test_read_pairs_invalid_line():
     Path(path).unlink()
 
 
+def test_read_pairs_three_numbers_line():
+    with tempfile.NamedTemporaryFile('w', suffix='.txt', delete=False) as tmp:
+        tmp.write('1 2 3\n')
+        path = tmp.name
+
+    with patch('tabs.functions_for_tab1.curves_from_file.text_file.messagebox.showerror'), \
+            pytest.raises(ValueError):
+        read_pairs(path)
+    Path(path).unlink()
+
+
 def test_read_pairs_missing_file():
     missing = Path('nonexistent_file.txt')
     with pytest.raises(FileNotFoundError):

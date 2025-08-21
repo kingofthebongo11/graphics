@@ -1,12 +1,22 @@
+import logging
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk
+from typing import List, Tuple
 from .functions_for_tab1 import update_curves, generate_graph, save_file, last_graph
 from widgets import PlotEditor, create_text
 from function_for_all_tabs import create_plot_canvas
 from .constants import DEFAULT_UNITS, PHYSICAL_QUANTITIES, UNITS_MAPPING
 
 
-def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
+logger = logging.getLogger(__name__)
+
+
+def on_combo_changeX_Y_labels(
+    combo: ttk.Combobox,
+    entry: tk.Entry,
+    label_size: ttk.Label,
+    size_combo: ttk.Combobox,
+) -> None:
     """
     Обрабатывает выбор в комбобоксе для осей:
     - Если выбрано "Другое", отображает текстовое поле для ввода и скрывает выбор размерности.
@@ -14,7 +24,9 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
     """
 
     selection = combo.get()
+    logger.info("Выбор в комбобоксе: %s", selection)
     if selection == "Другое":
+        logger.debug("Показ поля ввода для пользовательской величины")
         if not entry.winfo_ismapped():
             entry.place(x=combo.winfo_x() + 250, y=combo.winfo_y(), width=300)
             entry.config(state="normal")
@@ -23,12 +35,14 @@ def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
         size_combo["values"] = []
         size_combo.set("")
     elif selection == "Нет":
+        logger.debug("Скрытие элементов оси")
         entry.place_forget()
         label_size.place_forget()
         size_combo.place_forget()
         size_combo["values"] = []
         size_combo.set("")
     else:
+        logger.debug("Выбрана стандартная величина: %s", selection)
         entry.place_forget()
         label_size.place(x=combo.winfo_x() + 250, y=combo.winfo_y())
         values = UNITS_MAPPING.get(selection, [])
@@ -53,6 +67,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         None.
     """
 
+    logger.info("Создание первой вкладки")
     # Создание первой вкладки
     tab1 = ttk.Frame(notebook)
     notebook.add(tab1, text="Создание изображения графика")
@@ -61,7 +76,13 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     input_frame.place(x=10, y=10, width=750, height=160)
 
     # Вспомогательная функция для создания элементов управления осями
-    def add_axis_control(parent, label_text, options, y_pos):
+    def add_axis_control(
+        parent: ttk.Frame,
+        label_text: str,
+        options: List[str],
+        y_pos: int,
+    ) -> Tuple[ttk.Combobox, tk.Entry, ttk.Label, ttk.Combobox]:
+        logger.debug("Добавление элементов управления для %s", label_text)
         label = ttk.Label(parent, text=label_text)
         label.place(x=10, y=y_pos)
         combo = ttk.Combobox(parent, values=options, state="readonly")
@@ -147,7 +168,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     preview_frame = ttk.Frame(tab1)
     preview_frame.place(x=800, y=30, width=640, height=480)
 
-    def show_usage():
+    def show_usage() -> None:
+        logger.info("Отображение инструкции по использованию")
         text = (
             "1. Укажите название графика и подписи осей.\n"
             "2. Выберите размерности осей при необходимости.\n"
@@ -182,27 +204,33 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     plot_editor.place(x=800, y=560, width=640, height=180)
     plot_editor.place_forget()
 
-    def build_graph():
-        generate_graph(
-            ax,
-            fig,
-            canvas,
-            path_entry_title,
-            combo_titleX,
-            combo_titleX_size,
-            path_entry_titleX,
-            combo_titleY,
-            combo_titleY_size,
-            path_entry_titleY,
-            checkbox_var,
-            curves_frame,
-            combo_curves,
-            combo_language,
-        )
-        plot_editor.refresh()
-        if not editor_visible["shown"]:
-            plot_editor.place(x=800, y=560, width=640, height=180)
-            editor_visible["shown"] = True
+    def build_graph() -> None:
+        logger.info("Построение графика")
+        try:
+            generate_graph(
+                ax,
+                fig,
+                canvas,
+                path_entry_title,
+                combo_titleX,
+                combo_titleX_size,
+                path_entry_titleX,
+                combo_titleY,
+                combo_titleY_size,
+                path_entry_titleY,
+                checkbox_var,
+                curves_frame,
+                combo_curves,
+                combo_language,
+            )
+            plot_editor.refresh()
+            if not editor_visible["shown"]:
+                plot_editor.place(x=800, y=560, width=640, height=180)
+                editor_visible["shown"] = True
+            logger.info("График построен успешно")
+        except Exception as exc:
+            logger.error("Ошибка при построении графика: %s", exc)
+            raise
 
     # Кнопка построения графика
     btn_generate_graph = ttk.Button(tab1, text="Построить график", command=build_graph)

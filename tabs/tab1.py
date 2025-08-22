@@ -386,12 +386,14 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 )
                 editor_visible["shown"] = True
             logger.info("График построен успешно")
+        except ValueError as exc:
+            logger.error("Ошибка построения графика", exc_info=True)
+            messagebox.showerror("Ошибка", f"Не удалось построить график:\n{exc}")
         except Exception as exc:
             logger.exception("Ошибка при построении графика")
             messagebox.showerror(
                 "Ошибка",
-                f"Не удалось построить график:\n{exc}\n"
-                "Проверьте введённые данные и попробуйте снова.",
+                f"Не удалось построить график:\n{exc}\nПроверьте введённые данные и попробуйте снова.",
             )
 
     # Кнопка построения графика

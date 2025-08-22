@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import FuncFormatter
+from matplotlib.mathtext import MathTextParser
 from settings import configure_matplotlib
 
 from mylibproject.myutils import to_percent
@@ -68,6 +69,20 @@ def create_plot(
         )
         logger.warning("Использован устаревший параметр Y_label")
         y_label = kwargs.pop("Y_label")
+
+    parser = MathTextParser("agg")
+    try:
+        parser.parse(x_label)
+    except ValueError as exc:
+        message = f"Некорректная LaTeX-формула в подписи оси X: {x_label}"
+        logger.error(message)
+        raise ValueError(message) from exc
+    try:
+        parser.parse(y_label)
+    except ValueError as exc:
+        message = f"Некорректная LaTeX-формула в подписи оси Y: {y_label}"
+        logger.error(message)
+        raise ValueError(message) from exc
 
     if fig is None:
         logger.debug("Создание новой фигуры (pr_y=%s)", pr_y)

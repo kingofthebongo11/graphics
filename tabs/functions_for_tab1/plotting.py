@@ -13,6 +13,7 @@ from .curves_from_file import (
 )
 from tabs.constants import (
     TITLE_TRANSLATIONS,
+    TITLE_TRANSLATIONS_BOLD,
     PHYSICAL_QUANTITIES_EN_TO_RU,
     PHYSICAL_QUANTITIES_TRANSLATION,
     UNITS_MAPPING,
@@ -33,12 +34,14 @@ class TitleProcessor:
         entry_title=None,
         language="Русский",
         bold_math: bool = False,
+        translations=TITLE_TRANSLATIONS,
     ):
         self.combo_title = combo_title
         self.combo_size = combo_size
         self.entry_title = entry_title
         self.language = language
         self.bold_math = bold_math
+        self.translations = translations
 
     def _get_ru_en_quantity(self):
         selection = self.combo_title.get()
@@ -75,7 +78,9 @@ class TitleProcessor:
 
     def _get_title(self):
         ru, _ = self._get_ru_en_quantity()
-        return TITLE_TRANSLATIONS.get(ru, {}).get(self.language, self.combo_title.get())
+        return self.translations.get(ru, {}).get(
+            self.language, self.combo_title.get()
+        )
 
     def get_processed_title(self):
         selection = self.combo_title.get()
@@ -86,8 +91,10 @@ class TitleProcessor:
         else:
             title = self._get_title()
             result = f"{title}{self._get_units()}"
-        if self.bold_math:
-            result = re.sub(r"\\mathit\{([^}]*)\}", r"\\boldsymbol{\\mathit{\1}}", result)
+        if self.bold_math and "\\boldsymbol" not in result:
+            result = re.sub(
+                r"\\mathit\{([^}]*)\}", r"\\boldsymbol{\\mathit{\1}}", result
+            )
         return result
 
 def save_file(entry_widget, format_widget, graph_info):
@@ -156,7 +163,11 @@ def generate_graph(
     ax.clear()
     language = combo_language.get() or "Русский"
     title_processor = TitleProcessor(
-        combo_title, entry_title=entry_title_custom, language=language, bold_math=True
+        combo_title,
+        entry_title=entry_title_custom,
+        language=language,
+        bold_math=True,
+        translations=TITLE_TRANSLATIONS_BOLD,
     )
     xlabel_processor = TitleProcessor(
         combo_titleX, combo_titleX_size, entry_titleX, language

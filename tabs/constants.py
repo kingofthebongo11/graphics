@@ -2,6 +2,7 @@
 """Константы для вкладок приложения."""
 
 from collections.abc import Sequence
+import re
 
 
 def sort_options(
@@ -451,6 +452,12 @@ TITLE_TRANSLATIONS = {
     },
 }
 
+TITLE_TRANSLATIONS_BOLD = {
+    key: {lang: re.sub(r"\\mathit\{([^}]*)\}", r"\\boldsymbol{\\mathit{\1}}", text)
+          for lang, text in value.items()}
+    for key, value in TITLE_TRANSLATIONS.items()
+}
+
 __all__ = [
     "STRESS_UNITS",
     "UNITS_MAPPING",
@@ -462,4 +469,5 @@ __all__ = [
     "PHYSICAL_QUANTITIES_EN",
     "PHYSICAL_QUANTITIES_EN_TO_RU",
     "TITLE_TRANSLATIONS",
+    "TITLE_TRANSLATIONS_BOLD",
 ]

@@ -1,6 +1,7 @@
 from matplotlib.mathtext import MathTextParser
 
 from tabs.functions_for_tab1.plotting import TitleProcessor
+from tabs.constants import TITLE_TRANSLATIONS_BOLD
 
 
 class ComboStub:
@@ -18,6 +19,16 @@ def test_title_processor_wraps_mathit_with_bold():
     assert "\\boldsymbol{\\mathit{t}}" in result
     parser = MathTextParser("agg")
     parser.parse(result)
+
+
+def test_title_processor_uses_bold_dict_only_for_title():
+    combo = ComboStub("Время")
+    title_proc = TitleProcessor(
+        combo, bold_math=True, translations=TITLE_TRANSLATIONS_BOLD
+    )
+    axis_proc = TitleProcessor(combo)
+    assert "\\boldsymbol{\\mathit{t}}" in title_proc.get_processed_title()
+    assert "\\boldsymbol{\\mathit{t}}" not in axis_proc.get_processed_title()
 
 
 def test_title_processor_wraps_multiple_mathit_occurrences():

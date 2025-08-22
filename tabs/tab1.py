@@ -8,11 +8,8 @@ from widgets import PlotEditor, create_text
 from tabs.function_for_all_tabs import create_plot_canvas
 from .constants import (
     DEFAULT_UNITS,
-    DEFAULT_UNITS_EN,
     PHYSICAL_QUANTITIES,
-    PHYSICAL_QUANTITIES_EN,
     UNITS_MAPPING,
-    UNITS_MAPPING_EN,
 )
 from ui import constants as ui_const
 
@@ -24,7 +21,6 @@ def on_title_combo_change(
     combo: ttk.Combobox,
     entry: tk.Entry,
     title_var: tk.StringVar,
-    combo_language: ttk.Combobox | None = None,
 ) -> None:
     """Обновляет выбор заголовка графика.
 
@@ -33,8 +29,7 @@ def on_title_combo_change(
     выбранный текст в переменную заголовка.
     """
 
-    language = combo_language.get() if combo_language else "Русский"
-    other_label = "Другое" if language == "Русский" else "Other"
+    other_label = "Другое"
 
     selection = combo.get()
     if selection == other_label:
@@ -55,7 +50,6 @@ def on_combo_changeX_Y_labels(
     entry: tk.Entry,
     label_size: ttk.Label,
     size_combo: ttk.Combobox,
-    combo_language: ttk.Combobox | None = None,
 ) -> None:
     """
     Обрабатывает выбор в комбобоксе для осей:
@@ -63,11 +57,10 @@ def on_combo_changeX_Y_labels(
     - Иначе скрывает текстовое поле, показывает метку и комбобокс размерности с нужными единицами.
     """
 
-    language = combo_language.get() if combo_language else "Русский"
-    other_label = "Другое" if language == "Русский" else "Other"
-    none_label = "Нет" if language == "Русский" else "None"
-    units_mapping = UNITS_MAPPING if language == "Русский" else UNITS_MAPPING_EN
-    default_units = DEFAULT_UNITS if language == "Русский" else DEFAULT_UNITS_EN
+    other_label = "Другое"
+    none_label = "Нет"
+    units_mapping = UNITS_MAPPING
+    default_units = DEFAULT_UNITS
 
     selection = combo.get()
     logger.info("Выбор в комбобоксе: %s", selection)
@@ -179,7 +172,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         combo.bind(
             "<<ComboboxSelected>>",
             lambda e: on_combo_changeX_Y_labels(
-                combo, entry, size_label, size_combo, combo_language
+                combo, entry, size_label, size_combo
             ),
         )
         return combo, entry, size_label, size_combo
@@ -245,27 +238,17 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     combo_title.bind(
         "<<ComboboxSelected>>",
         lambda e: on_title_combo_change(
-            combo_title, entry_title_custom, title_var, combo_language
+            combo_title, entry_title_custom, title_var
         ),
     )
 
     def on_language_change(event=None) -> None:
-        lang = combo_language.get()
-        quantities = (
-            PHYSICAL_QUANTITIES if lang == "Русский" else PHYSICAL_QUANTITIES_EN
-        )
-        combo_title["values"] = quantities
-        combo_title.current(0)
-        on_title_combo_change(combo_title, entry_title_custom, title_var, combo_language)
-        combo_titleX["values"] = quantities
-        combo_titleX.current(0)
+        on_title_combo_change(combo_title, entry_title_custom, title_var)
         on_combo_changeX_Y_labels(
-            combo_titleX, path_entry_titleX, label_titleX_size, combo_titleX_size, combo_language
+            combo_titleX, path_entry_titleX, label_titleX_size, combo_titleX_size
         )
-        combo_titleY["values"] = quantities
-        combo_titleY.current(0)
         on_combo_changeX_Y_labels(
-            combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size, combo_language
+            combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size
         )
 
     combo_language.bind("<<ComboboxSelected>>", on_language_change)

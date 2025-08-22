@@ -9,7 +9,13 @@ from .curves_from_file import (
     read_X_Y_from_excel,
     read_X_Y_from_combined,
 )
-from tabs.constants import TITLE_TRANSLATIONS, PHYSICAL_QUANTITIES_EN_TO_RU
+from tabs.constants import (
+    TITLE_TRANSLATIONS,
+    PHYSICAL_QUANTITIES_EN_TO_RU,
+    PHYSICAL_QUANTITIES_TRANSLATION,
+    UNITS_MAPPING,
+    UNITS_MAPPING_EN,
+)
 
 # Хранит информацию о последнем построенном графике для последующего сохранения
 last_graph = {}
@@ -22,26 +28,48 @@ class TitleProcessor:
         self.entry_title = entry_title
         self.language = language
 
+    def _get_ru_en_quantity(self):
+        selection = self.combo_title.get()
+        if selection in PHYSICAL_QUANTITIES_TRANSLATION:
+            ru = selection
+            en = PHYSICAL_QUANTITIES_TRANSLATION[selection]
+        else:
+            en = selection
+            ru = PHYSICAL_QUANTITIES_EN_TO_RU.get(selection, selection)
+        return ru, en
+
     def _get_units(self):
         if self.combo_size is None:
             return ""
-        unit = self.combo_size.get()
+        unit_ru = self.combo_size.get()
+        if unit_ru in ("", "—"):
+            return ""
+        ru, en = self._get_ru_en_quantity()
+        unit = unit_ru
+        if self.language == "Английский":
+            units_ru_list = UNITS_MAPPING.get(ru)
+            units_en_list = UNITS_MAPPING_EN.get(en)
+            if (
+                units_ru_list
+                and units_en_list
+                and unit_ru in units_ru_list
+            ):
+                idx = units_ru_list.index(unit_ru)
+                if idx < len(units_en_list):
+                    unit = units_en_list[idx]
         if unit in ("", "—"):
             return ""
         return f", {unit}"
 
     def _get_title(self):
-        selection = self.combo_title.get()
-        base = PHYSICAL_QUANTITIES_EN_TO_RU.get(selection, selection)
-        return TITLE_TRANSLATIONS.get(base, {}).get(self.language, selection)
+        ru, _ = self._get_ru_en_quantity()
+        return TITLE_TRANSLATIONS.get(ru, {}).get(self.language, self.combo_title.get())
 
     def get_processed_title(self):
         selection = self.combo_title.get()
-        other_label = "Другое" if self.language == "Русский" else "Other"
-        none_label = "Нет" if self.language == "Русский" else "None"
-        if selection in (other_label, ""):
+        if selection in ("Другое", ""):
             return self.entry_title.get() if self.entry_title else ""
-        if selection == none_label:
+        if selection == "Нет":
             return ""
         title = self._get_title()
         return f"{title}{self._get_units()}"

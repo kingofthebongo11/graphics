@@ -1,6 +1,6 @@
 import logging
 import tkinter as tk  # Alias for Tk functionality
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from typing import List, Tuple
 from .functions_for_tab1 import update_curves, generate_graph, save_file
 from .functions_for_tab1.plotting import last_graph
@@ -387,8 +387,12 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 editor_visible["shown"] = True
             logger.info("График построен успешно")
         except Exception as exc:
-            logger.error("Ошибка при построении графика: %s", exc)
-            raise
+            logger.exception("Ошибка при построении графика")
+            messagebox.showerror(
+                "Ошибка",
+                f"Не удалось построить график:\n{exc}\n"
+                "Проверьте введённые данные и попробуйте снова.",
+            )
 
     # Кнопка построения графика
     btn_generate_graph = ttk.Button(tab1, text="Построить график", command=build_graph)

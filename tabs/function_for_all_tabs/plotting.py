@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import FuncFormatter
+from settings import configure_matplotlib
 
 from mylibproject.myutils import to_percent
 
@@ -44,6 +45,7 @@ def create_plot(
     """
 
     logger.info("Начало построения графика")
+    configure_matplotlib()
     if "prY" in kwargs:
         warnings.warn("prY is deprecated, use pr_y", DeprecationWarning, stacklevel=2)
         logger.warning("Использован устаревший параметр prY")
@@ -84,8 +86,8 @@ def create_plot(
                 linestyle="-",
             )
         plt.title(title, loc="left", fontsize=16, fontweight="bold")
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
+        plt.xlabel(x_label, fontname="Times New Roman")
+        plt.ylabel(y_label, fontname="Times New Roman")
         plt.grid(True)
         fig.tight_layout()
         fig.subplots_adjust(bottom=0.15)
@@ -113,9 +115,9 @@ def create_plot(
                     marker=None,
                     linestyle="-",
                 )
-        ax.set_title(title, fontsize=16, fontweight="bold", loc="left")
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
+        ax.set_title(title, fontsize=16, fontweight="bold", loc="left", fontname="Times New Roman")
+        ax.set_xlabel(x_label, fontname="Times New Roman")
+        ax.set_ylabel(y_label, fontname="Times New Roman")
         ax.grid(True)
         fig.tight_layout()
         fig.subplots_adjust(bottom=0.15)

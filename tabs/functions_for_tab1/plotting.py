@@ -227,7 +227,8 @@ def generate_graph(
     ax,
     fig,
     canvas,
-    path_entry_title,
+    combo_title,
+    entry_title_custom,
     combo_titleX,
     combo_titleX_size,
     entry_titleX,
@@ -242,8 +243,11 @@ def generate_graph(
 
     # Очистка предыдущего графика
     ax.clear()
-    # Считываем заголовок из поля ввода
-    title = path_entry_title.get()
+    # Определяем заголовок графика
+    if combo_title.get() == "" and entry_title_custom is not None:
+        title = entry_title_custom.get()
+    else:
+        title = combo_title.get()
     language = combo_language.get() or "Русский"
     xlabel_processor = AxisTitleProcessor(
         combo_titleX, combo_titleX_size, entry_titleX, language

@@ -25,9 +25,9 @@ def on_title_combo_change(
     selection = combo.get()
     if selection == "Другое":
         entry.place(
-            x=combo.winfo_x(),
+            x=combo.winfo_x() + ui_const.LABEL_SIZE_OFFSET,
             y=combo.winfo_y(),
-            width=combo.winfo_width(),
+            width=ui_const.ENTRY_WIDTH,
         )
         combo.set("")
         title_var.set("")
@@ -176,7 +176,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     combo_title.place(
         x=ui_const.PADDING,
         y=ui_const.LINE_HEIGHT,
-        width=ui_const.ENTRY_WIDTH,
+        width=ui_const.COMBO_WIDTH,
     )
     combo_title.current(0)
     entry_title_custom = create_text(

@@ -25,11 +25,19 @@ last_graph = {}
 
 
 class TitleProcessor:
-    def __init__(self, combo_title, combo_size=None, entry_title=None, language="Русский"):
+    def __init__(
+        self,
+        combo_title,
+        combo_size=None,
+        entry_title=None,
+        language="Русский",
+        bold_math: bool = False,
+    ):
         self.combo_title = combo_title
         self.combo_size = combo_size
         self.entry_title = entry_title
         self.language = language
+        self.bold_math = bold_math
 
     def _get_ru_en_quantity(self):
         selection = self.combo_title.get()
@@ -71,11 +79,15 @@ class TitleProcessor:
     def get_processed_title(self):
         selection = self.combo_title.get()
         if selection in ("Другое", ""):
-            return self.entry_title.get() if self.entry_title else ""
-        if selection == "Нет":
-            return ""
-        title = self._get_title()
-        return f"{title}{self._get_units()}"
+            result = self.entry_title.get() if self.entry_title else ""
+        elif selection == "Нет":
+            result = ""
+        else:
+            title = self._get_title()
+            result = f"{title}{self._get_units()}"
+        if self.bold_math:
+            result = result.replace("\\mathit", "\\mathbf")
+        return result
 
 def save_file(entry_widget, format_widget, graph_info):
 
@@ -142,7 +154,9 @@ def generate_graph(
     # Очистка предыдущего графика
     ax.clear()
     language = combo_language.get() or "Русский"
-    title_processor = TitleProcessor(combo_title, entry_title=entry_title_custom, language=language)
+    title_processor = TitleProcessor(
+        combo_title, entry_title=entry_title_custom, language=language, bold_math=True
+    )
     xlabel_processor = TitleProcessor(
         combo_titleX, combo_titleX_size, entry_titleX, language
     )

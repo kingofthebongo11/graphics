@@ -9,11 +9,11 @@ def read_X_Y_from_text_file(curve_info):
     try:
         path = Path(curve_info['curve_file'])
         suffix = path.suffix.lower()
-        if suffix != '.txt':
-            logger.error("Неподдерживаемый формат файла: %s", suffix or '<без расширения>')
+        if suffix and suffix != '.txt':
+            logger.error("Неподдерживаемый формат файла: %s", suffix)
             messagebox.showerror(
                 "Ошибка",
-                f"Ожидался файл с расширением .txt, получен {suffix or '<без расширения>'}"
+                f"Ожидался файл с расширением .txt, получен {suffix}"
             )
             return
 

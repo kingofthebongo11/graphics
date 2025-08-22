@@ -9,148 +9,10 @@ from .curves_from_file import (
     read_X_Y_from_excel,
     read_X_Y_from_combined,
 )
+from tabs.constants import TITLE_TRANSLATIONS, PHYSICAL_QUANTITIES_EN_TO_RU
 
 # Хранит информацию о последнем построенном графике для последующего сохранения
 last_graph = {}
-
-title_mapping = {
-    "Время": {
-        "Русский": "Время $t$",
-        "Английский": "Time $t$",
-    },
-    "Перемещение по X": {
-        "Русский": "Перемещение $x$",
-        "Английский": "Displacement $x$",
-    },
-    "Перемещение по Y": {
-        "Русский": "Перемещение $y$",
-        "Английский": "Displacement $y$",
-    },
-    "Перемещение по Z": {
-        "Русский": "Перемещение $z$",
-        "Английский": "Displacement $z$",
-    },
-    "Удлинение": {
-        "Русский": r"Удлинение $\Delta l$",
-        "Английский": r"Elongation $\Delta l$",
-    },
-    "Удлинение по X": {
-        "Русский": r"Удлинение $\Delta l_x$",
-        "Английский": r"Elongation $\Delta l_x$",
-    },
-    "Удлинение по Y": {
-        "Русский": r"Удлинение $\Delta l_y$",
-        "Английский": r"Elongation $\Delta l_y$",
-    },
-    "Удлинение по Z": {
-        "Русский": r"Удлинение $\Delta l_z$",
-        "Английский": r"Elongation $\Delta l_z$",
-    },
-    "Деформация": {
-        "Русский": r"Деформация $\varepsilon$",
-        "Английский": r"Strain $\varepsilon$",
-    },
-    "Пластическая деформация": {
-        "Русский": r"Пластическая деформация $\varepsilon_p$",
-        "Английский": r"Plastic strain $\varepsilon_p$",
-    },
-    "Сила": {
-        "Русский": "Сила $F$",
-        "Английский": "Force $F$",
-    },
-    "Продольная сила": {
-        "Русский": "Продольная сила $N$",
-        "Английский": "Axial force $N$",
-    },
-    "Поперечная сила": {
-        "Русский": "Поперечная сила $Q$",
-        "Английский": "Shear force $Q$",
-    },
-    "Поперечная сила по Y": {
-        "Русский": "Поперечная сила $Q_y$",
-        "Английский": "Shear force $Q_y$",
-    },
-    "Поперечная сила по Z": {
-        "Русский": "Поперечная сила $Q_z$",
-        "Английский": "Shear force $Q_z$",
-    },
-    "Масса": {
-        "Русский": "Масса $m$",
-        "Английский": "Mass $m$",
-    },
-    "Напряжение": {
-        "Русский": r"Напряжение $\sigma$",
-        "Английский": r"Stress $\sigma$",
-    },
-    "Интенсивность напряжений": {
-        "Русский": r"Интенсивность напряжений $\sigma_i$",
-        "Английский": r"Stress intensity $\sigma_i$",
-    },
-    "Нормальное напряжение X": {
-        "Русский": r"Нормальное напряжение $\sigma_x$",
-        "Английский": r"Normal stress $\sigma_x$",
-    },
-    "Нормальное напряжение Y": {
-        "Русский": r"Нормальное напряжение $\sigma_y$",
-        "Английский": r"Normal stress $\sigma_y$",
-    },
-    "Нормальное напряжение Z": {
-        "Русский": r"Нормальное напряжение $\sigma_z$",
-        "Английский": r"Normal stress $\sigma_z$",
-    },
-    "Касательное напряжение XY": {
-        "Русский": r"Касательное напряжение $\tau_{xy}$",
-        "Английский": r"Shear stress $\tau_{xy}$",
-    },
-    "Касательное напряжение XZ": {
-        "Русский": r"Касательное напряжение $\tau_{xz}$",
-        "Английский": r"Shear stress $\tau_{xz}$",
-    },
-    "Касательное напряжение YX": {
-        "Русский": r"Касательное напряжение $\tau_{yx}$",
-        "Английский": r"Shear stress $\tau_{yx}$",
-    },
-    "Касательное напряжение YZ": {
-        "Русский": r"Касательное напряжение $\tau_{yz}$",
-        "Английский": r"Shear stress $\tau_{yz}$",
-    },
-    "Касательное напряжение ZX": {
-        "Русский": r"Касательное напряжение $\tau_{zx}$",
-        "Английский": r"Shear stress $\tau_{zx}$",
-    },
-    "Касательное напряжение ZY": {
-        "Русский": r"Касательное напряжение $\tau_{zy}$",
-        "Английский": r"Shear stress $\tau_{zy}$",
-    },
-    "Крутящий момент Mx": {
-        "Русский": "Крутящий момент $M_x$",
-        "Английский": "Torque $M_x$",
-    },
-    "Изгибающий момент Mx": {
-        "Русский": "Изгибающий момент $M_x$",
-        "Английский": "Bending moment $M_x$",
-    },
-    "Изгибающий момент My": {
-        "Русский": "Изгибающий момент $M_y$",
-        "Английский": "Bending moment $M_y$",
-    },
-    "Изгибающий момент Mz": {
-        "Русский": "Изгибающий момент $M_z$",
-        "Английский": "Bending moment $M_z$",
-    },
-    "Частота 1": {
-        "Русский": "Частота ${{f}}_{{\\mathit{1}}}$",
-        "Английский": "Frequency ${{f}}_{{\\mathit{1}}}$",
-    },
-    "Частота 2": {
-        "Русский": "Частота ${{f}}_{{\\mathit{2}}}$",
-        "Английский": "Frequency ${{f}}_{{\\mathit{2}}}$",
-    },
-    "Частота 3": {
-        "Русский": "Частота ${{f}}_{{\\mathit{3}}}$",
-        "Английский": "Frequency ${{f}}_{{\\mathit{3}}}$",
-    },
-}
 
 
 class TitleProcessor:
@@ -170,13 +32,16 @@ class TitleProcessor:
 
     def _get_title(self):
         selection = self.combo_title.get()
-        return title_mapping.get(selection, {}).get(self.language, selection)
+        base = PHYSICAL_QUANTITIES_EN_TO_RU.get(selection, selection)
+        return TITLE_TRANSLATIONS.get(base, {}).get(self.language, selection)
 
     def get_processed_title(self):
         selection = self.combo_title.get()
-        if selection in ("Другое", ""):
+        other_label = "Другое" if self.language == "Русский" else "Other"
+        none_label = "Нет" if self.language == "Русский" else "None"
+        if selection in (other_label, ""):
             return self.entry_title.get() if self.entry_title else ""
-        if selection == "Нет":
+        if selection == none_label:
             return ""
         title = self._get_title()
         return f"{title}{self._get_units()}"

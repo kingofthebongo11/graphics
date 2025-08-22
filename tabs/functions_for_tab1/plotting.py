@@ -87,7 +87,7 @@ class TitleProcessor:
             title = self._get_title()
             result = f"{title}{self._get_units()}"
         if self.bold_math:
-            result = re.sub(r"\\mathit\{([^}]*)\}", r"\\mathbf{\\mathit{\1}}", result)
+            result = re.sub(r"\\mathit\{([^}]*)\}", r"\\boldsymbol{\\mathit{\1}}", result)
         return result
 
 def save_file(entry_widget, format_widget, graph_info):

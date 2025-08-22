@@ -15,7 +15,7 @@ def test_title_processor_wraps_mathit_with_bold():
     combo_title = ComboStub("Время")
     processor = TitleProcessor(combo_title, bold_math=True)
     result = processor.get_processed_title()
-    assert "\\mathbf{\\mathit{t}}" in result
+    assert "\\boldsymbol{\\mathit{t}}" in result
     parser = MathTextParser("agg")
     parser.parse(result)
 
@@ -25,6 +25,6 @@ def test_title_processor_wraps_multiple_mathit_occurrences():
     entry = ComboStub("Value $\\mathit{x}+\\mathit{y}$")
     processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
     result = processor.get_processed_title()
-    assert result.count("\\mathbf{\\mathit{") == 2
+    assert result.count("\\boldsymbol{\\mathit{") == 2
     parser = MathTextParser("agg")
     parser.parse(result)

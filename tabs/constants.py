@@ -322,6 +322,7 @@ DEFAULT_UNITS_EN = {
     "Frequency 3": "Hz",
 }
 
+# Подписи осей с обычным курсивом
 TITLE_TRANSLATIONS = {
     "Время": {"Русский": r"Время $\mathit{t}$", "Английский": r"Time $\mathit{t}$"},
     "Перемещение по X": {
@@ -452,6 +453,7 @@ TITLE_TRANSLATIONS = {
     },
 }
 
+# Заголовки графиков — жирный курсив
 TITLE_TRANSLATIONS_BOLD = {
     key: {lang: re.sub(r"\\mathit\{([^}]*)\}", r"\\boldsymbol{\\mathit{\1}}", text)
           for lang, text in value.items()}

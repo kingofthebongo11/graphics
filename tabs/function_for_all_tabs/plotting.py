@@ -101,8 +101,12 @@ def create_plot(
                 linestyle="-",
             )
         plt.title(title, loc="left", fontsize=16, fontweight="bold")
-        plt.xlabel(x_label, fontname="Times New Roman")
-        plt.ylabel(y_label, fontname="Times New Roman")
+        plt.xlabel(
+            x_label, fontname="Times New Roman", fontweight="normal"
+        )
+        plt.ylabel(
+            y_label, fontname="Times New Roman", fontweight="normal"
+        )
         plt.grid(True)
         fig.tight_layout()
         fig.subplots_adjust(bottom=0.15)
@@ -130,9 +134,15 @@ def create_plot(
                     marker=None,
                     linestyle="-",
                 )
-        ax.set_title(title, fontsize=16, fontweight="bold", loc="left", fontname="Times New Roman")
-        ax.set_xlabel(x_label, fontname="Times New Roman")
-        ax.set_ylabel(y_label, fontname="Times New Roman")
+        ax.set_title(
+            title, fontsize=16, fontweight="bold", loc="left", fontname="Times New Roman"
+        )
+        ax.set_xlabel(
+            x_label, fontname="Times New Roman", fontweight="normal"
+        )
+        ax.set_ylabel(
+            y_label, fontname="Times New Roman", fontweight="normal"
+        )
         ax.grid(True)
         fig.tight_layout()
         fig.subplots_adjust(bottom=0.15)

@@ -12,6 +12,37 @@ from ui import constants as ui_const
 logger = logging.getLogger(__name__)
 
 
+# Набор готовых заголовков графиков
+PRESET_TITLES = [
+    "График зависимости",
+    "Диаграмма результатов",
+]
+
+
+def on_title_combo_change(
+    combo: ttk.Combobox, entry: tk.Entry, title_var: tk.StringVar
+) -> None:
+    """Обновляет выбор заголовка графика.
+
+    При выборе "Другое" отображает поле ввода и очищает комбобокс.
+    При выборе готового варианта скрывает поле ввода и устанавливает
+    выбранный текст в переменную заголовка.
+    """
+
+    selection = combo.get()
+    if selection == "Другое":
+        entry.place(
+            x=combo.winfo_x(),
+            y=combo.winfo_y(),
+            width=combo.winfo_width(),
+        )
+        combo.set("")
+        title_var.set("")
+    else:
+        entry.place_forget()
+        title_var.set(selection)
+
+
 def on_combo_changeX_Y_labels(
     combo: ttk.Combobox,
     entry: tk.Entry,
@@ -138,15 +169,35 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         return combo, entry, size_label, size_combo
 
     # Поле для заголовка графика
-    label_title = ttk.Label(input_frame, text="Укажите название графика:")
-    label_title.place(x=ui_const.PADDING, y=0)
-    path_entry_title = create_text(
-        input_frame, method="entry", height=1, state="normal", scrollbar=False
+    label_title = ttk.Label(
+        input_frame, text="Выберите или введите название графика:"
     )
-    path_entry_title.place(
+    label_title.place(x=ui_const.PADDING, y=0)
+    title_var = tk.StringVar()
+    combo_title = ttk.Combobox(
+        input_frame,
+        values=PRESET_TITLES + ["Другое"],
+        state="readonly",
+        textvariable=title_var,
+    )
+    combo_title.place(
         x=ui_const.PADDING,
         y=ui_const.LINE_HEIGHT,
         width=ui_const.ENTRY_WIDTH,
+    )
+    combo_title.current(0)
+    entry_title_custom = create_text(
+        input_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    entry_title_custom.place(
+        x=ui_const.PADDING,
+        y=ui_const.LINE_HEIGHT,
+        width=ui_const.ENTRY_WIDTH,
+    )
+    entry_title_custom.place_forget()
+    combo_title.bind(
+        "<<ComboboxSelected>>",
+        lambda e: on_title_combo_change(combo_title, entry_title_custom, title_var),
     )
 
     # Выбор языка
@@ -240,7 +291,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     def show_usage() -> None:
         logger.info("Отображение инструкции по использованию")
         text = (
-            "1. Укажите название графика и подписи осей.\n"
+            "1. Выберите название графика из списка или пункт «Другое» и введите своё.\n"
             "2. Выберите размерности осей при необходимости.\n"
             "3. Выберите количество кривых и загрузите данные для каждой.\n"
             "4. Нажмите «Построить график» для отображения.\n"
@@ -289,7 +340,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 ax,
                 fig,
                 canvas,
-                path_entry_title,
+                combo_title,
+                entry_title_custom,
                 combo_titleX,
                 combo_titleX_size,
                 path_entry_titleX,

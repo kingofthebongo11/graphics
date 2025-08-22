@@ -1,6 +1,7 @@
 from tkinter import filedialog, messagebox
 from pathlib import Path
 import logging
+import re
 
 from tabs.function_for_all_tabs import create_plot
 from .curves_from_file import (
@@ -86,7 +87,7 @@ class TitleProcessor:
             title = self._get_title()
             result = f"{title}{self._get_units()}"
         if self.bold_math:
-            result = result.replace("\\mathit", "\\mathbf")
+            result = re.sub(r"\\mathit\{([^}]*)\}", r"\\mathbf{\\mathit{\1}}", result)
         return result
 
 def save_file(entry_widget, format_widget, graph_info):

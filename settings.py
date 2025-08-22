@@ -8,6 +8,7 @@ def configure_matplotlib():
     plt.rcParams['mathtext.rm'] = 'Times New Roman'
     plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
     plt.rcParams['mathtext.bf'] = 'Times New Roman:bold'
+    plt.rcParams['mathtext.bfit'] = 'Times New Roman:bold:italic'
     plt.rcParams['mathtext.sf'] = 'Times New Roman'
     plt.rcParams['mathtext.tt'] = 'Times New Roman'
     plt.rcParams['font.size'] = 14  # Общий размер шрифта

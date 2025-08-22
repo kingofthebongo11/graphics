@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 def configure_matplotlib():
     """Configure global matplotlib settings used across the application."""
     plt.rcParams['font.family'] = 'Times New Roman'
+    plt.rcParams['mathtext.fontset'] = 'custom'
+    plt.rcParams['mathtext.rm'] = 'Times New Roman'
     plt.rcParams['font.size'] = 14  # Общий размер шрифта
     plt.rcParams['axes.titlesize'] = 14  # Размер шрифта для заголовков осей
     plt.rcParams['axes.labelsize'] = 14  # Размер шрифта для подписей осей

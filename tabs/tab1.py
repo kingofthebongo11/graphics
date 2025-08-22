@@ -12,13 +12,6 @@ from ui import constants as ui_const
 logger = logging.getLogger(__name__)
 
 
-# Набор готовых заголовков графиков
-PRESET_TITLES = [
-    "График зависимости",
-    "Диаграмма результатов",
-]
-
-
 def on_title_combo_change(
     combo: ttk.Combobox, entry: tk.Entry, title_var: tk.StringVar
 ) -> None:
@@ -176,7 +169,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     title_var = tk.StringVar()
     combo_title = ttk.Combobox(
         input_frame,
-        values=PRESET_TITLES + ["Другое"],
+        values=PHYSICAL_QUANTITIES,
         state="readonly",
         textvariable=title_var,
     )

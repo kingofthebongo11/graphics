@@ -6,6 +6,10 @@ def configure_matplotlib():
     plt.rcParams['font.family'] = 'Times New Roman'
     plt.rcParams['mathtext.fontset'] = 'custom'
     plt.rcParams['mathtext.rm'] = 'Times New Roman'
+    plt.rcParams['mathtext.it'] = 'Times New Roman:italic'
+    plt.rcParams['mathtext.bf'] = 'Times New Roman:bold'
+    plt.rcParams['mathtext.sf'] = 'Times New Roman'
+    plt.rcParams['mathtext.tt'] = 'Times New Roman'
     plt.rcParams['font.size'] = 14  # Общий размер шрифта
     plt.rcParams['axes.titlesize'] = 14  # Размер шрифта для заголовков осей
     plt.rcParams['axes.labelsize'] = 14  # Размер шрифта для подписей осей

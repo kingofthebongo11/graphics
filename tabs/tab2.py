@@ -1,6 +1,7 @@
 """Каркас второй вкладки приложения."""
 
 import json
+import logging
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 
@@ -17,6 +18,9 @@ from tabs.functions_for_tab2.exporting import export_curve_txt
 from tabs.functions_for_tab2.segment_builder import build_segment
 from widgets import select_path
 from dataclasses import replace
+
+
+logger = logging.getLogger(__name__)
 
 
 class IntervalEditor(ttk.Frame):
@@ -547,8 +551,12 @@ class Tab2Frame(ttk.Frame):
         except ValidationError as exc:
             messagebox.showerror("Ошибка построения", str(exc))
             return
-        except Exception:  # noqa: BLE001
-            messagebox.showerror("Ошибка построения", "Внутренняя ошибка")
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Ошибка построения сегментов")
+            messagebox.showerror(
+                "Ошибка построения",
+                f"{exc}\nПроверьте параметры интервалов и повторите попытку.",
+            )
             return
 
         try:
@@ -560,8 +568,12 @@ class Tab2Frame(ttk.Frame):
         except ValidationError as exc:
             messagebox.showerror("Ошибка склейки", str(exc))
             return
-        except Exception:  # noqa: BLE001
-            messagebox.showerror("Ошибка склейки", "Внутренняя ошибка")
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Ошибка склейки сегментов")
+            messagebox.showerror(
+                "Ошибка склейки",
+                f"{exc}\nПроверьте параметры и попробуйте снова.",
+            )
             return
 
         plot_on_canvas(
@@ -606,8 +618,12 @@ class Tab2Frame(ttk.Frame):
         except ValidationError as exc:
             messagebox.showerror("Ошибка построения", str(exc))
             return
-        except Exception:  # noqa: BLE001
-            messagebox.showerror("Ошибка построения", "Внутренняя ошибка")
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Ошибка построения сегментов для экспорта")
+            messagebox.showerror(
+                "Ошибка построения",
+                f"{exc}\nПроверьте данные и повторите попытку.",
+            )
             return
 
         path = filedialog.asksaveasfilename(
@@ -623,8 +639,12 @@ class Tab2Frame(ttk.Frame):
             messagebox.showinfo("Успех", f"Кривая сохранена: {path}")
         except ValidationError as exc:
             messagebox.showerror("Ошибка экспорта", str(exc))
-        except Exception:  # noqa: BLE001
-            messagebox.showerror("Ошибка экспорта", "Внутренняя ошибка")
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Ошибка экспорта кривой")
+            messagebox.showerror(
+                "Ошибка экспорта",
+                f"{exc}\nПроверьте путь и повторите попытку.",
+            )
 
     def save_project(self) -> None:
         """Сохраняет текущую конфигурацию интервалов в JSON."""
@@ -644,7 +664,11 @@ class Tab2Frame(ttk.Frame):
                 json.dump(data, fh, ensure_ascii=False, indent=2)
             messagebox.showinfo("Успех", f"Проект сохранён: {path}")
         except Exception as exc:  # noqa: BLE001
-            messagebox.showerror("Ошибка сохранения", str(exc))
+            logger.exception("Ошибка сохранения проекта")
+            messagebox.showerror(
+                "Ошибка сохранения",
+                f"{exc}\nУбедитесь, что путь доступен и попробуйте снова.",
+            )
 
     def load_project(self) -> None:
         """Загружает конфигурацию интервалов из JSON."""
@@ -670,7 +694,11 @@ class Tab2Frame(ttk.Frame):
             self.redraw_plot()
             messagebox.showinfo("Успех", f"Проект загружен: {path}")
         except Exception as exc:  # noqa: BLE001
-            messagebox.showerror("Ошибка загрузки", str(exc))
+            logger.exception("Ошибка загрузки проекта")
+            messagebox.showerror(
+                "Ошибка загрузки",
+                f"{exc}\nПроверьте файл и повторите попытку.",
+            )
 
 
 def create_tab2(notebook: ttk.Notebook) -> ttk.Frame:

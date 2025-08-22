@@ -34,13 +34,17 @@ class TitleProcessor:
         entry_title=None,
         language="Русский",
         bold_math: bool = False,
-        translations=TITLE_TRANSLATIONS,
+        translations=None,
     ):
         self.combo_title = combo_title
         self.combo_size = combo_size
         self.entry_title = entry_title
         self.language = language
         self.bold_math = bold_math
+        if translations is None:
+            translations = (
+                TITLE_TRANSLATIONS_BOLD if bold_math else TITLE_TRANSLATIONS
+            )
         self.translations = translations
 
     def _get_ru_en_quantity(self):
@@ -170,10 +174,18 @@ def generate_graph(
         translations=TITLE_TRANSLATIONS_BOLD,
     )
     xlabel_processor = TitleProcessor(
-        combo_titleX, combo_titleX_size, entry_titleX, language
+        combo_titleX,
+        combo_titleX_size,
+        entry_titleX,
+        language,
+        translations=TITLE_TRANSLATIONS,
     )
     ylabel_processor = TitleProcessor(
-        combo_titleY, combo_titleY_size, entry_titleY, language
+        combo_titleY,
+        combo_titleY_size,
+        entry_titleY,
+        language,
+        translations=TITLE_TRANSLATIONS,
     )
     title = title_processor.get_processed_title()
     xlabel = xlabel_processor.get_processed_title()

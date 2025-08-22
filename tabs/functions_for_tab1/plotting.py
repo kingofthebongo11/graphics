@@ -318,9 +318,19 @@ def generate_graph(
         get_X_Y_data(curve_info)
         curves_info.append(curve_info)
 
-    create_plot(
-        curves_info, xlabel, ylabel, title, fig=fig, ax=ax, legend=legend_checkbox.get()
-    )
+    try:
+        create_plot(
+            curves_info,
+            xlabel,
+            ylabel,
+            title,
+            fig=fig,
+            ax=ax,
+            legend=legend_checkbox.get(),
+        )
+    except ValueError as exc:
+        messagebox.showerror("Ошибка", str(exc))
+        return
 
     # Сохраняем данные графика для последующего сохранения в файл
     global last_graph

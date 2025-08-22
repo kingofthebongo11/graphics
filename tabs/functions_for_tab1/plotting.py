@@ -1,5 +1,6 @@
 from tkinter import filedialog, messagebox
 from pathlib import Path
+import logging
 
 from tabs.function_for_all_tabs import create_plot
 from .curves_from_file import (
@@ -16,6 +17,8 @@ from tabs.constants import (
     UNITS_MAPPING,
     UNITS_MAPPING_EN,
 )
+
+logger = logging.getLogger(__name__)
 
 # Хранит информацию о последнем построенном графике для последующего сохранения
 last_graph = {}
@@ -318,6 +321,7 @@ def generate_graph(
         get_X_Y_data(curve_info)
         curves_info.append(curve_info)
 
+    logger.debug("Передача подписей осей в create_plot: X=%r, Y=%r", xlabel, ylabel)
     try:
         create_plot(
             curves_info,
@@ -329,8 +333,13 @@ def generate_graph(
             legend=legend_checkbox.get(),
         )
     except ValueError as exc:
-        messagebox.showerror("Ошибка", str(exc))
-        return
+        if exc.__cause__ is not None and isinstance(exc.__cause__, ValueError):
+            logger.error("Ошибка разметки подписи", exc_info=True)
+            raise ValueError(
+                f"{exc}\nСбой связан с неправильной разметкой подписи."
+            ) from exc
+        logger.error("Ошибка при построении графика", exc_info=True)
+        raise
 
     # Сохраняем данные графика для последующего сохранения в файл
     global last_graph

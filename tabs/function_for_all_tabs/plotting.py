@@ -1,18 +1,107 @@
 import logging
+import re
 import warnings
 from typing import Any, Dict, List, Optional
 
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from matplotlib.ticker import FuncFormatter
 from matplotlib.mathtext import MathTextParser
+from matplotlib.ticker import FuncFormatter
 from settings import configure_matplotlib
 
 from mylibproject.myutils import to_percent
 
 
 logger = logging.getLogger(__name__)
+
+
+def format_plot_title_bfit(title: str) -> str:
+    """Сделать переменные в названии графика жирным курсивом."""
+
+    use_tex = rcParams.get("text.usetex", False)
+    start = r"\bm{\mathit{" if use_tex else r"\boldsymbol{\mathit{"
+    end = r"}}"
+    units = {"s", "N", "C"}
+
+    var_pattern_out = re.compile(
+        r"""
+        (?<!\\mathit\{)
+        (?<![A-Za-z0-9\\])
+        (
+            (?:\\(?!boldsymbol|mathit|bm)[A-Za-z]+|[\u0370-\u03FF])(?:\s*[A-Za-z])?
+            (?:_{[^}]+}|_[A-Za-z0-9]+)?
+            (?:\^{[^}]+}|\^[A-Za-z0-9]+)?
+            |
+            [A-Za-z]
+            (?:_{[^}]+}|_[A-Za-z0-9]+)?
+            (?:\^{[^}]+}|\^[A-Za-z0-9]+)?
+        )
+        (?![A-Za-z0-9])
+        """,
+        re.VERBOSE,
+    )
+    var_pattern_in = re.compile(
+        r"""
+        (?<!\\mathit\{)
+        (?<![A-Za-z0-9\\])
+        (
+            (?:\\(?!boldsymbol|mathit|bm)[A-Za-z]+|[\u0370-\u03FF])(?:\s*[A-Za-z])?
+            (?:_{[^}]+}|_[A-Za-z0-9]+)?
+            (?:\^{[^}]+}|\^[A-Za-z0-9]+)?
+            |
+            [A-Za-z]
+            (?:_{[^}]+}|_[A-Za-z0-9]+)?
+            (?:\^{[^}]+}|\^[A-Za-z0-9]+)?
+        )
+        (?![A-Za-z0-9])
+        """,
+        re.VERBOSE,
+    )
+
+    def skip(token: str) -> bool:
+        base = re.sub(
+            r"(?:_{[^}]*}|_[A-Za-z0-9]+|\^{[^}]*}|\^[A-Za-z0-9]+)",
+            "",
+            token,
+        )
+        base = base.replace("\\", "").replace(" ", "")
+        return base in units
+
+    def fmt(token: str) -> str:
+        return f"{start}{token}{end}"
+
+    def repl_out(match: re.Match[str]) -> str:
+        token = match.group(1)
+        if skip(token):
+            return token
+        return f"${fmt(token)}$"
+
+    def repl_in(match: re.Match[str]) -> str:
+        token = match.group(1)
+        if skip(token):
+            return token
+        return fmt(token)
+
+    parts = title.split("$")
+    for i in range(0, len(parts), 2):
+        parts[i] = var_pattern_out.sub(repl_out, parts[i])
+    for i in range(1, len(parts), 2):
+        segment = parts[i]
+
+        def repl_mathit(match: re.Match[str]) -> str:
+            content = match.group(1)
+            prefix = segment[: match.start()]
+            if prefix.endswith("\\boldsymbol{") or prefix.endswith("\\bm{"):
+                return match.group(0)
+            if skip(content):
+                return match.group(0)
+            return fmt(content)
+
+        segment = re.sub(r"\\mathit\{([^}]*)\}", repl_mathit, segment)
+        parts[i] = var_pattern_in.sub(repl_in, segment)
+    return "$".join(parts)
 
 
 def create_plot(
@@ -84,6 +173,8 @@ def create_plot(
         logger.error(message)
         raise ValueError(message) from exc
 
+    formatted_title = format_plot_title_bfit(title)
+
     if fig is None:
         logger.debug("Создание новой фигуры (pr_y=%s)", pr_y)
         if pr_y:
@@ -100,7 +191,7 @@ def create_plot(
                 marker=None,
                 linestyle="-",
             )
-        plt.title(title, loc="left", fontsize=16, fontweight="bold")
+        plt.title(formatted_title, loc="left", fontsize=16, fontweight="bold")
         plt.xlabel(
             x_label, fontname="Times New Roman", fontweight="normal"
         )
@@ -135,7 +226,11 @@ def create_plot(
                     linestyle="-",
                 )
         ax.set_title(
-            title, fontsize=16, fontweight="bold", loc="left", fontname="Times New Roman"
+            formatted_title,
+            fontsize=16,
+            fontweight="bold",
+            loc="left",
+            fontname="Times New Roman",
         )
         ax.set_xlabel(
             x_label, fontname="Times New Roman", fontweight="normal"

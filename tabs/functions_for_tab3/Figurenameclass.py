@@ -26,7 +26,7 @@ class FigureNames:
         elif any(self.name == f'{axis}mass' for axis in self.axes):
             return 'Масса, кг'
         elif any(self.name == f'{axis}eig' for axis in self.axes):
-            return 'Частота ${f}_{\mathit{1}}$, Гц'
+            return r'Частота $\mathit{f}_{\mathit{1}}$, Гц'
         elif any(self.name == f'{axis}N' for axis in self.axes):
             return 'Номер частоты'
         else:

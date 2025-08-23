@@ -9,7 +9,9 @@ def test_matplotlib_usetex_and_preamble():
     preamble = plt.rcParams['text.latex.preamble']
     required_packages = [
         '\\usepackage[utf8]{inputenc}',
-        '\\usepackage[T1]{fontenc}',
+        '\\usepackage[T2A]{fontenc}',
+        '\\usepackage{microtype}',
+        '\\usepackage{graphicx}',
         '\\usepackage[russian]{babel}',
         '\\usepackage{tempora}',
         '\\usepackage{newtxmath}',
@@ -19,3 +21,4 @@ def test_matplotlib_usetex_and_preamble():
     ]
     for pkg in required_packages:
         assert pkg in preamble
+    assert '\\usepackage[T1]{fontenc}' not in preamble

@@ -1,5 +1,5 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import matplotlib
 matplotlib.use('Agg')
@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from tabs.title_utils import (
     bold_math_symbols,
     format_designation,
+    format_signature,
     format_title_bolditalic,
 )
 
@@ -18,47 +19,50 @@ parser = MathTextParser('agg')
 
 
 @pytest.mark.parametrize(
-    'title,xlabel,expected_tokens',
+    "title,xlabel,expected_tokens",
     [
         (
-            'Момент M_x',
-            'M_x',
-            [r"\boldsymbol{M_x}"],
+            "Момент M_x",
+            "M_x",
+            [r"\boldsymbol{\mathit{M}_{\mathit{x}}}"],
         ),
         (
-            'Сумма My + Mz',
-            'My + Mz',
-            [r"\boldsymbol{My}", r"\boldsymbol{Mz}"],
+            "Сумма M_x + M_y",
+            "M_x + M_y",
+            [
+                r"\boldsymbol{\mathit{M}_{\mathit{x}}}",
+                r"\boldsymbol{\mathit{M}_{\mathit{y}}}",
+            ],
         ),
         (
-            'Заголовок $M_x + My$',
-            '$M_x + My$',
-            [r"\boldsymbol{M_x}", r"\boldsymbol{My}"],
+            "Заголовок $M_x + M_y$",
+            "$M_x + M_y$",
+            [
+                r"\boldsymbol{\mathit{M}_{\mathit{x}}}",
+                r"\boldsymbol{\mathit{M}_{\mathit{y}}}",
+            ],
         ),
     ],
 )
 def test_titles_bold_italic_math(title, xlabel, expected_tokens):
     fig, ax = plt.subplots()
     ax.plot([0, 1], [0, 1])
-    processed_title = bold_math_symbols(title)
-    ax.set_title(processed_title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(xlabel)
+    formatted_title = format_signature(title, bold=True)
+    formatted_label = format_signature(xlabel, bold=False)
+    ax.set_title(formatted_title)
+    ax.set_xlabel(formatted_label)
+    ax.set_ylabel(formatted_label)
 
-    # Проверяем, что итоговые строки корректно парсятся
     parser.parse(ax.get_title())
     parser.parse(ax.get_xlabel())
     parser.parse(ax.get_ylabel())
 
-    # В заголовке каждое указанное обозначение должно быть жирным
     for token in expected_tokens:
         assert token in ax.get_title()
 
-    # Подписи осей не должны изменяться
-    assert ax.get_xlabel() == xlabel
-    assert ax.get_ylabel() == xlabel
-    assert r"\boldsymbol" not in ax.get_xlabel()
-    assert r"\boldsymbol" not in ax.get_ylabel()
+    assert ax.get_xlabel() == formatted_label
+    assert ax.get_ylabel() == formatted_label
+    assert r"\boldsymbol" not in formatted_label
 
     plt.close(fig)
 

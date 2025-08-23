@@ -44,9 +44,10 @@ def test_title_processor_wraps_M_symbols_and_preserves_math():
     entry = ComboStub("M_x My $M_z$ $v$ \\boldsymbol{My}")
     processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
     result = processor.get_processed_title()
-    assert r"\boldsymbol{M_x}" in result
-    assert result.count(r"\boldsymbol{My}") == 2
-    assert "$\\boldsymbol{M_z}$" in result
-    assert "$v$" in result
+    assert r"\boldsymbol{\mathit{M}_{\mathit{x}}}" in result
+    assert result.count(r"\boldsymbol{My}") == 1
+    assert " My " in result
+    assert "$\\boldsymbol{\mathit{M}_{\mathit{z}}}$" in result
+    assert "$\\boldsymbol{\mathit{v}}$" in result
     parser = MathTextParser("agg")
     parser.parse(result)

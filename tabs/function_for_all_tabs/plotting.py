@@ -26,6 +26,7 @@ def create_plot(
     fig: Optional[Figure] = None,
     ax: Optional[Axes] = None,
     legend: Optional[bool] = None,
+    title_fontstyle: str = "normal",
     **kwargs: Any,
 ) -> None:
     """Create a plot based on provided curve data.
@@ -42,6 +43,7 @@ def create_plot(
         fig: Существующая фигура для построения графика.
         ax: Существующая ось для построения графика.
         legend: Отображать легенду при наличии ``ax``.
+        title_fontstyle: Стиль шрифта заголовка.
         **kwargs: Поддержка устаревших имен параметров для обратной совместимости.
     """
 
@@ -111,7 +113,7 @@ def create_plot(
             loc="left",
             fontsize=16,
             fontweight="bold",
-            fontstyle="italic",
+            fontstyle=title_fontstyle,
             fontname="Times New Roman",
         )
         plt.xlabel(
@@ -151,7 +153,7 @@ def create_plot(
             title,
             fontsize=16,
             fontweight="bold",
-            fontstyle="italic",
+            fontstyle=title_fontstyle,
             loc="left",
             fontname="Times New Roman",
         )

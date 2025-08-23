@@ -25,7 +25,7 @@ def on_title_combo_change(
 ) -> None:
     """Обновляет выбор заголовка графика.
 
-    При выборе "Другое" отображает поле ввода и очищает комбобокс.
+    При выборе "Другое" отображает поле ввода и сохраняет выбранный вариант.
     При выборе готового варианта скрывает поле ввода и устанавливает
     выбранный текст в переменную заголовка.
     """
@@ -39,8 +39,7 @@ def on_title_combo_change(
             y=combo.winfo_y(),
             width=ui_const.ENTRY_WIDTH,
         )
-        combo.set("")
-        title_var.set("")
+        title_var.set(other_label)
     else:
         entry.place_forget()
         title_var.set(selection)
@@ -54,7 +53,7 @@ def on_legend_title_change(
 ) -> None:
     """Обрабатывает выбор подписи легенды.
 
-    Если выбран вариант «Другое», показывает поле ввода и очищает комбобокс.
+    Если выбран вариант «Другое», показывает поле ввода и сохраняет выбор.
     Иначе скрывает поле ввода и записывает выбранный текст в переменную.
     """
 
@@ -68,8 +67,7 @@ def on_legend_title_change(
             y=ui_const.LEGEND_TITLE_Y,
             width=ui_const.ENTRY_WIDTH,
         )
-        combo.set("")
-        title_var.set("")
+        title_var.set(other_label)
     else:
         combo.place(
             x=ui_const.LEGEND_TITLE_COMBO_X,
@@ -458,6 +456,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 combo_language,
                 legend_title_combo,
                 legend_title_entry,
+                legend_title_var,
             )
             plot_editor.refresh()
             if not editor_visible["shown"]:

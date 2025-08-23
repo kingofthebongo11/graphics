@@ -51,6 +51,7 @@ def test_generate_graph_legend_title_translations(language, option):
     selection = LEGEND_TITLE_TRANSLATIONS[option][language]
     legend_title_combo = Dummy(selection)
     legend_title_entry = Dummy("")
+    legend_title_var = Dummy(selection)
 
     with patch("tabs.function_for_all_tabs.plotting.configure_matplotlib", lambda: None):
         plt.rcParams.update({"text.usetex": False})
@@ -72,6 +73,7 @@ def test_generate_graph_legend_title_translations(language, option):
             combo_language,
             legend_title_combo,
             legend_title_entry,
+            legend_title_var,
         )
 
     legend = ax.get_legend()
@@ -99,6 +101,7 @@ def test_generate_graph_legend_title_custom(language):
     legend_title_combo = Dummy(selection)
     custom_text = "My legend" if language == "Английский" else "Моя легенда"
     legend_title_entry = Dummy(custom_text)
+    legend_title_var = Dummy(selection)
 
     with patch("tabs.function_for_all_tabs.plotting.configure_matplotlib", lambda: None):
         plt.rcParams.update({"text.usetex": False})
@@ -120,6 +123,7 @@ def test_generate_graph_legend_title_custom(language):
             combo_language,
             legend_title_combo,
             legend_title_entry,
+            legend_title_var,
         )
 
     legend = ax.get_legend()

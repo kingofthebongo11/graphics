@@ -15,7 +15,7 @@ def configure_matplotlib():
         'text.latex.preamble': "\n".join([
             r'\usepackage[utf8]{inputenc}',
             r'\usepackage[T2A]{fontenc}',
-            r'\usepackage{microtype}',
+            r'\usepackage[protrusion=true,expansion=false,final]{microtype}',
             r'\usepackage{graphicx}',
             r'\usepackage[russian]{babel}',
             r'\usepackage{tempora}',

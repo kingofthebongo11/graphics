@@ -205,6 +205,57 @@ def create_plot(
                     )
                     x += dx
 
+        def _segments_width(segments: List[Tuple[str, bool]]) -> float:
+            """Вычислить суммарную ширину сегментов в координатах осей."""
+            trans = ax.transAxes
+            renderer = fig.canvas.get_renderer()
+            total = 0.0
+            for frag, is_latex in segments:
+                if is_latex:
+                    txt = ax.text(
+                        0.0,
+                        0.0,
+                        f"${frag}$",
+                        transform=trans,
+                        usetex=True,
+                        ha="left",
+                        va="center",
+                    )
+                    try:
+                        bbox = txt.get_window_extent(renderer=renderer)
+                    except RuntimeError:
+                        txt.remove()
+                        txt = ax.text(
+                            0.0,
+                            0.0,
+                            f"${frag}$",
+                            transform=trans,
+                            usetex=False,
+                            ha="left",
+                            va="center",
+                        )
+                        bbox = txt.get_window_extent(renderer=renderer)
+                else:
+                    with mpl.rc_context(
+                        {"text.usetex": False, "font.family": "Times New Roman"}
+                    ):
+                        txt = ax.text(
+                            0.0,
+                            0.0,
+                            frag,
+                            transform=trans,
+                            ha="left",
+                            va="center",
+                        )
+                        bbox = txt.get_window_extent(renderer=renderer)
+                dx = (
+                    ax.transAxes.inverted().transform((bbox.width, 0))[0]
+                    - ax.transAxes.inverted().transform((0, 0))[0]
+                )
+                total += dx
+                txt.remove()
+            return total
+
         _render_segments(
             title,
             x=0.0,
@@ -212,14 +263,20 @@ def create_plot(
             fontweight="bold",
             fontstyle=title_fontstyle,
             fontsize=16,
+            ha="left",
+            va="bottom",
         )
+        width = _segments_width(x_label)
+        start_x = 0.5 - width / 2
         _render_segments(
             x_label,
-            x=0.0,
+            x=start_x,
             y=-0.1,
             fontweight="normal",
             fontstyle="normal",
             fontsize=12,
+            ha="left",
+            va="center",
         )
         _render_segments(
             y_label,
@@ -230,6 +287,8 @@ def create_plot(
             fontweight="normal",
             fontstyle="normal",
             fontsize=12,
+            ha="center",
+            va="top",
         )
 
         ax.grid(True)

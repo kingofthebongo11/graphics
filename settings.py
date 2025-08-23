@@ -6,15 +6,17 @@ def configure_matplotlib():
     plt.rcParams.update({
         'text.usetex': True,
         'font.family': 'serif',
-        'font.size': 14,  # Общий размер шрифта
-        'axes.titlesize': 14,  # Размер шрифта для заголовков осей
-        'axes.labelsize': 14,  # Размер шрифта для подписей осей
-        'xtick.labelsize': 14,  # Размер шрифта для меток оси X
-        'ytick.labelsize': 14,  # Размер шрифта для меток оси Y
-        'legend.fontsize': 14,  # Размер шрифта для легенды
+        'font.size': 12,  # Общий размер шрифта
+        'axes.titlesize': 20.74,  # Размер шрифта для заголовков осей
+        'axes.labelsize': 14.4,  # Размер шрифта для подписей осей
+        'xtick.labelsize': 12,  # Размер шрифта для меток оси X
+        'ytick.labelsize': 12,  # Размер шрифта для меток оси Y
+        'legend.fontsize': 12,  # Размер шрифта для легенды
         'text.latex.preamble': "\n".join([
             r'\usepackage[utf8]{inputenc}',
-            r'\usepackage[T1]{fontenc}',
+            r'\usepackage[T2A]{fontenc}',
+            r'\usepackage{microtype}',
+            r'\usepackage{graphicx}',
             r'\usepackage[russian]{babel}',
             r'\usepackage{tempora}',
             r'\usepackage{newtxmath}',

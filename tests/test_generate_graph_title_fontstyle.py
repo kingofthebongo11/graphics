@@ -45,6 +45,7 @@ def test_generate_graph_title_fontstyle_normal():
     combo_language = Dummy("Русский")
     legend_title_combo = Dummy("Нет")
     legend_title_entry = Dummy("")
+    legend_title_var = Dummy("Нет")
 
     with patch("tabs.function_for_all_tabs.plotting.configure_matplotlib", lambda: None):
         plt.rcParams.update({"text.usetex": False})
@@ -66,6 +67,7 @@ def test_generate_graph_title_fontstyle_normal():
             combo_language,
             legend_title_combo,
             legend_title_entry,
+            legend_title_var,
         )
 
     expected_title_size = FontProperties(size=TITLE_SIZE).get_size_in_points()

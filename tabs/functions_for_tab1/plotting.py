@@ -151,6 +151,7 @@ def generate_graph(
     combo_language,
     legend_title_combo,
     legend_title_entry,
+    legend_title_var,
 ):
 
     # Очистка предыдущего графика
@@ -198,19 +199,24 @@ def generate_graph(
         return
 
     if legend_checkbox.get():
-        selection = legend_title_combo.get() if legend_title_combo else ""
         other_label = LEGEND_TITLE_TRANSLATIONS["Другое"].get(language, "Другое")
         none_label = LEGEND_TITLE_TRANSLATIONS["Нет"].get(language, "Нет")
-        if selection == other_label:
+        selected = legend_title_var.get() if legend_title_var else ""
+        entry_visible = (
+            legend_title_entry.winfo_ismapped()
+            if legend_title_entry and hasattr(legend_title_entry, "winfo_ismapped")
+            else False
+        )
+        if entry_visible or selected == other_label:
             text = legend_title_entry.get().strip() if legend_title_entry else ""
             if not text:
                 messagebox.showwarning("Предупреждение", "Заполните подпись легенды")
                 return
             legend_title = text
-        elif selection == none_label or not selection:
+        elif selected == none_label or not selected:
             legend_title = None
         else:
-            legend_title = selection
+            legend_title = selected
         if legend_title:
             legend_title = format_signature(legend_title, bold=False)
     else:

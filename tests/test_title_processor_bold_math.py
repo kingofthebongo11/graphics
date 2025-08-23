@@ -16,7 +16,7 @@ def test_title_processor_wraps_mathit_with_bold():
     combo_title = ComboStub("Время")
     processor = TitleProcessor(combo_title, bold_math=True)
     result = processor.get_processed_title()
-    assert "\\boldsymbol{\\mathit{t}}" in result
+    assert r"\boldsymbol{\mathit{t}}" in result
     parser = MathTextParser("agg")
     parser.parse(result)
 
@@ -25,30 +25,28 @@ def test_title_processor_uses_bold_dict_only_for_title():
     combo = ComboStub("Время")
     title_proc = TitleProcessor(combo, bold_math=True)
     axis_proc = TitleProcessor(combo, translations=TITLE_TRANSLATIONS)
-    assert "\\boldsymbol{\\mathit{t}}" in title_proc.get_processed_title()
-    assert "\\boldsymbol{\\mathit{t}}" not in axis_proc.get_processed_title()
+    assert r"\boldsymbol{\mathit{t}}" in title_proc.get_processed_title()
+    assert r"\boldsymbol{\mathit{t}}" not in axis_proc.get_processed_title()
 
 
 def test_title_processor_wraps_multiple_mathit_occurrences():
     combo_title = ComboStub("Другое")
     entry = ComboStub("Value $\\mathit{x}+\\mathit{y}$")
-    processor = TitleProcessor(
-        combo_title, entry_title=entry, bold_math=True
-    )
+    processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
     result = processor.get_processed_title()
-    assert result.count("\\boldsymbol{\\mathit{") == 2
+    assert result.count(r"\boldsymbol{\mathit{") == 2
     parser = MathTextParser("agg")
     parser.parse(result)
 
 
 def test_title_processor_wraps_M_symbols_and_preserves_math():
     combo_title = ComboStub("Другое")
-    entry = ComboStub("M_x My $M_z$ $v$ \boldsymbol{My}")
+    entry = ComboStub("M_x My $M_z$ $v$ \\boldsymbol{My}")
     processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
     result = processor.get_processed_title()
-    assert "\boldsymbol{M_x}" in result
-    assert result.count("\boldsymbol{My}") == 2
-    assert "$\boldsymbol{M_z}$" in result
+    assert r"\boldsymbol{M_x}" in result
+    assert result.count(r"\boldsymbol{My}") == 2
+    assert "$\\boldsymbol{M_z}$" in result
     assert "$v$" in result
     parser = MathTextParser("agg")
     parser.parse(result)

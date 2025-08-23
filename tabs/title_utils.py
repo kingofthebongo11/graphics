@@ -45,7 +45,31 @@ def bold_math_symbols(text: str) -> str:
 
 
 def format_title_bolditalic(text: str) -> str:
-    """Wrap the entire title in bold italic formatting."""
+    """Wrap text parts of a title in bold italic while preserving math.
+
+    The input string may contain segments enclosed in ``$`` which should
+    remain untouched. All other parts are considered plain text and are
+    wrapped with ``\textbf{\textit{...}}`` without adding extra ``$``
+    around the whole title.
+    """
+
     if not text:
         return text
-    return rf"$\\textit{{\\textbf{{{text}}}}}$"
+
+    # Split into math and non-math segments. The regex keeps the math
+    # delimiters so that the resulting list alternates between text and
+    # math parts.
+    segments = re.split(r"(\$[^$]*\$)", text)
+    formatted: list[str] = []
+
+    for segment in segments:
+        if not segment:
+            continue
+        if segment.startswith("$") and segment.endswith("$"):
+            # Math expression – keep as is.
+            formatted.append(segment)
+        else:
+            # Plain text – wrap with bold italic commands.
+            formatted.append(rf"\textbf{{\textit{{{segment}}}}}")
+
+    return "".join(formatted)

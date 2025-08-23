@@ -8,7 +8,7 @@ from matplotlib.mathtext import MathTextParser
 import pytest
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from tabs.title_utils import bold_math_symbols
+from tabs.title_utils import bold_math_symbols, format_title_bolditalic
 
 parser = MathTextParser('agg')
 
@@ -57,3 +57,19 @@ def test_titles_bold_italic_math(title, xlabel, expected_tokens):
     assert r"\boldsymbol" not in ax.get_ylabel()
 
     plt.close(fig)
+
+
+def test_format_title_bolditalic_plain_text():
+    assert (
+        format_title_bolditalic("Заголовок")
+        == r"\textbf{\textit{Заголовок}}"
+    )
+
+
+def test_format_title_bolditalic_with_math():
+    result = format_title_bolditalic("Сумма $x+y$ равна")
+    assert result == r"\textbf{\textit{Сумма }}$x+y$\textbf{\textit{ равна}}"
+
+
+def test_format_title_bolditalic_only_math():
+    assert format_title_bolditalic("$a+b$") == "$a+b$"

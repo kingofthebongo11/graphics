@@ -36,6 +36,7 @@ def create_png_plots(graph_with_time, file_path_outeig, log_text):
                 pr_y=True,
                 save_file=True,
                 file_plt=file_plt,
+                legend_title=None,
             )
         else:
             Y_values = [float(item[1]) for item in graph]
@@ -48,6 +49,7 @@ def create_png_plots(graph_with_time, file_path_outeig, log_text):
                 pr_y=False,
                 save_file=True,
                 file_plt=file_plt,
+                legend_title=None,
             )
 
     message_log(log_text, "Созданы графики всех характеристик")

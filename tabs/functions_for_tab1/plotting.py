@@ -16,6 +16,7 @@ from tabs.constants import (
     PHYSICAL_QUANTITIES_EN_TO_RU,
     PHYSICAL_QUANTITIES_TRANSLATION,
     UNITS_TRANSLATION,
+    LEGEND_TITLE_TRANSLATIONS,
 )
 from tabs.title_utils import format_signature
 
@@ -148,6 +149,8 @@ def generate_graph(
     curves_frame,
     combo_curves,
     combo_language,
+    legend_title_combo,
+    legend_title_entry,
 ):
 
     # Очистка предыдущего графика
@@ -193,6 +196,25 @@ def generate_graph(
     ):
         messagebox.showwarning("Предупреждение", "Заполните название оси Y")
         return
+
+    if legend_checkbox.get():
+        selection = legend_title_combo.get() if legend_title_combo else ""
+        other_label = LEGEND_TITLE_TRANSLATIONS["Другое"].get(language, "Другое")
+        none_label = LEGEND_TITLE_TRANSLATIONS["Нет"].get(language, "Нет")
+        if selection == other_label:
+            text = legend_title_entry.get().strip() if legend_title_entry else ""
+            if not text:
+                messagebox.showwarning("Предупреждение", "Заполните подпись легенды")
+                return
+            legend_title = text
+        elif selection == none_label or not selection:
+            legend_title = None
+        else:
+            legend_title = selection
+        if legend_title:
+            legend_title = format_signature(legend_title, bold=False)
+    else:
+        legend_title = None
 
     # Считываем количество кривых из combobox
     num_curves = int(combo_curves.get())
@@ -360,6 +382,7 @@ def generate_graph(
             fig=fig,
             ax=ax,
             legend=legend_checkbox.get(),
+            legend_title=legend_title,
             title_fontstyle="normal",
         )
     except ValueError as exc:

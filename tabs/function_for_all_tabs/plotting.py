@@ -33,6 +33,7 @@ def create_plot(
     fig: Optional[Figure] = None,
     ax: Optional[Axes] = None,
     legend: Optional[bool] = None,
+    legend_title: Optional[str] = None,
     title_fontstyle: str = "normal",
     **kwargs: Any,
 ) -> None:
@@ -50,6 +51,7 @@ def create_plot(
         fig: Существующая фигура для построения графика.
         ax: Существующая ось для построения графика.
         legend: Отображать легенду при наличии ``ax``.
+        legend_title: Заголовок легенды.
         title_fontstyle: Стиль шрифта заголовка.
         **kwargs: Поддержка устаревших имен параметров для обратной совместимости.
     """
@@ -223,7 +225,7 @@ def create_plot(
         fig.subplots_adjust(bottom=0.15)
         if legend:
             logger.debug("Добавление легенды")
-            ax.legend()
+            ax.legend(title=legend_title)
         if save_file:
             logger.info("Сохранение графика в файл %s", file_plt)
             fig.savefig(file_plt)

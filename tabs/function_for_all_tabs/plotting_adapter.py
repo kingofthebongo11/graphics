@@ -31,6 +31,7 @@ def plot_on_canvas(
     title: str = "",
     pr_y: bool = False,
     legend: Optional[bool] = None,
+    legend_title: Optional[str] = None,
 ) -> None:
     """Clear ``ax`` and render ``curves`` using shared style utilities."""
     ax.clear()
@@ -46,5 +47,6 @@ def plot_on_canvas(
         fig=fig,
         ax=ax,
         legend=legend,
+        legend_title=legend_title,
     )
     canvas.draw()

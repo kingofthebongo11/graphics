@@ -83,6 +83,12 @@ def create_plot(
         message = f"Некорректная LaTeX-формула в подписи оси Y: {y_label}"
         logger.error(message)
         raise ValueError(message) from exc
+    try:
+        parser.parse(title)
+    except ValueError as exc:
+        message = f"Некорректная LaTeX-формула в заголовке: {title}"
+        logger.error(message)
+        raise ValueError(message) from exc
 
     if fig is None:
         logger.debug("Создание новой фигуры (pr_y=%s)", pr_y)
@@ -100,7 +106,14 @@ def create_plot(
                 marker=None,
                 linestyle="-",
             )
-        plt.title(title, loc="left", fontsize=16, fontweight="bold")
+        plt.title(
+            title,
+            loc="left",
+            fontsize=16,
+            fontweight="bold",
+            fontstyle="italic",
+            fontname="Times New Roman",
+        )
         plt.xlabel(
             x_label, fontname="Times New Roman", fontweight="normal"
         )
@@ -135,7 +148,12 @@ def create_plot(
                     linestyle="-",
                 )
         ax.set_title(
-            title, fontsize=16, fontweight="bold", loc="left", fontname="Times New Roman"
+            title,
+            fontsize=16,
+            fontweight="bold",
+            fontstyle="italic",
+            loc="left",
+            fontname="Times New Roman",
         )
         ax.set_xlabel(
             x_label, fontname="Times New Roman", fontweight="normal"

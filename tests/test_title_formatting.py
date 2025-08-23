@@ -8,7 +8,11 @@ from matplotlib.mathtext import MathTextParser
 import pytest
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from tabs.title_utils import bold_math_symbols, format_title_bolditalic
+from tabs.title_utils import (
+    bold_math_symbols,
+    format_designation,
+    format_title_bolditalic,
+)
 
 parser = MathTextParser('agg')
 
@@ -57,6 +61,31 @@ def test_titles_bold_italic_math(title, xlabel, expected_tokens):
     assert r"\boldsymbol" not in ax.get_ylabel()
 
     plt.close(fig)
+
+
+@pytest.mark.parametrize(
+    "token,in_math,expected",
+    [
+        ("M_x", True, r"\boldsymbol{M_x}"),
+        ("M_x", False, r"$\boldsymbol{M_x}$"),
+        (r"\mathit{t}", True, r"\boldsymbol{\mathit{t}}"),
+        (r"\mathit{t}", False, r"$\boldsymbol{\mathit{t}}$"),
+    ],
+)
+def test_format_designation(token, in_math, expected):
+    assert format_designation(token, in_math) == expected
+
+
+def test_bold_math_symbols_uses_format_designation(monkeypatch):
+    calls = []
+
+    def fake(token, in_math):
+        calls.append((token, in_math))
+        return token
+
+    monkeypatch.setattr("tabs.title_utils.format_designation", fake)
+    bold_math_symbols("M_x")
+    assert calls == [("M_x", False)]
 
 
 def test_format_title_bolditalic_plain_text():

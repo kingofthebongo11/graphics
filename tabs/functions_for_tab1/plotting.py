@@ -183,9 +183,12 @@ def generate_graph(
         translations=TITLE_TRANSLATIONS,
     )
     title = title_processor.get_processed_title()
-    title = format_title_bolditalic(title)
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
+
+    title = format_title_bolditalic(title)
+    xlabel = format_title_bolditalic(xlabel)
+    ylabel = format_title_bolditalic(ylabel)
 
     if combo_titleX.get() == "Другое" and (
         entry_titleX is None or not entry_titleX.get().strip()

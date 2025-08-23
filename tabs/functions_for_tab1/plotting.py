@@ -18,7 +18,7 @@ from tabs.constants import (
     UNITS_MAPPING,
     UNITS_MAPPING_EN,
 )
-from tabs.title_utils import bold_math_symbols
+from tabs.title_utils import bold_math_symbols, format_title_bolditalic
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +82,7 @@ class TitleProcessor:
         ru, _ = self._get_ru_en_quantity()
         return self.translations.get(ru, {}).get(
             self.language, self.combo_title.get()
+        )
 
     def get_processed_title(self):
         selection = self.combo_title.get()
@@ -113,6 +114,7 @@ def save_file(entry_widget, format_widget, graph_info):
                 ("All files", "*.*"),
             ],
             initialfile=f"{file_name}.{file_format}",
+        )
         if file_path:
             try:
                 fig.savefig(file_path, format=file_format)
@@ -165,19 +167,23 @@ def generate_graph(
         entry_title=entry_title_custom,
         language=language,
         bold_math=True,
+    )
     xlabel_processor = TitleProcessor(
         combo_titleX,
         combo_titleX_size,
         entry_titleX,
         language,
         translations=TITLE_TRANSLATIONS,
+    )
     ylabel_processor = TitleProcessor(
         combo_titleY,
         combo_titleY_size,
         entry_titleY,
         language,
         translations=TITLE_TRANSLATIONS,
+    )
     title = title_processor.get_processed_title()
+    title = format_title_bolditalic(title)
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
 
@@ -225,21 +231,27 @@ def generate_graph(
                 if widget_name == f"curve_{i}_X_source":
                     curve_info.setdefault("X_source", {}).update(
                         {"source": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_Y_source":
                     curve_info.setdefault("Y_source", {}).update(
                         {"source": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_X_parameter":
                     curve_info.setdefault("X_source", {}).update(
                         {"parameter": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_Y_parameter":
                     curve_info.setdefault("Y_source", {}).update(
                         {"parameter": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_X_direction":
                     curve_info.setdefault("X_source", {}).update(
                         {"direction": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_Y_direction":
                     curve_info.setdefault("Y_source", {}).update(
                         {"direction": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_X_column":
                     value = widget.get()
                     column = 0 if value != "Y" else 1
@@ -251,9 +263,11 @@ def generate_graph(
                 elif widget_name == f"curve_{i}_X_range":
                     curve_info.setdefault("X_source", {}).update(
                         {"range_x": widget.get(), "use_ranges": True}
+                    )
                 elif widget_name == f"curve_{i}_Y_range":
                     curve_info.setdefault("Y_source", {}).update(
                         {"range_y": widget.get(), "use_ranges": True}
+                    )
 
                 # Получаем имя файла для каждой кривой
                 if widget_name == f"curve_{i}_filename":
@@ -262,15 +276,19 @@ def generate_graph(
                         if "X_source" in curve_info:
                             curve_info["X_source"].setdefault(
                                 "curve_file", widget.get()
+                            )
                         if "Y_source" in curve_info:
                             curve_info["Y_source"].setdefault(
                                 "curve_file", widget.get()
+                            )
                 elif widget_name == f"curve_{i}_filename_X":
                     curve_info.setdefault("X_source", {}).update(
                         {"curve_file": widget.get()}
+                    )
                 elif widget_name == f"curve_{i}_filename_Y":
                     curve_info.setdefault("Y_source", {}).update(
                         {"curve_file": widget.get()}
+                    )
 
                 if widget_name == f"curve_{i}_horizontal":
                     curve_info["horizontal"] = widget.var.get()
@@ -300,6 +318,7 @@ def generate_graph(
         if legend_checkbox.get() and not curve_info.get("curve_legend", "").strip():
             messagebox.showwarning(
                 "Предупреждение", f"Введите подпись легенды для кривой {i}"
+            )
             return
         # Проверяем источники и файлы данных для кривой
         if curve_info.get("curve_type") == "Комбинированный":
@@ -308,11 +327,13 @@ def generate_graph(
                 if not source_info.get("source"):
                     messagebox.showerror(
                         "Ошибка", f"Не указан источник {axis} для кривой {i}"
+                    )
                     return
                 file = source_info.get("curve_file")
                 if not file:
                     messagebox.showerror(
                         "Ошибка", f"Не указан файл данных для кривой {i}"
+                    )
                     return
                 if not Path(file).exists():
                     messagebox.showerror("Ошибка", f"Файл {file} не найден")
@@ -344,6 +365,7 @@ def generate_graph(
             fig=fig,
             ax=ax,
             legend=legend_checkbox.get(),
+        )
     except ValueError as exc:
         if exc.__cause__ is not None and isinstance(exc.__cause__, ValueError):
             logger.error("Ошибка разметки подписи", exc_info=True)
@@ -364,6 +386,7 @@ def generate_graph(
             "title": title,
             "fig": fig,
         }
+    )
 
     # Перерисовка графика
     canvas.draw()

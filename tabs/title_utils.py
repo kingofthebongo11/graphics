@@ -42,3 +42,10 @@ def bold_math_symbols(text: str) -> str:
         return f"${wrapped}$"
 
     return pattern.sub(repl, text)
+
+
+def format_title_bolditalic(text: str) -> str:
+    """Wrap the entire title in bold italic formatting."""
+    if not text:
+        return text
+    return rf"$\\textit{{\\textbf{{{text}}}}}$"

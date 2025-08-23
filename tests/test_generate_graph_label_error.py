@@ -36,6 +36,8 @@ def test_generate_graph_invalid_label_markup():
     curves_frame = DummyFrame()
     combo_curves = Dummy("0")
     combo_language = Dummy("Русский")
+    legend_title_combo = Dummy("Нет")
+    legend_title_entry = Dummy("")
 
     with pytest.raises(ValueError) as excinfo:
         generate_graph(
@@ -54,6 +56,8 @@ def test_generate_graph_invalid_label_markup():
             curves_frame,
             combo_curves,
             combo_language,
+            legend_title_combo,
+            legend_title_entry,
         )
     plt.close(fig)
     assert "неправильной разметкой подписи" in str(excinfo.value)

@@ -30,6 +30,7 @@ def test_default_title_fontstyle_normal():
             "Title",
             fig=fig,
             ax=ax,
+            legend_title=None,
         )
     expected_title_size = FontProperties(size=TITLE_SIZE).get_size_in_points()
     expected_label_size = FontProperties(size=LABEL_SIZE).get_size_in_points()

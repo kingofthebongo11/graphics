@@ -450,6 +450,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 curves_frame,
                 combo_curves,
                 combo_language,
+                legend_title_combo,
+                legend_title_entry,
             )
             plot_editor.refresh()
             if not editor_visible["shown"]:

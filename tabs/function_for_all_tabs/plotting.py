@@ -256,6 +256,60 @@ def create_plot(
                 txt.remove()
             return total
 
+        def _segments_height(segments: List[Tuple[str, bool]]) -> float:
+            """Вычислить суммарную высоту сегментов в координатах осей."""
+            trans = ax.transAxes
+            renderer = fig.canvas.get_renderer()
+            total = 0.0
+            for frag, is_latex in segments:
+                if is_latex:
+                    txt = ax.text(
+                        0.0,
+                        0.0,
+                        f"${frag}$",
+                        transform=trans,
+                        usetex=True,
+                        ha="center",
+                        va="bottom",
+                        rotation=90,
+                    )
+                    try:
+                        bbox = txt.get_window_extent(renderer=renderer)
+                    except RuntimeError:
+                        txt.remove()
+                        txt = ax.text(
+                            0.0,
+                            0.0,
+                            f"${frag}$",
+                            transform=trans,
+                            usetex=False,
+                            ha="center",
+                            va="bottom",
+                            rotation=90,
+                        )
+                        bbox = txt.get_window_extent(renderer=renderer)
+                else:
+                    with mpl.rc_context(
+                        {"text.usetex": False, "font.family": "Times New Roman"}
+                    ):
+                        txt = ax.text(
+                            0.0,
+                            0.0,
+                            frag,
+                            transform=trans,
+                            ha="center",
+                            va="bottom",
+                            rotation=90,
+                        )
+                        bbox = txt.get_window_extent(renderer=renderer)
+                dy = (
+                    ax.transAxes.inverted().transform((0, bbox.height))[1]
+                    - ax.transAxes.inverted().transform((0, 0))[1]
+                )
+                total += dy
+                txt.remove()
+            return total
+
         _render_segments(
             title,
             x=0.0,
@@ -278,16 +332,19 @@ def create_plot(
             ha="left",
             va="center",
         )
+        ax.set_ylabel("", labelpad=15, ha="center")
+        height = _segments_height(y_label)
+        start_y = 0.5 + height / 2
         _render_segments(
             y_label,
-            x=-0.1,
-            y=1.0,
+            x=0.0,
+            y=start_y,
             vertical=True,
             rotation=90,
             fontweight="normal",
             fontstyle="normal",
             fontsize=12,
-            ha="center",
+            ha="right",
             va="top",
         )
 

@@ -60,15 +60,12 @@ def test_titles_bold_italic_math(title, xlabel, expected_tokens):
 
 
 def test_format_title_bolditalic_plain_text():
-    assert (
-        format_title_bolditalic("Заголовок")
-        == r"\textbf{\textit{Заголовок}}"
-    )
+    assert format_title_bolditalic("Заголовок") == "Заголовок"
 
 
 def test_format_title_bolditalic_with_math():
     result = format_title_bolditalic("Сумма $x+y$ равна")
-    assert result == r"\textbf{\textit{Сумма }}$x+y$\textbf{\textit{ равна}}"
+    assert result == "Сумма $x+y$ равна"
 
 
 def test_format_title_bolditalic_only_math():

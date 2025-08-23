@@ -18,7 +18,7 @@ from tabs.constants import (
     UNITS_MAPPING,
     UNITS_MAPPING_EN,
 )
-from tabs.title_utils import bold_math_symbols, format_title_bolditalic
+from tabs.title_utils import bold_math_symbols
 
 logger = logging.getLogger(__name__)
 
@@ -186,10 +186,8 @@ def generate_graph(
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
 
-    title = format_title_bolditalic(title)
-    # xlabel and ylabel should remain without additional formatting
-    # xlabel = format_title_bolditalic(xlabel)
-    # ylabel = format_title_bolditalic(ylabel)
+    # Текст заголовка передается без LaTeX-команд,
+    # оформление выполняется через параметры Matplotlib.
 
     if combo_titleX.get() == "Другое" and (
         entry_titleX is None or not entry_titleX.get().strip()
@@ -369,6 +367,7 @@ def generate_graph(
             fig=fig,
             ax=ax,
             legend=legend_checkbox.get(),
+            title_fontstyle="italic",
         )
     except ValueError as exc:
         if exc.__cause__ is not None and isinstance(exc.__cause__, ValueError):

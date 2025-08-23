@@ -162,6 +162,25 @@ def create_plot(
                 fontsize=LABEL_SIZE,
                 usetex=False,
             )
+        x_offset = ax.xaxis.get_offset_text().get_text()
+        if x_offset:
+            ax.xaxis.get_offset_text().set_visible(False)
+            try:
+                ax.set_xlabel(
+                    f"{x_label} (×10^{x_offset.split('e')[1]})",
+                    fontweight="normal",
+                    fontstyle="normal",
+                    fontsize=LABEL_SIZE,
+                    usetex=True,
+                )
+            except RuntimeError:
+                ax.set_xlabel(
+                    f"{x_label} (×10^{x_offset.split('e')[1]})",
+                    fontweight="normal",
+                    fontstyle="normal",
+                    fontsize=LABEL_SIZE,
+                    usetex=False,
+                )
         try:
             ax.set_ylabel(
                 y_label,
@@ -178,6 +197,25 @@ def create_plot(
                 fontsize=LABEL_SIZE,
                 usetex=False,
             )
+        y_offset = ax.yaxis.get_offset_text().get_text()
+        if y_offset:
+            ax.yaxis.get_offset_text().set_visible(False)
+            try:
+                ax.set_ylabel(
+                    f"{y_label} (×10^{y_offset.split('e')[1]})",
+                    fontweight="normal",
+                    fontstyle="normal",
+                    fontsize=LABEL_SIZE,
+                    usetex=True,
+                )
+            except RuntimeError:
+                ax.set_ylabel(
+                    f"{y_label} (×10^{y_offset.split('e')[1]})",
+                    fontweight="normal",
+                    fontstyle="normal",
+                    fontsize=LABEL_SIZE,
+                    usetex=False,
+                )
 
         ax.grid(True)
         fig.tight_layout()

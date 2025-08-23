@@ -15,6 +15,12 @@ from tabs.title_utils import format_signature
 
 logger = logging.getLogger(__name__)
 
+# Значения размеров шрифтов по умолчанию из rcParams.
+# Эти константы обновляются при каждом вызове ``create_plot``
+# после применения пользовательской конфигурации Matplotlib.
+TITLE_SIZE = plt.rcParams["axes.titlesize"]
+LABEL_SIZE = plt.rcParams["axes.labelsize"]
+
 
 def create_plot(
     curves_info: List[Dict[str, List[float]]],
@@ -51,6 +57,10 @@ def create_plot(
     logger.info("Начало построения графика")
     old_usetex = plt.rcParams.get("text.usetex", False)
     configure_matplotlib()
+    # Обновляем размеры шрифтов после применения конфигурации
+    global TITLE_SIZE, LABEL_SIZE
+    TITLE_SIZE = plt.rcParams["axes.titlesize"]
+    LABEL_SIZE = plt.rcParams["axes.labelsize"]
     if "prY" in kwargs:
         warnings.warn("prY is deprecated, use pr_y", DeprecationWarning, stacklevel=2)
         logger.warning("Использован устаревший параметр prY")
@@ -123,7 +133,7 @@ def create_plot(
                 title,
                 fontweight="bold",
                 fontstyle=title_fontstyle,
-                fontsize=16,
+                fontsize=TITLE_SIZE,
                 loc="left",
                 usetex=True,
             )
@@ -132,7 +142,7 @@ def create_plot(
                 title,
                 fontweight="bold",
                 fontstyle=title_fontstyle,
-                fontsize=16,
+                fontsize=TITLE_SIZE,
                 loc="left",
                 usetex=False,
             )
@@ -141,7 +151,7 @@ def create_plot(
                 x_label,
                 fontweight="normal",
                 fontstyle="normal",
-                fontsize=12,
+                fontsize=LABEL_SIZE,
                 usetex=True,
             )
         except RuntimeError:
@@ -149,7 +159,7 @@ def create_plot(
                 x_label,
                 fontweight="normal",
                 fontstyle="normal",
-                fontsize=12,
+                fontsize=LABEL_SIZE,
                 usetex=False,
             )
         try:
@@ -157,7 +167,7 @@ def create_plot(
                 y_label,
                 fontweight="normal",
                 fontstyle="normal",
-                fontsize=12,
+                fontsize=LABEL_SIZE,
                 usetex=True,
             )
         except RuntimeError:
@@ -165,7 +175,7 @@ def create_plot(
                 y_label,
                 fontweight="normal",
                 fontstyle="normal",
-                fontsize=12,
+                fontsize=LABEL_SIZE,
                 usetex=False,
             )
 

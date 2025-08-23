@@ -1,7 +1,12 @@
-import matplotlib.pyplot as plt
+import shutil
 from unittest.mock import patch
 
+import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
+import pytest
+
 from tabs.functions_for_tab1.plotting import generate_graph
+from tabs.function_for_all_tabs.plotting import TITLE_SIZE, LABEL_SIZE
 
 
 class Dummy:
@@ -22,6 +27,7 @@ class DummyFrame:
         return []
 
 
+@pytest.mark.skipif(shutil.which("latex") is None, reason="LaTeX not installed")
 def test_generate_graph_title_fontstyle_normal():
     fig, ax = plt.subplots()
     canvas = DummyCanvas()
@@ -38,12 +44,8 @@ def test_generate_graph_title_fontstyle_normal():
     combo_curves = Dummy("0")
     combo_language = Dummy("Русский")
 
-    captured = {}
-
-    def fake_create_plot(curves_info, x_label, y_label, title, **kwargs):
-        captured["title_fontstyle"] = kwargs.get("title_fontstyle")
-
-    with patch("tabs.functions_for_tab1.plotting.create_plot", fake_create_plot):
+    with patch("tabs.function_for_all_tabs.plotting.configure_matplotlib", lambda: None):
+        plt.rcParams.update({"text.usetex": False})
         generate_graph(
             ax,
             fig,
@@ -61,5 +63,11 @@ def test_generate_graph_title_fontstyle_normal():
             combo_curves,
             combo_language,
         )
+
+    expected_title_size = FontProperties(size=TITLE_SIZE).get_size_in_points()
+    expected_label_size = FontProperties(size=LABEL_SIZE).get_size_in_points()
+    assert ax.title.get_fontstyle() == "normal"
+    assert ax.title.get_fontsize() == expected_title_size
+    assert ax.xaxis.label.get_fontsize() == expected_label_size
+    assert ax.yaxis.label.get_fontsize() == expected_label_size
     plt.close(fig)
-    assert captured.get("title_fontstyle") == "normal"

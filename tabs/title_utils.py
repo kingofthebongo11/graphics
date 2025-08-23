@@ -1,6 +1,23 @@
 import re
 
 
+def format_designation(token: str, in_math: bool) -> str:
+    """Wrap ``token`` in ``\boldsymbol{}`` and add ``$`` if needed.
+
+    Parameters
+    ----------
+    token:
+        LaTeX token representing a designation (e.g. ``M_x`` or
+        ``\mathit{t}``).
+    in_math:
+        ``True`` if ``token`` already resides inside math mode, ``False``
+        otherwise.
+    """
+
+    wrapped = f"\\boldsymbol{{{token}}}"
+    return wrapped if in_math else f"${wrapped}$"
+
+
 def bold_math_symbols(text: str) -> str:
     r"""Wrap math expressions ``\mathit{...}`` and ``M_x``, ``My``, ``Mz``
     with ``$\\boldsymbol{...}$`` or ``$\\boldsymbol{\\mathit{...}}$``.
@@ -36,10 +53,7 @@ def bold_math_symbols(text: str) -> str:
         token = match.group(0)
         if already_bold(s, start):
             return token
-        wrapped = f"\\boldsymbol{{{token}}}"
-        if is_inside_math(s, start):
-            return wrapped
-        return f"${wrapped}$"
+        return format_designation(token, is_inside_math(s, start))
 
     return pattern.sub(repl, text)
 

@@ -68,6 +68,50 @@ def test_titles_bold_italic_math(title, xlabel, expected_tokens):
 
 
 @pytest.mark.parametrize(
+    "token,expected_title,expected_label",
+    [
+        ("σ_x", r"\boldsymbol{\upsigma_{\mathit{x}}}", r"\upsigma_{\mathit{x}}"),
+        ("λ_i", r"\boldsymbol{\uplambda_{\mathit{i}}}", r"\uplambda_{\mathit{i}}"),
+    ],
+)
+def test_greek_letters_with_latin_indices(token, expected_title, expected_label):
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1])
+    formatted_title = format_signature(f"Параметр {token}", bold=True)
+    formatted_label = format_signature(token, bold=False)
+    ax.set_title(formatted_title)
+    ax.set_xlabel(formatted_label)
+    ax.set_ylabel(formatted_label)
+
+    for item in (ax.get_title(), ax.get_xlabel(), ax.get_ylabel()):
+        sanitized = item.replace("\\upsigma", "\\sigma").replace("\\uplambda", "\\lambda")
+        parser.parse(sanitized)
+
+    assert expected_title in ax.get_title()
+    assert ax.get_xlabel() == f"${expected_label}$"
+    assert ax.get_ylabel() == f"${expected_label}$"
+    assert r"\boldsymbol" not in ax.get_xlabel()
+
+    plt.close(fig)
+
+
+@pytest.mark.parametrize(
+    "token,bold,expected",
+    [
+        ("σ_x^2", True, r"\boldsymbol{\upsigma_{\mathit{x}}^{2}}"),
+        ("σ_x^2", False, r"\upsigma_{\mathit{x}}^{2}"),
+        ("λ_i^j", True, r"\boldsymbol{\uplambda_{\mathit{i}}^{\mathit{j}}}"),
+        ("λ_i^j", False, r"\uplambda_{\mathit{i}}^{\mathit{j}}"),
+    ],
+)
+def test_format_signature_with_super_and_sub(token, bold, expected):
+    formatted = format_signature(token, bold=bold)
+    sanitized = formatted.replace("\\upsigma", "\\sigma").replace("\\uplambda", "\\lambda")
+    parser.parse(sanitized)
+    assert formatted == f"${expected}$"
+
+
+@pytest.mark.parametrize(
     "token,in_math,expected",
     [
         ("M_x", True, r"\boldsymbol{M_x}"),

@@ -21,12 +21,51 @@ Install the required Python packages:
 pip install matplotlib openpyxl numpy
 ```
 
+If you plan to use LaTeX rendering for Greek letters and bold symbols,
+install additional TeX packages (Debian/Ubuntu example):
+
+```bash
+sudo apt-get install texlive-latex-extra texlive-fonts-extra texlive-lang-cyrillic
+```
+
 ## Basic Usage
 Start the application with:
 ```bash
 python main.py
 ```
 This opens the GUI where you can create and customize plots across multiple tabs.
+
+## Форматирование подписей и обозначений
+
+Для заголовков графиков и подписей осей используйте функцию
+`format_signature` из модуля `tabs.title_utils`. Она переводит латинские
+буквы в курсив (`\mathit{}`), заменяет греческие символы на команды
+пакета `upgreek` и корректно обрабатывает индексы/степени. Параметр
+`bold=True` дополнительно оборачивает обозначения в `\boldsymbol{}`.
+
+Примеры:
+
+- `format_signature('Момент M_x', bold=True)` → «Момент
+  $\boldsymbol{\mathit{M}_{\mathit{x}}}$»
+- `format_signature('Угол α', bold=False)` → «Угол $\upalpha$»
+- `format_signature('Напряжение σ_{max}', bold=False)` → «Напряжение
+  $\upsigma_{\mathit{max}}$»
+
+### Пример использования с Matplotlib
+
+```python
+import matplotlib.pyplot as plt
+from settings import configure_matplotlib
+from tabs.title_utils import format_signature
+
+configure_matplotlib()
+
+fig, ax = plt.subplots()
+ax.set_title(format_signature('Момент M_x', bold=True))
+ax.set_xlabel(format_signature('Угол α', bold=False))
+ax.set_ylabel(format_signature('Напряжение σ_{max}', bold=False))
+plt.show()
+```
 
 ## Axis Units
 The axis dimension selectors support both SI units and engineering units based on kilogram-force and ton-force. For forces you can choose units like `kgf` and `tf`, while stress values may be expressed in standard units such as `Pa`, `kPa`, `MPa`, combinations of force (`N`, `kN`, `MN`) and area (`mm²`, `cm²`, `m²`), or engineering units like `kgf/mm²`, `kgf/cm²`, `kgf/m²`, `tf/cm²`, and `tf/m²`.

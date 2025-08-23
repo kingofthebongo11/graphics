@@ -10,6 +10,7 @@ from .constants import (
     DEFAULT_UNITS,
     PHYSICAL_QUANTITIES,
     UNITS_MAPPING,
+    LEGEND_TITLE_TRANSLATIONS,
 )
 from ui import constants as ui_const
 
@@ -36,6 +37,34 @@ def on_title_combo_change(
         entry.place(
             x=combo.winfo_x() + ui_const.LABEL_SIZE_OFFSET,
             y=combo.winfo_y(),
+            width=ui_const.ENTRY_WIDTH,
+        )
+        combo.set("")
+        title_var.set("")
+    else:
+        entry.place_forget()
+        title_var.set(selection)
+
+
+def on_legend_title_change(
+    combo: ttk.Combobox,
+    entry: tk.Entry,
+    title_var: tk.StringVar,
+    language: str,
+) -> None:
+    """Обрабатывает выбор подписи легенды.
+
+    Если выбран вариант «Другое», показывает поле ввода и очищает комбобокс.
+    Иначе скрывает поле ввода и записывает выбранный текст в переменную.
+    """
+
+    other_label = LEGEND_TITLE_TRANSLATIONS["Другое"].get(language, "Другое")
+
+    selection = combo.get()
+    if selection == other_label:
+        entry.place(
+            x=ui_const.LEGEND_TITLE_ENTRY_X,
+            y=ui_const.LEGEND_TITLE_Y,
             width=ui_const.ENTRY_WIDTH,
         )
         combo.set("")
@@ -218,6 +247,27 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         width=ui_const.SMALL_COMBO_WIDTH,
     )
 
+    # Подпись легенды
+    legend_title_var = tk.StringVar()
+    legend_title_combo = ttk.Combobox(
+        input_frame,
+        state="readonly",
+        textvariable=legend_title_var,
+    )
+    legend_title_entry = create_text(
+        input_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    legend_title_entry.place_forget()
+    legend_title_combo.bind(
+        "<<ComboboxSelected>>",
+        lambda e: on_legend_title_change(
+            legend_title_combo,
+            legend_title_entry,
+            legend_title_var,
+            combo_language.get() or "Русский",
+        ),
+    )
+
     # Поля для осей X и Y, используя список физических величин
     combo_titleX, path_entry_titleX, label_titleX_size, combo_titleX_size = (
         add_axis_control(
@@ -250,6 +300,16 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         on_combo_changeX_Y_labels(
             combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size
         )
+        language = combo_language.get() or "Русский"
+        legend_titles = [
+            values.get(language, key)
+            for key, values in LEGEND_TITLE_TRANSLATIONS.items()
+        ]
+        legend_title_combo["values"] = legend_titles
+        if legend_titles:
+            legend_title_combo.current(0)
+            legend_title_var.set(legend_title_combo.get())
+        legend_title_entry.place_forget()
 
     combo_language.bind("<<ComboboxSelected>>", on_language_change)
     on_language_change()
@@ -264,6 +324,21 @@ def create_tab1(notebook: ttk.Notebook) -> None:
 
     # Переменная для чекбокса легенды
     checkbox_var = tk.BooleanVar(value=False)
+
+    def toggle_legend_title_visibility() -> None:
+        if checkbox_var.get():
+            legend_title_combo.place(
+                x=ui_const.LEGEND_TITLE_COMBO_X,
+                y=ui_const.LEGEND_TITLE_Y,
+                width=ui_const.COMBO_WIDTH,
+            )
+            if not legend_title_var.get() and legend_title_combo["values"]:
+                legend_title_combo.current(0)
+                legend_title_var.set(legend_title_combo.get())
+        else:
+            legend_title_combo.place_forget()
+            legend_title_entry.place_forget()
+            legend_title_var.set("")
 
     # Управление количеством кривых
     label_curves = ttk.Label(
@@ -430,16 +505,21 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     save_button.place(x=ui_const.SAVE_BUTTON_X, y=ui_const.LINE_HEIGHT)
 
     # Чекбокс легенды
-    checkbox = ttk.Checkbutton(
-        input_frame,
-        text="Легенда",
-        variable=checkbox_var,
-        command=lambda: update_curves(
+    def on_legend_checkbox_toggle() -> None:
+        update_curves(
             curves_frame,
             combo_curves.get(),
             save_frame,
             checkbox_var,
             saved_data_curves,
-        ),
+        )
+        toggle_legend_title_visibility()
+
+    checkbox = ttk.Checkbutton(
+        input_frame,
+        text="Легенда",
+        variable=checkbox_var,
+        command=on_legend_checkbox_toggle,
     )
     checkbox.place(x=ui_const.CHECKBOX_X, y=ui_const.CURVE_LABEL_Y)
+    toggle_legend_title_visibility()

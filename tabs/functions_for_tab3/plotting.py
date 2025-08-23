@@ -3,7 +3,7 @@ from tabs.functions_for_tab3.Figurenameclass import FigureNames
 from widgets.message_log import message_log
 
 from tabs.function_for_all_tabs import create_plot
-from tabs.title_utils import split_signature
+from tabs.title_utils import format_signature
 
 
 def create_png_plots(graph_with_time, file_path_outeig, log_text):
@@ -11,7 +11,7 @@ def create_png_plots(graph_with_time, file_path_outeig, log_text):
 
     for name, graph in graph_with_time.items():
         X_values = [float(item[0]) for item in graph]
-        xlabel = split_signature("Время t, с", bold=False)
+        xlabel = format_signature("Время t, с", bold=False)
         namefig = FigureNames(name)
 
         keys = ["XR", "YR", "ZR", "X", "Y", "Z"]
@@ -31,8 +31,8 @@ def create_png_plots(graph_with_time, file_path_outeig, log_text):
             create_plot(
                 curves_info,
                 xlabel,
-                split_signature(namefig.generate_plot_ylabel(), bold=False),
-                split_signature(namefig.generate_plot_title(), bold=True),
+                format_signature(namefig.generate_plot_ylabel(), bold=False),
+                format_signature(namefig.generate_plot_title(), bold=True),
                 pr_y=True,
                 save_file=True,
                 file_plt=file_plt,
@@ -43,8 +43,8 @@ def create_png_plots(graph_with_time, file_path_outeig, log_text):
             create_plot(
                 curves_info,
                 xlabel,
-                split_signature(namefig.generate_plot_ylabel(), bold=False),
-                split_signature(namefig.generate_plot_title(), bold=True),
+                format_signature(namefig.generate_plot_ylabel(), bold=False),
+                format_signature(namefig.generate_plot_title(), bold=True),
                 pr_y=False,
                 save_file=True,
                 file_plt=file_plt,

@@ -1,6 +1,137 @@
 import re
 
 
+# Mapping of Greek letters to commands from the ``upgreek`` package.
+_GREEK_MAP = {
+    "α": "upalpha",
+    "β": "upbeta",
+    "γ": "upgamma",
+    "δ": "updelta",
+    "ε": "upepsilon",
+    "ζ": "upzeta",
+    "η": "upeta",
+    "θ": "uptheta",
+    "ι": "upiota",
+    "κ": "upkappa",
+    "λ": "uplambda",
+    "μ": "upmu",
+    "ν": "upnu",
+    "ξ": "upxi",
+    "π": "uppi",
+    "ρ": "uprho",
+    "σ": "upsigma",
+    "ς": "upvarsigma",
+    "τ": "uptau",
+    "υ": "upupsilon",
+    "φ": "upphi",
+    "χ": "upchi",
+    "ψ": "uppsi",
+    "ω": "upomega",
+    "Α": "Upalpha",
+    "Β": "Upbeta",
+    "Γ": "Upgamma",
+    "Δ": "Updelta",
+    "Ε": "Upepsilon",
+    "Ζ": "Upzeta",
+    "Η": "Upeta",
+    "Θ": "Uptheta",
+    "Ι": "Upiota",
+    "Κ": "Upkappa",
+    "Λ": "Uplambda",
+    "Μ": "Upmu",
+    "Ν": "Upnu",
+    "Ξ": "Upxi",
+    "Π": "Uppi",
+    "Ρ": "Uprho",
+    "Σ": "Upsigma",
+    "Τ": "Uptau",
+    "Υ": "Upupsilon",
+    "Φ": "Upphi",
+    "Χ": "Upchi",
+    "Ψ": "Uppsi",
+    "Ω": "Upomega",
+}
+
+
+_LETTER_RANGE = r"A-Za-z\u0370-\u03FF"
+_INDEX_BODY = rf"(?:{{[^}}]+}}|[{_LETTER_RANGE}0-9]+)"
+_TOKEN_PATTERN = re.compile(
+    rf"(?<![{_LETTER_RANGE}0-9])"
+    rf"([{_LETTER_RANGE}])"
+    rf"(?:_({_INDEX_BODY}))?"
+    rf"(?:\^({_INDEX_BODY}))?"
+    rf"(?![{_LETTER_RANGE}0-9])"
+)
+
+
+def _format_component(token: str) -> str:
+    """Преобразовать строку индекса или показателя степени."""
+
+    result = []
+    for ch in token:
+        if ch in _GREEK_MAP:
+            result.append(f"\\{_GREEK_MAP[ch]}")
+        elif ch.isalpha() and ch.isascii():
+            result.append(f"\\mathit{{{ch}}}")
+        else:
+            result.append(ch)
+    return "".join(result)
+
+
+def format_signature(text: str, *, bold: bool) -> str:
+    r"""Вернуть ``text`` с оформленными обозначениями.
+
+    Латинские символы переводятся в ``\mathit{}``, а греческие заменяются
+    командами ``\upalpha``, ``\upsigma`` и т.п. При ``bold=True`` найденные
+    обозначения дополнительно оборачиваются в ``\boldsymbol{...}``.
+
+    Примеры
+    -------
+    >>> format_signature('Момент M_x', bold=True)
+    'Момент $\boldsymbol{\mathit{M}_{\mathit{x}}}$'
+    >>> format_signature('Угол α', bold=False)
+    'Угол $\upalpha$'
+
+    Для использования в Matplotlib::
+
+        ax.set_title(format_signature('Момент M_x', bold=True))
+        ax.set_xlabel(format_signature('Угол α', bold=False))
+    """
+
+    def is_inside_math(s: str, pos: int) -> bool:
+        count = 0
+        escaped = False
+        for ch in s[:pos]:
+            if escaped:
+                escaped = False
+                continue
+            if ch == "\\":
+                escaped = True
+            elif ch == "$":
+                count += 1
+        return count % 2 == 1
+
+    def repl(match: re.Match) -> str:
+        base, sub, sup = match.groups()
+
+        base_fmt = _format_component(base)
+
+        formatted = base_fmt
+        if sub:
+            sub_token = sub[1:-1] if sub.startswith("{") else sub
+            formatted += f"_{{{_format_component(sub_token)}}}"
+        if sup:
+            sup_token = sup[1:-1] if sup.startswith("{") else sup
+            formatted += f"^{{{_format_component(sup_token)}}}"
+
+        if bold:
+            formatted = f"\\boldsymbol{{{formatted}}}"
+
+        return formatted if is_inside_math(match.string, match.start()) else f"${formatted}$"
+
+    return _TOKEN_PATTERN.sub(repl, text)
+
+
 def format_designation(token: str, in_math: bool) -> str:
     """Wrap ``token`` in ``\boldsymbol{}`` and add ``$`` if needed.
 

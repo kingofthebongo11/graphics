@@ -12,8 +12,8 @@ from .curves_from_file import (
     read_X_Y_from_combined,
 )
 from tabs.constants import (
+    TITLES_SYMBOLS,
     TITLE_TRANSLATIONS,
-    TITLE_TRANSLATIONS_BOLD,
     PHYSICAL_QUANTITIES_EN_TO_RU,
     PHYSICAL_QUANTITIES_TRANSLATION,
     UNITS_MAPPING,
@@ -42,9 +42,7 @@ class TitleProcessor:
         self.language = language
         self.bold_math = bold_math
         if translations is None:
-            translations = (
-                TITLE_TRANSLATIONS_BOLD if bold_math else TITLE_TRANSLATIONS
-            )
+            translations = TITLES_SYMBOLS
         self.translations = translations
 
     def _get_ru_en_quantity(self):
@@ -171,7 +169,6 @@ def generate_graph(
         entry_title=entry_title_custom,
         language=language,
         bold_math=True,
-        translations=TITLE_TRANSLATIONS_BOLD,
     )
     xlabel_processor = TitleProcessor(
         combo_titleX,

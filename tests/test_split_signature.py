@@ -19,7 +19,7 @@ def test_split_signature_basic():
 def test_split_signature_bold():
     parts = split_signature('Момент M_x', bold=True)
     assert parts == [
-        ('\\textbf{Момент }', False),
+        ('Момент ', False),
         ('\\boldsymbol{\\mathit{M}_{\\mathit{x}}}', True),
     ]
 

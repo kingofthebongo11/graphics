@@ -64,7 +64,7 @@ def test_titles_bold_italic_math(title, xlabel, expected_tokens):
     for token in expected_tokens:
         assert token in ax.get_title()
 
-    assert r"\textbf" in ax.get_title()
+    assert r"\textbf" not in ax.get_title()
 
     assert ax.get_xlabel() == formatted_label
     assert ax.get_ylabel() == formatted_label

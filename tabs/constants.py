@@ -476,6 +476,14 @@ TITLE_TRANSLATIONS_BOLD = {
     for key, value in TITLE_TRANSLATIONS.items()
 }
 
+# Подписи легенды графиков
+LEGEND_TITLE_TRANSLATIONS = {
+    "Нет": {"Русский": "Нет", "Английский": "No"},
+    "№ Элементов": {"Русский": "№ Элементов", "Английский": "Element ID"},
+    "№ Узлов": {"Русский": "№ Узлов", "Английский": "Node ID"},
+    "Другое": {"Русский": "Другое", "Английский": "Other"},
+}
+
 __all__ = [
     "STRESS_UNITS",
     "UNITS_MAPPING",
@@ -490,4 +498,5 @@ __all__ = [
     "TITLES_SYMBOLS",
     "TITLE_TRANSLATIONS",
     "TITLE_TRANSLATIONS_BOLD",
+    "LEGEND_TITLE_TRANSLATIONS",
 ]

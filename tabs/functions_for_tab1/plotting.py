@@ -18,7 +18,7 @@ from tabs.constants import (
     UNITS_MAPPING,
     UNITS_MAPPING_EN,
 )
-from tabs.title_utils import split_signature, format_signature
+from tabs.title_utils import format_signature
 
 logger = logging.getLogger(__name__)
 
@@ -183,9 +183,9 @@ def generate_graph(
         bold_math=False,
         translations=TITLE_TRANSLATIONS,
     )
-    title = split_signature(title_processor.get_processed_title(), bold=False)
-    xlabel = split_signature(xlabel_processor.get_processed_title(), bold=False)
-    ylabel = split_signature(ylabel_processor.get_processed_title(), bold=False)
+    title = title_processor.get_processed_title()
+    xlabel = xlabel_processor.get_processed_title()
+    ylabel = ylabel_processor.get_processed_title()
 
     # Текст заголовка передается без LaTeX-команд,
     # оформление выполняется через параметры Matplotlib.

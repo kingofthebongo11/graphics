@@ -8,7 +8,6 @@ from unittest.mock import patch
 
 from tabs.functions_for_tab1 import plotting
 from tabs import tab1
-from tabs.title_utils import split_signature
 
 
 def test_save_file_uses_updated_last_graph(tmp_path):
@@ -23,9 +22,9 @@ def test_save_file_uses_updated_last_graph(tmp_path):
     plotting.last_graph.update(
         {
             "curves_info": [{"X_values": [0, 1], "Y_values": [0, 1]}],
-            "x_label": split_signature("X", bold=False),
-            "y_label": split_signature("Y", bold=False),
-            "title": split_signature("T", bold=True),
+            "x_label": "X",
+            "y_label": "Y",
+            "title": "T",
             "fig": fig,
         }
     )

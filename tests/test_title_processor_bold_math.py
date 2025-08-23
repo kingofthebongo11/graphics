@@ -40,3 +40,15 @@ def test_title_processor_wraps_multiple_mathit_occurrences():
     parser = MathTextParser("agg")
     parser.parse(result)
 
+
+def test_title_processor_wraps_M_symbols_and_preserves_math():
+    combo_title = ComboStub("Другое")
+    entry = ComboStub("M_x My $M_z$ $v$ \boldsymbol{My}")
+    processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
+    result = processor.get_processed_title()
+    assert "\boldsymbol{M_x}" in result
+    assert result.count("\boldsymbol{My}") == 2
+    assert "$\boldsymbol{M_z}$" in result
+    assert "$v$" in result
+    parser = MathTextParser("agg")
+    parser.parse(result)

@@ -367,7 +367,7 @@ def generate_graph(
             fig=fig,
             ax=ax,
             legend=legend_checkbox.get(),
-            title_fontstyle="italic",
+            title_fontstyle="normal",
         )
     except ValueError as exc:
         if exc.__cause__ is not None and isinstance(exc.__cause__, ValueError):

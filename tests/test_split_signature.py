@@ -21,12 +21,12 @@ def test_format_signature_basic():
 def test_format_signature_bold():
     result = format_signature('Момент M_x', bold=True)
     parser.parse(result)
-    assert result == 'Момент $\\boldsymbol{\\mathit{M}_{\\mathit{x}}}$'
+    assert result == r"\textbf{Момент }$\boldsymbol{\mathit{M}_{\mathit{x}}}$"
 
 
 def test_format_signature_roundtrip():
     text = 'Сила F_x'
     formatted = format_signature(text, bold=True)
     parser.parse(formatted)
-    assert formatted == 'Сила $\\boldsymbol{\\mathit{F}_{\\mathit{x}}}$'
+    assert formatted == r"\textbf{Сила }$\boldsymbol{\mathit{F}_{\mathit{x}}}$"
 

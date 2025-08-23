@@ -121,12 +121,15 @@ def split_signature(text: str, bold: bool) -> list[tuple[str, bool]]:
 
     Латинские и греческие обозначения преобразуются в LaTeX так же, как в
     :func:`format_signature`. Сегменты с ``is_latex=True`` предназначены для
-    отображения в математическом режиме.
+    отображения в математическом режиме. При ``bold=True`` текстовые части
+    дополнительно оборачиваются в ``\textbf{...}``.
 
     Пример
     -------
     >>> split_signature('Угол α', bold=False)
     [('Угол ', False), ('\\upalpha', True)]
+    >>> split_signature('Угол α', bold=True)
+    [('\\textbf{Угол }', False), ('\\boldsymbol{\\upalpha}', True)]
     """
 
     formatted = _format_signature_impl(text, bold)
@@ -138,7 +141,7 @@ def split_signature(text: str, bold: bool) -> list[tuple[str, bool]]:
         if part.startswith("$") and part.endswith("$"):
             segments.append((part[1:-1], True))
         else:
-            segments.append((part, False))
+            segments.append((f"\\textbf{{{part}}}" if bold else part, False))
     return segments
 
 

@@ -19,7 +19,7 @@ def test_title_processor_wraps_mathit_with_bold():
     joined = processor.get_processed_title()
     expected = format_signature(TITLE_TRANSLATIONS["Время"]["Русский"], bold=True)
     assert joined == expected
-    assert r"\textbf" not in joined
+    assert r"\textbf" in joined
     parser = MathTextParser("agg")
     parser.parse(joined)
 

@@ -35,4 +35,4 @@ def test_greek_upright():
 def test_bold_true():
     result = format_signature('Сила F_x', bold=True)
     _parse_or_fail(result)
-    assert result == 'Сила $\\boldsymbol{\\mathit{F}_{\\mathit{x}}}$'
+    assert result == r"\textbf{Сила }$\boldsymbol{\mathit{F}_{\mathit{x}}}$"

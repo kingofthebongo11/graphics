@@ -18,7 +18,7 @@ from tabs.constants import (
     UNITS_MAPPING,
     UNITS_MAPPING_EN,
 )
-from tabs.title_utils import split_signature
+from tabs.title_utils import split_signature, format_signature
 
 logger = logging.getLogger(__name__)
 
@@ -84,8 +84,8 @@ class TitleProcessor:
             self.language, self.combo_title.get()
         )
 
-    def get_processed_title(self) -> list[tuple[str, bool]]:
-        """Вернуть заголовок в виде сегментов ``split_signature``."""
+    def get_processed_title(self) -> str:
+        """Вернуть заголовок с оформленными обозначениями."""
         selection = self.combo_title.get()
         if selection in ("Другое", ""):
             result = self.entry_title.get() if self.entry_title else ""
@@ -94,7 +94,7 @@ class TitleProcessor:
         else:
             title = self._get_title()
             result = f"{title}{self._get_units()}"
-        return split_signature(result, bold=self.bold_math)
+        return format_signature(result, bold=self.bold_math)
 
 def save_file(entry_widget, format_widget, graph_info):
 
@@ -172,6 +172,7 @@ def generate_graph(
         combo_titleX_size,
         entry_titleX,
         language,
+        bold_math=False,
         translations=TITLE_TRANSLATIONS,
     )
     ylabel_processor = TitleProcessor(
@@ -179,11 +180,12 @@ def generate_graph(
         combo_titleY_size,
         entry_titleY,
         language,
+        bold_math=False,
         translations=TITLE_TRANSLATIONS,
     )
-    title = title_processor.get_processed_title()
-    xlabel = xlabel_processor.get_processed_title()
-    ylabel = ylabel_processor.get_processed_title()
+    title = split_signature(title_processor.get_processed_title(), bold=False)
+    xlabel = split_signature(xlabel_processor.get_processed_title(), bold=False)
+    ylabel = split_signature(ylabel_processor.get_processed_title(), bold=False)
 
     # Текст заголовка передается без LaTeX-команд,
     # оформление выполняется через параметры Matplotlib.

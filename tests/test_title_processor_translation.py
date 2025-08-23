@@ -19,9 +19,6 @@ def test_title_processor_translates_to_english():
         language="Английский",
         translations=TITLE_TRANSLATIONS,
     )
-    result = processor.get_processed_title()
-    joined = "".join(
-        f"${frag}$" if is_latex else frag for frag, is_latex in result
-    )
+    joined = processor.get_processed_title()
     assert "Force" in joined
     assert ", kN" in joined

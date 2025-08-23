@@ -187,8 +187,9 @@ def generate_graph(
     ylabel = ylabel_processor.get_processed_title()
 
     title = format_title_bolditalic(title)
-    xlabel = format_title_bolditalic(xlabel)
-    ylabel = format_title_bolditalic(ylabel)
+    # xlabel and ylabel should remain without additional formatting
+    # xlabel = format_title_bolditalic(xlabel)
+    # ylabel = format_title_bolditalic(ylabel)
 
     if combo_titleX.get() == "Другое" and (
         entry_titleX is None or not entry_titleX.get().strip()

@@ -101,8 +101,10 @@ class PlotEditor(QWidget):
 
     # ------------------------------------------------------------------
     def _refresh_legend(self) -> None:
-        if self.ax.get_legend():
-            self.ax.legend()
+        legend = self.ax.get_legend()
+        if legend:
+            title = legend.get_title().get_text()
+            self.ax.legend(title=title)
         self.canvas.draw()
 
     # ------------------------------------------------------------------

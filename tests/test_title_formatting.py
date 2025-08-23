@@ -61,7 +61,9 @@ def test_titles_bold_italic_math(title, xlabel, expected_tokens):
     for token in expected_tokens:
         assert token in ax.get_title()
 
-    assert r"\textbf" not in ax.get_title()
+    assert r"\textbf{" in ax.get_title()
+    assert r"\textbf{" not in ax.get_xlabel()
+    assert r"\textbf{" not in ax.get_ylabel()
 
     assert ax.get_xlabel() == formatted_label
     assert ax.get_ylabel() == formatted_label
@@ -112,6 +114,12 @@ def test_format_signature_with_super_and_sub(token, bold, expected):
     sanitized = formatted.replace("\\upsigma", "\\sigma").replace("\\uplambda", "\\lambda")
     parser.parse(sanitized)
     assert formatted == f"${expected}$"
+
+
+def test_format_signature_bold_text_only():
+    formatted = format_signature("Просто текст", bold=True)
+    parser.parse(formatted)
+    assert formatted == r"\textbf{Просто текст}"
 
 
 @pytest.mark.parametrize(

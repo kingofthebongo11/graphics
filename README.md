@@ -45,14 +45,14 @@ This opens the GUI where you can create and customize plots across multiple tabs
 
 Функция `format_signature` переводит латинские буквы в курсив
 (`\mathit{}`), заменяет греческие символы на команды пакета `upgreek` и
-корректно обрабатывает индексы/степени. Параметр `bold=True`
-дополнительно оборачивает обозначения в `\boldsymbol{}`. Сегментный API
-(`split_signature`/`join_segments`) устарел и не рекомендуется к
-использованию.
+корректно обрабатывает индексы/степени. Параметр `bold=True` делает
+текстовые части жирными и оборачивает обозначения в `\boldsymbol{}`.
+Сегментный API (`split_signature`/`join_segments`) устарел и не
+рекомендуется к использованию.
 
 Примеры:
 
-- `format_signature('Момент M_x', bold=True)` → «Момент
+- `format_signature('Момент M_x', bold=True)` → «\textbf{Момент }
   $\boldsymbol{\mathit{M}_{\mathit{x}}}$»
 - `format_signature('Угол α', bold=False)` → «Угол $\upalpha$»
 - `format_signature('Напряжение σ_{max}', bold=False)` →

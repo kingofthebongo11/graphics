@@ -103,3 +103,20 @@ def test_format_title_bolditalic_with_math():
 
 def test_format_title_bolditalic_only_math():
     assert format_title_bolditalic("$a+b$") == "$a+b$"
+
+
+def test_axis_labels_combined_format():
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1])
+    x_label = format_signature("Время t, с", bold=False)
+    y_label = format_signature("Угол α, рад", bold=False)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+
+    assert ax.get_xlabel() == "Время $\\mathit{t}$, с"
+    assert ax.get_ylabel() == "Угол $\\upalpha$, рад"
+    parser.parse(ax.get_xlabel())
+    assert "\\boldsymbol" not in ax.get_xlabel()
+    assert "\\boldsymbol" not in ax.get_ylabel()
+
+    plt.close(fig)

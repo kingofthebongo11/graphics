@@ -38,3 +38,15 @@ The axis dimension selectors support both SI units and engineering units based o
   `LS-DYNA` or `*KEYWORD`; if they are absent, the user is notified that
   the file is not a valid LS-DYNA curve.
 - Excel or CSV tables (first two columns are treated as X and Y).
+
+## Example: Combined Labels
+
+The script [`examples/combined_labels.py`](examples/combined_labels.py) demonstrates how to mix bold designations in the title with italic or upright symbols in axis labels.
+
+Run the example with:
+
+```bash
+python examples/combined_labels.py
+```
+
+You will get a plot where the title displays bold symbols such as $\boldsymbol{F_x}$ and $\boldsymbol{\upalpha}$, while the axis labels show `$\mathit{t}$` and `$\upalpha$` without bold formatting.

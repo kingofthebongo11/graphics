@@ -62,6 +62,7 @@ def on_legend_title_change(
 
     selection = combo.get()
     if selection == other_label:
+        combo.place_forget()
         entry.place(
             x=ui_const.LEGEND_TITLE_ENTRY_X,
             y=ui_const.LEGEND_TITLE_Y,
@@ -70,6 +71,11 @@ def on_legend_title_change(
         combo.set("")
         title_var.set("")
     else:
+        combo.place(
+            x=ui_const.LEGEND_TITLE_COMBO_X,
+            y=ui_const.LEGEND_TITLE_Y,
+            width=ui_const.COMBO_WIDTH,
+        )
         entry.place_forget()
         title_var.set(selection)
 

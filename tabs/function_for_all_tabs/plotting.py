@@ -185,7 +185,7 @@ def create_plot(
             ax.xaxis.get_offset_text().set_visible(False)
             try:
                 ax.set_xlabel(
-                    f"{x_label} (×10^{x_offset.split('e')[1]})",
+                    f"{x_label}, ({x_offset})",
                     fontweight="normal",
                     fontstyle="normal",
                     fontsize=LABEL_SIZE,
@@ -193,7 +193,7 @@ def create_plot(
                 )
             except RuntimeError:
                 ax.set_xlabel(
-                    f"{x_label} (×10^{x_offset.split('e')[1]})",
+                    f"{x_label}, ({x_offset})",
                     fontweight="normal",
                     fontstyle="normal",
                     fontsize=LABEL_SIZE,
@@ -204,7 +204,7 @@ def create_plot(
             ax.yaxis.get_offset_text().set_visible(False)
             try:
                 ax.set_ylabel(
-                    f"{y_label} (×10^{y_offset.split('e')[1]})",
+                    rf"{y_label}, ({y_offset})",
                     fontweight="normal",
                     fontstyle="normal",
                     fontsize=LABEL_SIZE,
@@ -212,7 +212,7 @@ def create_plot(
                 )
             except RuntimeError:
                 ax.set_ylabel(
-                    f"{y_label} (×10^{y_offset.split('e')[1]})",
+                    f"{y_label}, ({y_offset})",
                     fontweight="normal",
                     fontstyle="normal",
                     fontsize=LABEL_SIZE,

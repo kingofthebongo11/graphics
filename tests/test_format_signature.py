@@ -7,11 +7,8 @@ from matplotlib.mathtext import MathTextParser
 import pytest
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from tabs.title_utils import split_signature
+from tabs.title_utils import format_signature
 
-
-def join_segments(parts):
-    return "".join(f"${frag}$" if is_latex else frag for frag, is_latex in parts)
 
 parser = MathTextParser('agg')
 
@@ -24,19 +21,18 @@ def _parse_or_fail(text: str) -> None:
 
 
 def test_latin_italic():
-    parts = split_signature('Момент M_x', bold=False)
-    result = join_segments(parts)
+    result = format_signature('Момент M_x', bold=False)
     _parse_or_fail(result)
-    assert parts == [('Момент ', False), ('\\mathit{M}_{\\mathit{x}}', True)]
+    assert result == 'Момент $\\mathit{M}_{\\mathit{x}}$'
 
 
 def test_greek_upright():
-    parts = split_signature('Угол α', bold=False)
-    assert parts == [('Угол ', False), ('\\upalpha', True)]
+    result = format_signature('Угол α', bold=False)
+    _parse_or_fail(result.replace('\\upalpha', '\\alpha'))
+    assert result == 'Угол $\\upalpha$'
 
 
 def test_bold_true():
-    parts = split_signature('Сила F_x', bold=True)
-    result = join_segments(parts)
+    result = format_signature('Сила F_x', bold=True)
     _parse_or_fail(result)
-    assert ('\\boldsymbol{\\mathit{F}_{\\mathit{x}}}', True) in parts
+    assert result == 'Сила $\\boldsymbol{\\mathit{F}_{\\mathit{x}}}$'

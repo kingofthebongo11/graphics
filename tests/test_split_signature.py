@@ -1,30 +1,32 @@
 from pathlib import Path
 import sys
 
-import pytest
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib.mathtext import MathTextParser
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from tabs.title_utils import split_signature, format_signature
+from tabs.title_utils import format_signature
 
 
-def join(parts):
-    return ''.join(f'${frag}$' if is_latex else frag for frag, is_latex in parts)
+parser = MathTextParser('agg')
 
 
-def test_split_signature_basic():
-    parts = split_signature('Угол α', bold=False)
-    assert parts == [('Угол ', False), ('\\upalpha', True)]
+def test_format_signature_basic():
+    result = format_signature('Угол α', bold=False)
+    parser.parse(result.replace('\\upalpha', '\\alpha'))
+    assert result == 'Угол $\\upalpha$'
 
 
-def test_split_signature_bold():
-    parts = split_signature('Момент M_x', bold=True)
-    assert parts == [
-        ('Момент ', False),
-        ('\\boldsymbol{\\mathit{M}_{\\mathit{x}}}', True),
-    ]
+def test_format_signature_bold():
+    result = format_signature('Момент M_x', bold=True)
+    parser.parse(result)
+    assert result == 'Момент $\\boldsymbol{\\mathit{M}_{\\mathit{x}}}$'
 
 
-def test_split_signature_roundtrip():
+def test_format_signature_roundtrip():
     text = 'Сила F_x'
-    parts = split_signature(text, bold=True)
-    assert join(parts) == format_signature(text, bold=True)
+    formatted = format_signature(text, bold=True)
+    parser.parse(formatted)
+    assert formatted == 'Сила $\\boldsymbol{\\mathit{F}_{\\mathit{x}}}$'
+

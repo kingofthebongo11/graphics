@@ -1,5 +1,8 @@
+from matplotlib.mathtext import MathTextParser
+
 from tabs.functions_for_tab1.plotting import TitleProcessor
 from tabs.constants import TITLE_TRANSLATIONS
+from tabs.title_utils import format_signature
 
 
 class ComboStub:
@@ -20,5 +23,7 @@ def test_title_processor_translates_to_english():
         translations=TITLE_TRANSLATIONS,
     )
     joined = processor.get_processed_title()
-    assert "Force" in joined
-    assert ", kN" in joined
+    expected_plain = f"{TITLE_TRANSLATIONS['Сила']['Английский']}, kN"
+    assert joined == format_signature(expected_plain, bold=False)
+    parser = MathTextParser("agg")
+    parser.parse(joined)

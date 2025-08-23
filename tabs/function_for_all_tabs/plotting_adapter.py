@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
 from tabs.function_for_all_tabs import create_plot
+from tabs.title_utils import format_signature
 
 Curve = Dict[str, List[float]]
 
@@ -33,11 +34,14 @@ def plot_on_canvas(
 ) -> None:
     """Clear ``ax`` and render ``curves`` using shared style utilities."""
     ax.clear()
+    title_fmt = format_signature(title, bold=True)
+    x_fmt = format_signature(x_label, bold=False)
+    y_fmt = format_signature(y_label, bold=False)
     create_plot(
         curves,
-        x_label,
-        y_label,
-        title,
+        x_fmt,
+        y_fmt,
+        title_fmt,
         pr_y=pr_y,
         fig=fig,
         ax=ax,

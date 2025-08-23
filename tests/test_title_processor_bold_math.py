@@ -17,6 +17,7 @@ def test_title_processor_wraps_mathit_with_bold():
     processor = TitleProcessor(combo_title, bold_math=True)
     result = processor.get_processed_title()
     assert r"\boldsymbol{\mathit{t}}" in result
+    assert r"\textbf" in result
     parser = MathTextParser("agg")
     parser.parse(result)
 

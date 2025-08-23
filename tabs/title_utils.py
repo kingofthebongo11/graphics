@@ -83,12 +83,13 @@ def format_signature(text: str, *, bold: bool) -> str:
 
     Латинские символы переводятся в ``\mathit{}``, а греческие заменяются
     командами ``\upalpha``, ``\upsigma`` и т.п. При ``bold=True`` найденные
-    обозначения дополнительно оборачиваются в ``\boldsymbol{...}``.
+    обозначения дополнительно оборачиваются в ``\boldsymbol{...}``, а
+    текстовые части — в ``\textbf{...}``.
 
     Примеры
     -------
     >>> format_signature('Момент M_x', bold=True)
-    'Момент $\boldsymbol{\mathit{M}_{\mathit{x}}}$'
+    '\\textbf{Момент }$\\boldsymbol{\\mathit{M}_{\\mathit{x}}}$'
     >>> format_signature('Угол α', bold=False)
     'Угол $\upalpha$'
 
@@ -129,7 +130,15 @@ def format_signature(text: str, *, bold: bool) -> str:
 
         return formatted if is_inside_math(match.string, match.start()) else f"${formatted}$"
 
-    return _TOKEN_PATTERN.sub(repl, text)
+    result = _TOKEN_PATTERN.sub(repl, text)
+    if bold:
+        parts = re.split(r"(\$[^$]*\$)", result)
+        result = "".join(
+            f"\\textbf{{{part}}}" if part and not part.startswith("$") else part
+            for part in parts
+            if part
+        )
+    return result
 
 
 def format_designation(token: str, in_math: bool) -> str:

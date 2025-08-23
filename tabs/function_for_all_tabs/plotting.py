@@ -162,6 +162,25 @@ def create_plot(
                 fontsize=LABEL_SIZE,
                 usetex=False,
             )
+        try:
+            ax.set_ylabel(
+                y_label,
+                fontweight="normal",
+                fontstyle="normal",
+                fontsize=LABEL_SIZE,
+                usetex=True,
+            )
+        except RuntimeError:
+            ax.set_ylabel(
+                y_label,
+                fontweight="normal",
+                fontstyle="normal",
+                fontsize=LABEL_SIZE,
+                usetex=False,
+            )
+
+        fig.canvas.draw()
+
         x_offset = ax.xaxis.get_offset_text().get_text()
         if x_offset:
             ax.xaxis.get_offset_text().set_visible(False)
@@ -181,22 +200,6 @@ def create_plot(
                     fontsize=LABEL_SIZE,
                     usetex=False,
                 )
-        try:
-            ax.set_ylabel(
-                y_label,
-                fontweight="normal",
-                fontstyle="normal",
-                fontsize=LABEL_SIZE,
-                usetex=True,
-            )
-        except RuntimeError:
-            ax.set_ylabel(
-                y_label,
-                fontweight="normal",
-                fontstyle="normal",
-                fontsize=LABEL_SIZE,
-                usetex=False,
-            )
         y_offset = ax.yaxis.get_offset_text().get_text()
         if y_offset:
             ax.yaxis.get_offset_text().set_visible(False)

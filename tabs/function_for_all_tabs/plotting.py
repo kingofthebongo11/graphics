@@ -180,7 +180,6 @@ def create_plot(
             )
 
         fig.canvas.draw()
-
         x_offset = ax.xaxis.get_offset_text().get_text()
         if x_offset:
             ax.xaxis.get_offset_text().set_visible(False)
@@ -219,7 +218,6 @@ def create_plot(
                     fontsize=LABEL_SIZE,
                     usetex=False,
                 )
-
         ax.grid(True)
         fig.tight_layout()
         fig.subplots_adjust(bottom=0.15)

@@ -12,14 +12,14 @@ def configure_matplotlib():
         'xtick.labelsize': 14,  # Размер шрифта для меток оси X
         'ytick.labelsize': 14,  # Размер шрифта для меток оси Y
         'legend.fontsize': 14,  # Размер шрифта для легенды
-        'text.latex.preamble': (
-            r'\usepackage[utf8]{inputenc}\n'
-            r'\usepackage[T1]{fontenc}\n'
-            r'\usepackage[russian]{babel}\n'
-            r'\usepackage{tempora}\n'
-            r'\usepackage{newtxmath}\n'
-            r'\usepackage{amsmath}\n'
-            r'\usepackage{bm}\n'
-            r'\usepackage{upgreek}'
-        ),
+        'text.latex.preamble': "\n".join([
+            r'\usepackage[utf8]{inputenc}',
+            r'\usepackage[T1]{fontenc}',
+            r'\usepackage[russian]{babel}',
+            r'\usepackage{tempora}',
+            r'\usepackage{newtxmath}',
+            r'\usepackage{amsmath}',
+            r'\usepackage{bm}',
+            r'\usepackage{upgreek}',
+        ]),
     })

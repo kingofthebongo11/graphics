@@ -13,6 +13,7 @@ def test_format_title_bolditalic_with_pre_bold_math():
     text = r"Время $\boldsymbol{\mathit{t}}$"
     processed = bold_math_symbols(text)
     formatted = format_title_bolditalic(processed)
+    assert formatted == processed
     parser = MathTextParser('agg')
     parser.parse(formatted)
 

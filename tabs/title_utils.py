@@ -113,13 +113,6 @@ def _format_signature_impl(text: str, bold: bool) -> str:
         return formatted if is_inside_math(match.string, match.start()) else f"${formatted}$"
 
     result = _TOKEN_PATTERN.sub(repl, text)
-    if bold:
-        parts = re.split(r"(\$[^$]*\$)", result)
-        result = "".join(
-            f"\\textbf{{{part}}}" if part and not part.startswith("$") else part
-            for part in parts
-            if part
-        )
     return result
 
 

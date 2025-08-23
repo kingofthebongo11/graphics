@@ -20,7 +20,7 @@ def test_title_processor_wraps_mathit_with_bold():
         f"${frag}$" if is_latex else frag for frag, is_latex in result
     )
     assert r"\boldsymbol{\mathit{t}}" in joined
-    assert r"\textbf" in joined
+    assert r"\textbf" not in joined
     parser = MathTextParser("agg")
     parser.parse(joined)
 

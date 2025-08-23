@@ -34,6 +34,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import matplotlib.colors as mcolors
 
+from color_palettes import PALETTES
+
 
 class PlotEditor(QWidget):
     """Widget combining a matplotlib canvas with a parameter table."""
@@ -48,6 +50,11 @@ class PlotEditor(QWidget):
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.canvas)
+
+        self.palette_combo = QComboBox()
+        self.palette_combo.addItems(PALETTES.keys())
+        self.palette_combo.currentTextChanged.connect(self._apply_palette)
+        layout.addWidget(self.palette_combo)
 
         # Table with three columns: colour, line style, and width
         self.table = QTableWidget()
@@ -65,7 +72,7 @@ class PlotEditor(QWidget):
         line, = self.ax.plot(x, y, **kwargs)
         self._lines.append(line)
         self._append_row(line)
-        self.canvas.draw()
+        self._apply_palette(self.palette_combo.currentText())
         return line
 
     def _append_row(self, line) -> None:
@@ -106,6 +113,15 @@ class PlotEditor(QWidget):
             title = legend.get_title().get_text()
             self.ax.legend(title=title)
         self.canvas.draw()
+
+    def _apply_palette(self, name: str) -> None:
+        colors = PALETTES.get(name, [])
+        for idx, (line, color) in enumerate(zip(self._lines, colors)):
+            line.set_color(color)
+            item = self.table.item(idx, 0)
+            if item is not None:
+                item.setBackground(QColor(color))
+        self._refresh_legend()
 
     # ------------------------------------------------------------------
     # Update handlers

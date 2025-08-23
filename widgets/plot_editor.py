@@ -13,6 +13,8 @@ from typing import List
 import tkinter as tk
 from tkinter import ttk, colorchooser
 
+from color_palettes import PALETTES
+
 
 @dataclass
 class _RowWidgets:
@@ -34,6 +36,15 @@ class PlotEditor(ttk.Frame):
         self.canvas = canvas
         self._rows: List[_RowWidgets] = []
 
+        self.palette_combo = ttk.Combobox(
+            self, values=list(PALETTES.keys()), state="readonly"
+        )
+        self.palette_combo.current(0)
+        self.palette_combo.pack(fill=tk.X, pady=2)
+        self.palette_combo.bind(
+            "<<ComboboxSelected>>", lambda _e: self.apply_selected_palette()
+        )
+
     # ------------------------------------------------------------------
     def refresh(self) -> None:
         """Rebuild the table based on current axes lines."""
@@ -44,6 +55,8 @@ class PlotEditor(ttk.Frame):
 
         for idx, line in enumerate(self.ax.lines, start=1):
             self._append_row(line, idx)
+
+        self.apply_selected_palette()
 
     # ------------------------------------------------------------------
     def _append_row(self, line, index: int) -> None:
@@ -85,6 +98,16 @@ class PlotEditor(ttk.Frame):
             title = legend.get_title().get_text()
             self.ax.legend(title=title)
         self.canvas.draw()
+
+    def apply_palette(self, palette_name: str) -> None:
+        colors = PALETTES.get(palette_name, [])
+        for line, color, row in zip(self.ax.lines, colors, self._rows):
+            line.set_color(color)
+            row.colour.config(bg=color)
+        self._refresh_legend()
+
+    def apply_selected_palette(self) -> None:
+        self.apply_palette(self.palette_combo.get())
 
     # ------------------------------------------------------------------
     def _choose_colour(self, line, label: tk.Label) -> None:

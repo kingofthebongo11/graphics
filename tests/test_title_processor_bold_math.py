@@ -15,10 +15,7 @@ class ComboStub:
 def test_title_processor_wraps_mathit_with_bold():
     combo_title = ComboStub("Время")
     processor = TitleProcessor(combo_title, bold_math=True)
-    result = processor.get_processed_title()
-    joined = "".join(
-        f"${frag}$" if is_latex else frag for frag, is_latex in result
-    )
+    joined = processor.get_processed_title()
     assert r"\boldsymbol{\mathit{t}}" in joined
     assert r"\textbf" not in joined
     parser = MathTextParser("agg")
@@ -29,14 +26,8 @@ def test_title_processor_uses_bold_dict_only_for_title():
     combo = ComboStub("Время")
     title_proc = TitleProcessor(combo, bold_math=True)
     axis_proc = TitleProcessor(combo, translations=TITLE_TRANSLATIONS)
-    joined_title = "".join(
-        f"${frag}$" if is_latex else frag
-        for frag, is_latex in title_proc.get_processed_title()
-    )
-    joined_axis = "".join(
-        f"${frag}$" if is_latex else frag
-        for frag, is_latex in axis_proc.get_processed_title()
-    )
+    joined_title = title_proc.get_processed_title()
+    joined_axis = axis_proc.get_processed_title()
     assert r"\boldsymbol{\mathit{t}}" in joined_title
     assert r"\boldsymbol{\mathit{t}}" not in joined_axis
 
@@ -45,10 +36,7 @@ def test_title_processor_wraps_multiple_mathit_occurrences():
     combo_title = ComboStub("Другое")
     entry = ComboStub("Value $\\mathit{x}+\\mathit{y}$")
     processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
-    result = processor.get_processed_title()
-    joined = "".join(
-        f"${frag}$" if is_latex else frag for frag, is_latex in result
-    )
+    joined = processor.get_processed_title()
     assert joined.count(r"\boldsymbol{\mathit{") == 2
     parser = MathTextParser("agg")
     parser.parse(joined)
@@ -58,10 +46,7 @@ def test_title_processor_wraps_M_symbols_and_preserves_math():
     combo_title = ComboStub("Другое")
     entry = ComboStub("M_x My $M_z$ $v$ \\boldsymbol{My}")
     processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
-    result = processor.get_processed_title()
-    joined = "".join(
-        f"${frag}$" if is_latex else frag for frag, is_latex in result
-    )
+    joined = processor.get_processed_title()
     assert r"\boldsymbol{\mathit{M}_{\mathit{x}}}" in joined
     assert joined.count(r"\boldsymbol{My}") == 1
     assert " My " in joined

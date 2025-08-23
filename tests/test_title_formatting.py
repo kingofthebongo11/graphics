@@ -11,9 +11,13 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from tabs.title_utils import (
     bold_math_symbols,
     format_designation,
-    format_signature,
     format_title_bolditalic,
+    split_signature,
 )
+
+
+def join_segments(parts):
+    return "".join(f"${frag}$" if is_latex else frag for frag, is_latex in parts)
 
 parser = MathTextParser('agg')
 
@@ -47,8 +51,8 @@ parser = MathTextParser('agg')
 def test_titles_bold_italic_math(title, xlabel, expected_tokens):
     fig, ax = plt.subplots()
     ax.plot([0, 1], [0, 1])
-    formatted_title = format_signature(title, bold=True)
-    formatted_label = format_signature(xlabel, bold=False)
+    formatted_title = join_segments(split_signature(title, bold=True))
+    formatted_label = join_segments(split_signature(xlabel, bold=False))
     ax.set_title(formatted_title)
     ax.set_xlabel(formatted_label)
     ax.set_ylabel(formatted_label)
@@ -79,8 +83,8 @@ def test_titles_bold_italic_math(title, xlabel, expected_tokens):
 def test_greek_letters_with_latin_indices(token, expected_title, expected_label):
     fig, ax = plt.subplots()
     ax.plot([0, 1], [0, 1])
-    formatted_title = format_signature(f"Параметр {token}", bold=True)
-    formatted_label = format_signature(token, bold=False)
+    formatted_title = join_segments(split_signature(f"Параметр {token}", bold=True))
+    formatted_label = join_segments(split_signature(token, bold=False))
     ax.set_title(formatted_title)
     ax.set_xlabel(formatted_label)
     ax.set_ylabel(formatted_label)
@@ -106,8 +110,8 @@ def test_greek_letters_with_latin_indices(token, expected_title, expected_label)
         ("λ_i^j", False, r"\uplambda_{\mathit{i}}^{\mathit{j}}"),
     ],
 )
-def test_format_signature_with_super_and_sub(token, bold, expected):
-    formatted = format_signature(token, bold=bold)
+def test_split_signature_with_super_and_sub(token, bold, expected):
+    formatted = join_segments(split_signature(token, bold=bold))
     sanitized = formatted.replace("\\upsigma", "\\sigma").replace("\\uplambda", "\\lambda")
     parser.parse(sanitized)
     assert formatted == f"${expected}$"
@@ -154,8 +158,8 @@ def test_format_title_bolditalic_only_math():
 def test_axis_labels_combined_format():
     fig, ax = plt.subplots()
     ax.plot([0, 1], [0, 1])
-    x_label = format_signature("Время t, с", bold=False)
-    y_label = format_signature("Угол α, рад", bold=False)
+    x_label = join_segments(split_signature("Время t, с", bold=False))
+    y_label = join_segments(split_signature("Угол α, рад", bold=False))
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
 

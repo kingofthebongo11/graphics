@@ -40,9 +40,10 @@ This opens the GUI where you can create and customize plots across multiple tabs
 Для заголовков графиков и подписей осей доступны две функции из модуля
 `tabs.title_utils`:
 
-- `format_signature` — возвращает строку целиком;
 - `split_signature` — разбивает исходный текст на сегменты вида
-  `(фрагмент, is_latex)`.
+  `(фрагмент, is_latex)`;
+- `format_signature` — обёртка, объединяющая сегменты в строку для
+  обратной совместимости.
 
 Обе функции переводят латинские буквы в курсив (`\mathit{}`), заменяют
 греческие символы на команды пакета `upgreek` и корректно обрабатывают
@@ -51,7 +52,7 @@ This opens the GUI where you can create and customize plots across multiple tabs
 
 Примеры:
 
-- `format_signature('Момент M_x', bold=True)` → «Момент
+- `join_segments(split_signature('Момент M_x', bold=True))` → «Момент
   $\boldsymbol{\mathit{M}_{\mathit{x}}}$»
 - `split_signature('Угол α', bold=False)` → `[('Угол ', False),
   ('\\upalpha', True)]`

@@ -84,7 +84,8 @@ class TitleProcessor:
             self.language, self.combo_title.get()
         )
 
-    def get_processed_title(self):
+    def get_processed_title(self) -> list[tuple[str, bool]]:
+        """Вернуть заголовок в виде сегментов ``split_signature``."""
         selection = self.combo_title.get()
         if selection in ("Другое", ""):
             result = self.entry_title.get() if self.entry_title else ""

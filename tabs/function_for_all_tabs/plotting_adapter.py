@@ -34,14 +34,14 @@ def plot_on_canvas(
 ) -> None:
     """Clear ``ax`` and render ``curves`` using shared style utilities."""
     ax.clear()
-    title_seg = split_signature(title, bold=True)
-    x_seg = split_signature(x_label, bold=False)
-    y_seg = split_signature(y_label, bold=False)
+    title_segments = split_signature(title, bold=True)
+    x_segments = split_signature(x_label, bold=False)
+    y_segments = split_signature(y_label, bold=False)
     create_plot(
         curves,
-        x_seg,
-        y_seg,
-        title_seg,
+        x_segments,
+        y_segments,
+        title_segments,
         pr_y=pr_y,
         fig=fig,
         ax=ax,

@@ -15,8 +15,7 @@ from tabs.constants import (
     TITLE_TRANSLATIONS,
     PHYSICAL_QUANTITIES_EN_TO_RU,
     PHYSICAL_QUANTITIES_TRANSLATION,
-    UNITS_MAPPING,
-    UNITS_MAPPING_EN,
+    UNITS_TRANSLATION,
 )
 from tabs.title_utils import format_signature
 
@@ -61,19 +60,12 @@ class TitleProcessor:
         unit_ru = self.combo_size.get()
         if unit_ru in ("", "—"):
             return ""
-        ru, en = self._get_ru_en_quantity()
+        ru, _ = self._get_ru_en_quantity()
         unit = unit_ru
         if self.language == "Английский":
-            units_ru_list = UNITS_MAPPING.get(ru)
-            units_en_list = UNITS_MAPPING_EN.get(en)
-            if (
-                units_ru_list
-                and units_en_list
-                and unit_ru in units_ru_list
-            ):
-                idx = units_ru_list.index(unit_ru)
-                if idx < len(units_en_list):
-                    unit = units_en_list[idx]
+            units_dict = UNITS_TRANSLATION.get(ru)
+            if units_dict:
+                unit = units_dict.get(unit_ru, unit_ru)
         if unit in ("", "—"):
             return ""
         return f", {unit}"

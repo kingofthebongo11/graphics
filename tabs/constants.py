@@ -30,86 +30,132 @@ def sort_options(
     return first + middle + last
 
 
-STRESS_UNITS = sort_options(
+def sort_unit_pairs(
+    pairs: Sequence[tuple[str, str]],
+    none_label: str = "Нет",
+    other_label: str = "Другое",
+) -> list[tuple[str, str]]:
+    """Сортирует пары единиц измерения."""
+
+    ru_to_en = dict(pairs)
+    sorted_ru = sort_options(ru_to_en.keys(), none_label, other_label)
+    return [(ru, ru_to_en[ru]) for ru in sorted_ru]
+
+
+STRESS_UNITS_PAIRS = sort_unit_pairs(
     [
-        "Па",
-        "кПа",
-        "МПа",
-        "Н/мм²",
-        "Н/см²",
-        "Н/м²",
-        "кН/мм²",
-        "кН/см²",
-        "кН/м²",
-        "МН/мм²",
-        "МН/см²",
-        "МН/м²",
-        "кгс/мм²",
-        "кгс/см²",
-        "кгс/м²",
-        "тс/см²",
-        "тс/м²",
+        ("Па", "Pa"),
+        ("кПа", "kPa"),
+        ("МПа", "MPa"),
+        ("Н/мм²", "N/mm²"),
+        ("Н/см²", "N/cm²"),
+        ("Н/м²", "N/m²"),
+        ("кН/мм²", "kN/mm²"),
+        ("кН/см²", "kN/cm²"),
+        ("кН/м²", "kN/m²"),
+        ("МН/мм²", "MN/mm²"),
+        ("МН/см²", "MN/cm²"),
+        ("МН/м²", "MN/m²"),
+        ("кгс/мм²", "kgf/mm²"),
+        ("кгс/см²", "kgf/cm²"),
+        ("кгс/м²", "kgf/m²"),
+        ("тс/см²", "tf/cm²"),
+        ("тс/м²", "tf/m²"),
     ]
 )
 
-STRESS_UNITS_EN = sort_options(
-    [
-        "Pa",
-        "kPa",
-        "MPa",
-        "N/mm²",
-        "N/cm²",
-        "N/m²",
-        "kN/mm²",
-        "kN/cm²",
-        "kN/m²",
-        "MN/mm²",
-        "MN/cm²",
-        "MN/m²",
-        "kgf/mm²",
-        "kgf/cm²",
-        "kgf/m²",
-        "tf/cm²",
-        "tf/m²",
-    ]
-)
+STRESS_UNITS = [ru for ru, _ in STRESS_UNITS_PAIRS]
+STRESS_UNITS_EN = [en for _, en in STRESS_UNITS_PAIRS]
+
+TIME_UNIT_PAIRS = sort_unit_pairs([
+    ("мс", "ms"),
+    ("с", "s"),
+    ("мин", "min"),
+    ("ч", "h"),
+])
+
+LENGTH_UNIT_PAIRS = sort_unit_pairs([
+    ("мм", "mm"),
+    ("см", "cm"),
+    ("м", "m"),
+])
+
+DEFORMATION_UNIT_PAIRS = sort_unit_pairs([
+    ("—", "—"),
+    ("%", "%"),
+])
+
+FORCE_UNIT_PAIRS = sort_unit_pairs([
+    ("мН", "mN"),
+    ("Н", "N"),
+    ("кН", "kN"),
+    ("кгс", "kgf"),
+    ("тс", "tf"),
+])
+
+MASS_UNIT_PAIRS = sort_unit_pairs([
+    ("г", "g"),
+    ("кг", "kg"),
+    ("т", "t"),
+])
+
+MOMENT_UNIT_PAIRS = sort_unit_pairs([
+    ("Н·м", "N·m"),
+    ("кН·м", "kN·m"),
+])
+
+FREQUENCY_UNIT_PAIRS = sort_unit_pairs([
+    ("Гц", "Hz"),
+    ("кГц", "kHz"),
+])
+
+
+UNITS_PAIRS = {
+    "Время": TIME_UNIT_PAIRS,
+    "Перемещение по X": LENGTH_UNIT_PAIRS,
+    "Перемещение по Y": LENGTH_UNIT_PAIRS,
+    "Перемещение по Z": LENGTH_UNIT_PAIRS,
+    "Удлинение": LENGTH_UNIT_PAIRS,
+    "Удлинение по X": LENGTH_UNIT_PAIRS,
+    "Удлинение по Y": LENGTH_UNIT_PAIRS,
+    "Удлинение по Z": LENGTH_UNIT_PAIRS,
+    "Деформация": DEFORMATION_UNIT_PAIRS,
+    "Пластическая деформация": DEFORMATION_UNIT_PAIRS,
+    "Сила": FORCE_UNIT_PAIRS,
+    "Продольная сила": FORCE_UNIT_PAIRS,
+    "Поперечная сила": FORCE_UNIT_PAIRS,
+    "Поперечная сила по Y": FORCE_UNIT_PAIRS,
+    "Поперечная сила по Z": FORCE_UNIT_PAIRS,
+    "Масса": MASS_UNIT_PAIRS,
+    "Напряжение": STRESS_UNITS_PAIRS,
+    "Интенсивность напряжений": STRESS_UNITS_PAIRS,
+    "Нормальное напряжение X": STRESS_UNITS_PAIRS,
+    "Нормальное напряжение Y": STRESS_UNITS_PAIRS,
+    "Нормальное напряжение Z": STRESS_UNITS_PAIRS,
+    "Касательное напряжение XY": STRESS_UNITS_PAIRS,
+    "Касательное напряжение YX": STRESS_UNITS_PAIRS,
+    "Касательное напряжение YZ": STRESS_UNITS_PAIRS,
+    "Касательное напряжение ZY": STRESS_UNITS_PAIRS,
+    "Касательное напряжение ZX": STRESS_UNITS_PAIRS,
+    "Касательное напряжение XZ": STRESS_UNITS_PAIRS,
+    "Крутящий момент Mx": MOMENT_UNIT_PAIRS,
+    "Изгибающий момент Mx": MOMENT_UNIT_PAIRS,
+    "Изгибающий момент My": MOMENT_UNIT_PAIRS,
+    "Изгибающий момент Mz": MOMENT_UNIT_PAIRS,
+    "Частота 1": FREQUENCY_UNIT_PAIRS,
+    "Частота 2": FREQUENCY_UNIT_PAIRS,
+    "Частота 3": FREQUENCY_UNIT_PAIRS,
+    "Другое": [],
+}
 
 UNITS_MAPPING = {
-    "Время": sort_options(["мс", "с", "мин", "ч"]),
-    "Перемещение по X": sort_options(["мм", "см", "м"]),
-    "Перемещение по Y": sort_options(["мм", "см", "м"]),
-    "Перемещение по Z": sort_options(["мм", "см", "м"]),
-    "Удлинение": sort_options(["мм", "см", "м"]),
-    "Удлинение по X": sort_options(["мм", "см", "м"]),
-    "Удлинение по Y": sort_options(["мм", "см", "м"]),
-    "Удлинение по Z": sort_options(["мм", "см", "м"]),
-    "Деформация": sort_options(["—", "%"]),
-    "Пластическая деформация": sort_options(["—", "%"]),
-    "Сила": sort_options(["мН", "Н", "кН", "кгс", "тс"]),
-    "Продольная сила": sort_options(["мН", "Н", "кН", "кгс", "тс"]),
-    "Поперечная сила": sort_options(["мН", "Н", "кН", "кгс", "тс"]),
-    "Поперечная сила по Y": sort_options(["мН", "Н", "кН", "кгс", "тс"]),
-    "Поперечная сила по Z": sort_options(["мН", "Н", "кН", "кгс", "тс"]),
-    "Масса": sort_options(["г", "кг", "т"]),
-    "Напряжение": STRESS_UNITS,
-    "Интенсивность напряжений": STRESS_UNITS,
-    "Нормальное напряжение X": STRESS_UNITS,
-    "Нормальное напряжение Y": STRESS_UNITS,
-    "Нормальное напряжение Z": STRESS_UNITS,
-    "Касательное напряжение XY": STRESS_UNITS,
-    "Касательное напряжение YX": STRESS_UNITS,
-    "Касательное напряжение YZ": STRESS_UNITS,
-    "Касательное напряжение ZY": STRESS_UNITS,
-    "Касательное напряжение ZX": STRESS_UNITS,
-    "Касательное напряжение XZ": STRESS_UNITS,
-    "Крутящий момент Mx": sort_options(["Н·м", "кН·м"]),
-    "Изгибающий момент Mx": sort_options(["Н·м", "кН·м"]),
-    "Изгибающий момент My": sort_options(["Н·м", "кН·м"]),
-    "Изгибающий момент Mz": sort_options(["Н·м", "кН·м"]),
-    "Частота 1": sort_options(["Гц", "кГц"]),
-    "Частота 2": sort_options(["Гц", "кГц"]),
-    "Частота 3": sort_options(["Гц", "кГц"]),
-    "Другое": [],
+    quantity: [ru for ru, _ in pairs]
+    for quantity, pairs in UNITS_PAIRS.items()
+}
+
+UNITS_TRANSLATION = {
+    quantity: {ru: en for ru, en in pairs}
+    for quantity, pairs in UNITS_PAIRS.items()
 }
 
 DEFAULT_UNITS = {
@@ -239,50 +285,17 @@ PHYSICAL_QUANTITIES_EN_TO_RU = {
     en: ru for ru, en in PHYSICAL_QUANTITIES_TRANSLATION.items()
 }
 
-TIME_UNITS_EN = sort_options(["ms", "s", "min", "h"])
-LENGTH_UNITS_EN = sort_options(["mm", "cm", "m"])
-DEFORMATION_UNITS_EN = sort_options(["—", "%"])
-FORCE_UNITS_EN = sort_options(["mN", "N", "kN", "kgf", "tf"])
-MASS_UNITS_EN = sort_options(["g", "kg", "t"])
-MOMENT_UNITS_EN = sort_options(["N·m", "kN·m"])
-FREQUENCY_UNITS_EN = sort_options(["Hz", "kHz"])
+TIME_UNITS_EN = [en for _, en in TIME_UNIT_PAIRS]
+LENGTH_UNITS_EN = [en for _, en in LENGTH_UNIT_PAIRS]
+DEFORMATION_UNITS_EN = [en for _, en in DEFORMATION_UNIT_PAIRS]
+FORCE_UNITS_EN = [en for _, en in FORCE_UNIT_PAIRS]
+MASS_UNITS_EN = [en for _, en in MASS_UNIT_PAIRS]
+MOMENT_UNITS_EN = [en for _, en in MOMENT_UNIT_PAIRS]
+FREQUENCY_UNITS_EN = [en for _, en in FREQUENCY_UNIT_PAIRS]
 
 UNITS_MAPPING_EN = {
-    "Time": TIME_UNITS_EN,
-    "Displacement X": LENGTH_UNITS_EN,
-    "Displacement Y": LENGTH_UNITS_EN,
-    "Displacement Z": LENGTH_UNITS_EN,
-    "Elongation": LENGTH_UNITS_EN,
-    "Elongation X": LENGTH_UNITS_EN,
-    "Elongation Y": LENGTH_UNITS_EN,
-    "Elongation Z": LENGTH_UNITS_EN,
-    "Strain": DEFORMATION_UNITS_EN,
-    "Plastic strain": DEFORMATION_UNITS_EN,
-    "Force": FORCE_UNITS_EN,
-    "Axial force": FORCE_UNITS_EN,
-    "Shear force": FORCE_UNITS_EN,
-    "Shear force Y": FORCE_UNITS_EN,
-    "Shear force Z": FORCE_UNITS_EN,
-    "Mass": MASS_UNITS_EN,
-    "Stress": STRESS_UNITS_EN,
-    "Stress intensity": STRESS_UNITS_EN,
-    "Normal stress X": STRESS_UNITS_EN,
-    "Normal stress Y": STRESS_UNITS_EN,
-    "Normal stress Z": STRESS_UNITS_EN,
-    "Shear stress XY": STRESS_UNITS_EN,
-    "Shear stress YX": STRESS_UNITS_EN,
-    "Shear stress YZ": STRESS_UNITS_EN,
-    "Shear stress ZY": STRESS_UNITS_EN,
-    "Shear stress ZX": STRESS_UNITS_EN,
-    "Shear stress XZ": STRESS_UNITS_EN,
-    "Torque Mx": MOMENT_UNITS_EN,
-    "Bending moment Mx": MOMENT_UNITS_EN,
-    "Bending moment My": MOMENT_UNITS_EN,
-    "Bending moment Mz": MOMENT_UNITS_EN,
-    "Frequency 1": FREQUENCY_UNITS_EN,
-    "Frequency 2": FREQUENCY_UNITS_EN,
-    "Frequency 3": FREQUENCY_UNITS_EN,
-    "Other": [],
+    PHYSICAL_QUANTITIES_TRANSLATION[ru]: [en for _, en in pairs]
+    for ru, pairs in UNITS_PAIRS.items()
 }
 
 DEFAULT_UNITS_EN = {
@@ -473,6 +486,7 @@ __all__ = [
     "DEFAULT_UNITS_EN",
     "PHYSICAL_QUANTITIES_EN",
     "PHYSICAL_QUANTITIES_EN_TO_RU",
+    "UNITS_TRANSLATION",
     "TITLES_SYMBOLS",
     "TITLE_TRANSLATIONS",
     "TITLE_TRANSLATIONS_BOLD",

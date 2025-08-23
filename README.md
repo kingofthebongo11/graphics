@@ -37,17 +37,18 @@ This opens the GUI where you can create and customize plots across multiple tabs
 
 ## Форматирование подписей и обозначений
 
-Для заголовков графиков и подписей осей доступны две функции из модуля
-`tabs.title_utils`:
+Для заголовков графиков и подписей осей можно:
 
-- `format_signature` — возвращает строку, готовую к передаче в Matplotlib;
-- `split_signature` — разбивает исходный текст на сегменты вида
-  `(фрагмент, is_latex)` для нестандартных сценариев оформления.
+- использовать `format_signature` из модуля `tabs.title_utils`, который
+  возвращает строку, готовую к передаче в Matplotlib;
+- напрямую писать LaTeX‑строки (например, `r'Угол $\upalpha$'`).
 
-Обе функции переводят латинские буквы в курсив (`\mathit{}`), заменяют
-греческие символы на команды пакета `upgreek` и корректно обрабатывают
-индексы/степени. Параметр `bold=True` дополнительно оборачивает
-обозначения в `\boldsymbol{}`.
+Функция `format_signature` переводит латинские буквы в курсив
+(`\mathit{}`), заменяет греческие символы на команды пакета `upgreek` и
+корректно обрабатывает индексы/степени. Параметр `bold=True`
+дополнительно оборачивает обозначения в `\boldsymbol{}`. Сегментный API
+(`split_signature`/`join_segments`) устарел и не рекомендуется к
+использованию.
 
 Примеры:
 
@@ -68,7 +69,7 @@ configure_matplotlib()
 
 fig, ax = plt.subplots()
 ax.set_title(format_signature('Момент M_x', bold=True))
-ax.set_xlabel(format_signature('Угол α', bold=False))
+ax.set_xlabel(r'Угол $\upalpha$')
 ax.set_ylabel(format_signature('Напряжение σ_{max}', bold=False))
 plt.show()
 ```
@@ -86,7 +87,7 @@ The axis dimension selectors support both SI units and engineering units based o
 
 ## Example: Combined Labels
 
-The script [`examples/combined_labels.py`](examples/combined_labels.py) demonstrates how to use `format_signature` to mix bold designations in the title with italic or upright symbols in axis labels.
+The script [`examples/combined_labels.py`](examples/combined_labels.py) demonstrates how to mix explicit LaTeX expressions in the title with auto‑formatted symbols in axis labels.
 
 Run the example with:
 

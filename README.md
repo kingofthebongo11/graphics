@@ -37,33 +37,45 @@ This opens the GUI where you can create and customize plots across multiple tabs
 
 ## Форматирование подписей и обозначений
 
-Для заголовков графиков и подписей осей используйте функцию
-`format_signature` из модуля `tabs.title_utils`. Она переводит латинские
-буквы в курсив (`\mathit{}`), заменяет греческие символы на команды
-пакета `upgreek` и корректно обрабатывает индексы/степени. Параметр
-`bold=True` дополнительно оборачивает обозначения в `\boldsymbol{}`.
+Для заголовков графиков и подписей осей доступны две функции из модуля
+`tabs.title_utils`:
+
+- `format_signature` — возвращает строку целиком;
+- `split_signature` — разбивает исходный текст на сегменты вида
+  `(фрагмент, is_latex)`.
+
+Обе функции переводят латинские буквы в курсив (`\mathit{}`), заменяют
+греческие символы на команды пакета `upgreek` и корректно обрабатывают
+индексы/степени. Параметр `bold=True` дополнительно оборачивает
+обозначения в `\boldsymbol{}`.
 
 Примеры:
 
 - `format_signature('Момент M_x', bold=True)` → «Момент
   $\boldsymbol{\mathit{M}_{\mathit{x}}}$»
-- `format_signature('Угол α', bold=False)` → «Угол $\upalpha$»
-- `format_signature('Напряжение σ_{max}', bold=False)` → «Напряжение
-  $\upsigma_{\mathit{max}}$»
+- `split_signature('Угол α', bold=False)` → `[('Угол ', False),
+  ('\\upalpha', True)]`
+- `split_signature('Напряжение σ_{max}', bold=False)` →
+  `[('Напряжение ', False),
+  ('\\upsigma_{\\mathit{max}}', True)]`
 
 ### Пример использования с Matplotlib
 
 ```python
 import matplotlib.pyplot as plt
 from settings import configure_matplotlib
-from tabs.title_utils import format_signature
+from tabs.title_utils import split_signature
+
+
+def join_segments(parts):
+    return ''.join(f'${frag}$' if is_latex else frag for frag, is_latex in parts)
 
 configure_matplotlib()
 
 fig, ax = plt.subplots()
-ax.set_title(format_signature('Момент M_x', bold=True))
-ax.set_xlabel(format_signature('Угол α', bold=False))
-ax.set_ylabel(format_signature('Напряжение σ_{max}', bold=False))
+ax.set_title(join_segments(split_signature('Момент M_x', bold=True)))
+ax.set_xlabel(join_segments(split_signature('Угол α', bold=False)))
+ax.set_ylabel(join_segments(split_signature('Напряжение σ_{max}', bold=False)))
 plt.show()
 ```
 
@@ -80,7 +92,7 @@ The axis dimension selectors support both SI units and engineering units based o
 
 ## Example: Combined Labels
 
-The script [`examples/combined_labels.py`](examples/combined_labels.py) demonstrates how to mix bold designations in the title with italic or upright symbols in axis labels.
+The script [`examples/combined_labels.py`](examples/combined_labels.py) demonstrates how to use `split_signature` to mix bold designations in the title with italic or upright symbols in axis labels.
 
 Run the example with:
 

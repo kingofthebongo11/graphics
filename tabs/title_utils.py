@@ -78,26 +78,8 @@ def _format_component(token: str) -> str:
     return "".join(result)
 
 
-def format_signature(text: str, *, bold: bool) -> str:
-    r"""Вернуть ``text`` с оформленными обозначениями.
-
-    Латинские символы переводятся в ``\mathit{}``, а греческие заменяются
-    командами ``\upalpha``, ``\upsigma`` и т.п. При ``bold=True`` найденные
-    обозначения дополнительно оборачиваются в ``\boldsymbol{...}``, а
-    текстовые части — в ``\textbf{...}``.
-
-    Примеры
-    -------
-    >>> format_signature('Момент M_x', bold=True)
-    '\\textbf{Момент }$\\boldsymbol{\\mathit{M}_{\\mathit{x}}}$'
-    >>> format_signature('Угол α', bold=False)
-    'Угол $\upalpha$'
-
-    Для использования в Matplotlib::
-
-        ax.set_title(format_signature('Момент M_x', bold=True))
-        ax.set_xlabel(format_signature('Угол α', bold=False))
-    """
+def _format_signature_impl(text: str, bold: bool) -> str:
+    """Internal helper implementing signature formatting."""
 
     def is_inside_math(s: str, pos: int) -> bool:
         count = 0
@@ -139,6 +121,45 @@ def format_signature(text: str, *, bold: bool) -> str:
             if part
         )
     return result
+
+
+def split_signature(text: str, bold: bool) -> list[tuple[str, bool]]:
+    """Разбить ``text`` на сегменты ``(фрагмент, is_latex)``.
+
+    Латинские и греческие обозначения преобразуются в LaTeX так же, как в
+    :func:`format_signature`. Сегменты с ``is_latex=True`` предназначены для
+    отображения в математическом режиме.
+
+    Пример
+    -------
+    >>> split_signature('Угол α', bold=False)
+    [('Угол ', False), ('\\upalpha', True)]
+    """
+
+    formatted = _format_signature_impl(text, bold)
+    parts = re.split(r"(\$[^$]*\$)", formatted)
+    segments: list[tuple[str, bool]] = []
+    for part in parts:
+        if not part:
+            continue
+        if part.startswith("$") and part.endswith("$"):
+            segments.append((part[1:-1], True))
+        else:
+            segments.append((part, False))
+    return segments
+
+
+def format_signature(text: str, *, bold: bool) -> str:
+    r"""Вернуть ``text`` с оформленными обозначениями.
+
+    Функция является обёрткой над :func:`split_signature`, объединяющей
+    полученные сегменты в одну строку с ``$`` вокруг математических частей.
+    """
+
+    segments = split_signature(text, bold)
+    return "".join(
+        f"${frag}$" if is_latex else frag for frag, is_latex in segments
+    )
 
 
 def format_designation(token: str, in_math: bool) -> str:

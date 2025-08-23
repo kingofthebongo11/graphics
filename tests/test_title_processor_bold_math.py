@@ -16,18 +16,29 @@ def test_title_processor_wraps_mathit_with_bold():
     combo_title = ComboStub("Время")
     processor = TitleProcessor(combo_title, bold_math=True)
     result = processor.get_processed_title()
-    assert r"\boldsymbol{\mathit{t}}" in result
-    assert r"\textbf" in result
+    joined = "".join(
+        f"${frag}$" if is_latex else frag for frag, is_latex in result
+    )
+    assert r"\boldsymbol{\mathit{t}}" in joined
+    assert r"\textbf" in joined
     parser = MathTextParser("agg")
-    parser.parse(result)
+    parser.parse(joined)
 
 
 def test_title_processor_uses_bold_dict_only_for_title():
     combo = ComboStub("Время")
     title_proc = TitleProcessor(combo, bold_math=True)
     axis_proc = TitleProcessor(combo, translations=TITLE_TRANSLATIONS)
-    assert r"\boldsymbol{\mathit{t}}" in title_proc.get_processed_title()
-    assert r"\boldsymbol{\mathit{t}}" not in axis_proc.get_processed_title()
+    joined_title = "".join(
+        f"${frag}$" if is_latex else frag
+        for frag, is_latex in title_proc.get_processed_title()
+    )
+    joined_axis = "".join(
+        f"${frag}$" if is_latex else frag
+        for frag, is_latex in axis_proc.get_processed_title()
+    )
+    assert r"\boldsymbol{\mathit{t}}" in joined_title
+    assert r"\boldsymbol{\mathit{t}}" not in joined_axis
 
 
 def test_title_processor_wraps_multiple_mathit_occurrences():
@@ -35,9 +46,12 @@ def test_title_processor_wraps_multiple_mathit_occurrences():
     entry = ComboStub("Value $\\mathit{x}+\\mathit{y}$")
     processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
     result = processor.get_processed_title()
-    assert result.count(r"\boldsymbol{\mathit{") == 2
+    joined = "".join(
+        f"${frag}$" if is_latex else frag for frag, is_latex in result
+    )
+    assert joined.count(r"\boldsymbol{\mathit{") == 2
     parser = MathTextParser("agg")
-    parser.parse(result)
+    parser.parse(joined)
 
 
 def test_title_processor_wraps_M_symbols_and_preserves_math():
@@ -45,10 +59,13 @@ def test_title_processor_wraps_M_symbols_and_preserves_math():
     entry = ComboStub("M_x My $M_z$ $v$ \\boldsymbol{My}")
     processor = TitleProcessor(combo_title, entry_title=entry, bold_math=True)
     result = processor.get_processed_title()
-    assert r"\boldsymbol{\mathit{M}_{\mathit{x}}}" in result
-    assert result.count(r"\boldsymbol{My}") == 1
-    assert " My " in result
-    assert "$\\boldsymbol{\mathit{M}_{\mathit{z}}}$" in result
-    assert "$\\boldsymbol{\mathit{v}}$" in result
+    joined = "".join(
+        f"${frag}$" if is_latex else frag for frag, is_latex in result
+    )
+    assert r"\boldsymbol{\mathit{M}_{\mathit{x}}}" in joined
+    assert joined.count(r"\boldsymbol{My}") == 1
+    assert " My " in joined
+    assert "$\\boldsymbol{\mathit{M}_{\mathit{z}}}$" in joined
+    assert "$\\boldsymbol{\mathit{v}}$" in joined
     parser = MathTextParser("agg")
-    parser.parse(result)
+    parser.parse(joined)

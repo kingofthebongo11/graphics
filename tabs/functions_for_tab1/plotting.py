@@ -18,7 +18,7 @@ from tabs.constants import (
     UNITS_MAPPING,
     UNITS_MAPPING_EN,
 )
-from tabs.title_utils import format_signature
+from tabs.title_utils import split_signature
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ class TitleProcessor:
         else:
             title = self._get_title()
             result = f"{title}{self._get_units()}"
-        return format_signature(result, bold=self.bold_math)
+        return split_signature(result, bold=self.bold_math)
 
 def save_file(entry_widget, format_widget, graph_info):
 

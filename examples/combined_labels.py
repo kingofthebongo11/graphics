@@ -3,6 +3,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+# Пример демонстрирует использование нового API ``split_signature``,
+# возвращающего список сегментов для последующей отрисовки.
 # Ensure project root is on sys.path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 from tabs.title_utils import split_signature

@@ -1,7 +1,7 @@
 from matplotlib.mathtext import MathTextParser
 
 from tabs.functions_for_tab1.plotting import TitleProcessor
-from tabs.constants import TITLE_TRANSLATIONS, TITLE_TRANSLATIONS_BOLD
+from tabs.constants import TITLE_TRANSLATIONS
 
 
 class ComboStub:
@@ -14,9 +14,7 @@ class ComboStub:
 
 def test_title_processor_wraps_mathit_with_bold():
     combo_title = ComboStub("Время")
-    processor = TitleProcessor(
-        combo_title, bold_math=True, translations=TITLE_TRANSLATIONS_BOLD
-    )
+    processor = TitleProcessor(combo_title, bold_math=True)
     result = processor.get_processed_title()
     assert "\\boldsymbol{\\mathit{t}}" in result
     parser = MathTextParser("agg")
@@ -25,9 +23,7 @@ def test_title_processor_wraps_mathit_with_bold():
 
 def test_title_processor_uses_bold_dict_only_for_title():
     combo = ComboStub("Время")
-    title_proc = TitleProcessor(
-        combo, bold_math=True, translations=TITLE_TRANSLATIONS_BOLD
-    )
+    title_proc = TitleProcessor(combo, bold_math=True)
     axis_proc = TitleProcessor(combo, translations=TITLE_TRANSLATIONS)
     assert "\\boldsymbol{\\mathit{t}}" in title_proc.get_processed_title()
     assert "\\boldsymbol{\\mathit{t}}" not in axis_proc.get_processed_title()
@@ -37,9 +33,10 @@ def test_title_processor_wraps_multiple_mathit_occurrences():
     combo_title = ComboStub("Другое")
     entry = ComboStub("Value $\\mathit{x}+\\mathit{y}$")
     processor = TitleProcessor(
-        combo_title, entry_title=entry, bold_math=True, translations=TITLE_TRANSLATIONS_BOLD
+        combo_title, entry_title=entry, bold_math=True
     )
     result = processor.get_processed_title()
     assert result.count("\\boldsymbol{\\mathit{") == 2
     parser = MathTextParser("agg")
     parser.parse(result)
+

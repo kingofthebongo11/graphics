@@ -453,6 +453,9 @@ TITLE_TRANSLATIONS = {
     },
 }
 
+# Символы для заголовков (копия словаря для осей)
+TITLES_SYMBOLS = {key: value.copy() for key, value in TITLE_TRANSLATIONS.items()}
+
 # Заголовки графиков — жирный курсив
 TITLE_TRANSLATIONS_BOLD = {
     key: {lang: re.sub(r"\\mathit\{([^}]*)\}", r"\\boldsymbol{\\mathit{\1}}", text)
@@ -470,6 +473,7 @@ __all__ = [
     "DEFAULT_UNITS_EN",
     "PHYSICAL_QUANTITIES_EN",
     "PHYSICAL_QUANTITIES_EN_TO_RU",
+    "TITLES_SYMBOLS",
     "TITLE_TRANSLATIONS",
     "TITLE_TRANSLATIONS_BOLD",
 ]

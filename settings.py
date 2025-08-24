@@ -7,7 +7,7 @@ def configure_matplotlib():
         'text.usetex': True,
         'font.family': 'serif',
         'font.size': 12,  # Общий размер шрифта
-        'axes.titlesize': 17.28,  # Размер шрифта для заголовков осей
+        'axes.titlesize': 20.74,  # Размер шрифта для заголовков осей
         'axes.labelsize': 14.4,  # Размер шрифта для подписей осей
         'xtick.labelsize': 12,  # Размер шрифта для меток оси X
         'ytick.labelsize': 12,  # Размер шрифта для меток оси Y

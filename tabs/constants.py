@@ -102,6 +102,8 @@ MASS_UNIT_PAIRS = sort_unit_pairs([
 MOMENT_UNIT_PAIRS = sort_unit_pairs([
     ("Н·м", "N·m"),
     ("кН·м", "kN·m"),
+    ("кгс·м", "kgf·m"),
+    ("тс·м", "tf·m"),
 ])
 
 FREQUENCY_UNIT_PAIRS = sort_unit_pairs([

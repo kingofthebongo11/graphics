@@ -9,13 +9,13 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 import json
 from pathlib import Path
 
-from gui_bridge import tree_from_gui
 from tabs.function4tabs4.cfile_writer import write_cfile
 from tabs.function4tabs4.command_all import walk_tree_and_build_commands
 from tabs.function4tabs4.config import CFILE_NAME
 from tabs.function4tabs4.naming import safe_name
 from tabs.function4tabs4.tree_schema import Tree
 from topfolder_codec import decode_topfolder, encode_topfolder
+from tree_schema import AnalysisNode, EntityNode, FileNode
 from ui import constants as ui_const
 from widgets import create_text, select_path
 from curves_pipeline import build_curves_report
@@ -163,6 +163,30 @@ class SectionDialog(simpledialog.Dialog):
         self.result = text
 
 
+def treeview_to_entity_nodes(tree: ttk.Treeview) -> list[EntityNode]:
+    """Преобразовать ``ttk.Treeview`` в список ``EntityNode``."""
+
+    roots: list[EntityNode] = []
+    for root in tree.get_children():
+        user_name, entity_kind, element_type = decode_topfolder(
+            tree.item(root, "text")
+        )
+        entity = EntityNode(
+            user_name=user_name,
+            entity_kind=entity_kind,  # type: ignore[arg-type]
+            element_type=element_type,  # type: ignore[arg-type]
+        )
+        for analysis in tree.get_children(root):
+            analysis_type = tree.item(analysis, "text")
+            analysis_node = AnalysisNode(analysis_type=analysis_type)
+            for file in tree.get_children(analysis):
+                file_id = int(tree.item(file, "text"))
+                analysis_node.children.append(FileNode(id=file_id))
+            entity.children.append(analysis_node)
+        roots.append(entity)
+    return roots
+
+
 def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     """Создать четвёртую вкладку приложения."""
 
@@ -307,44 +331,11 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             messagebox.showerror("Ошибка", "Укажите путь к .cfile", parent=tab4)
             return
 
-        class _TkItem:
-            def __init__(self, widget: ttk.Treeview, iid: str) -> None:
-                self._tree = widget
-                self._iid = iid
-
-            def text(self, column: int) -> str:
-                if column == 0:
-                    return self._tree.item(self._iid, "text")
-                values = self._tree.item(self._iid, "values")
-                return values[column - 1] if column - 1 < len(values) else ""
-
-            def childCount(self) -> int:
-                return len(self._tree.get_children(self._iid))
-
-            def child(self, index: int) -> "_TkItem":
-                children = self._tree.get_children(self._iid)
-                return _TkItem(self._tree, children[index])
-
-        class _TkWidget:
-            def __init__(self, widget: ttk.Treeview, root: str) -> None:
-                self._tree = widget
-                self._root = root
-
-            def topLevelItemCount(self) -> int:
-                return 1
-
-            def topLevelItem(self, index: int) -> _TkItem:
-                if index != 0:
-                    raise IndexError("Только один корневой элемент")
-                return _TkItem(self._tree, self._root)
-
-        roots = []
-        for item in tree.get_children():
-            try:
-                roots.append(tree_from_gui(_TkWidget(tree, item)))
-            except Exception as exc:  # pragma: no cover - UI error handling
-                messagebox.showerror("Ошибка", str(exc), parent=tab4)
-                return
+        try:
+            roots = treeview_to_entity_nodes(tree)
+        except Exception as exc:  # pragma: no cover - UI error handling
+            messagebox.showerror("Ошибка", str(exc), parent=tab4)
+            return
 
         commands = walk_tree_and_build_commands(roots, Path(path).parent)
         write_cfile(commands, path)
@@ -446,5 +437,5 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     return tab4
 
 
-__all__ = ["create_tab4"]
+__all__ = ["create_tab4", "treeview_to_entity_nodes"]
 

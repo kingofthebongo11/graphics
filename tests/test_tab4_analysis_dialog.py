@@ -21,8 +21,17 @@ def _create_app():
 def test_add_analysis_type(monkeypatch):
     root, tab = _create_app()
     tree = tab.tree
-    parent = tree.insert("", "end", text="top")
+
+    class DummySectionDialog:
+        def __init__(self, _parent, tree_widget, item=None):
+            tree_widget.insert("", "end", text="top")
+            self.result = "top"
+
+    monkeypatch.setattr(tab4mod, "SectionDialog", DummySectionDialog)
+    tab.add_node()
+    parent = tree.get_children("")[-1]
     tree.selection_set(parent)
+
     choice = ANALYSIS_TYPES[0]
 
     class DummyDialog:
@@ -39,8 +48,17 @@ def test_add_analysis_type(monkeypatch):
 def test_add_element_number(monkeypatch):
     root, tab = _create_app()
     tree = tab.tree
-    top = tree.insert("", "end", text="top")
+
+    class DummySectionDialog:
+        def __init__(self, _parent, tree_widget, item=None):
+            tree_widget.insert("", "end", text="top")
+            self.result = "top"
+
+    monkeypatch.setattr(tab4mod, "SectionDialog", DummySectionDialog)
+    tab.add_node()
+    top = tree.get_children("")[-1]
     tree.selection_set(top)
+
     choice = ANALYSIS_TYPES[0]
 
     class DummyDialog:
@@ -51,6 +69,7 @@ def test_add_element_number(monkeypatch):
     tab.add_node()
     analysis = tree.get_children(top)[-1]
     tree.selection_set(analysis)
+
     monkeypatch.setattr(tab4mod.simpledialog, "askstring", lambda *a, **k: "15")
     tab.add_node()
     child = tree.get_children(analysis)[-1]

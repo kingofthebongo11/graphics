@@ -12,6 +12,7 @@ from pathlib import Path
 from gui_bridge import tree_from_gui
 from tabs.function4tabs4.cfile_writer import write_cfile
 from tabs.function4tabs4.command_all import walk_tree_and_build_commands
+from tabs.function4tabs4.config import CFILE_NAME
 from tabs.function4tabs4.naming import safe_name
 from tabs.function4tabs4.tree_schema import Tree
 from topfolder_codec import decode_topfolder, encode_topfolder
@@ -411,7 +412,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     ttk.Button(
         cfile_frame,
         text="Обзор",
-        command=lambda: select_path(cfile_entry, "save_file"),
+        command=lambda: select_path(cfile_entry, "save_file", extension=CFILE_NAME),
     ).pack(side=tk.LEFT, padx=5)
     ttk.Button(
         cfile_frame, text="Сформировать C-файл", command=generate_cfile

@@ -464,16 +464,16 @@ TITLE_TRANSLATIONS = {
         "Английский": r"Bending moment $\mathit{M}_{\mathit{x}}$",
     },
     "Изгибающий момент Ms (My)": {
-        "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{s}}$",
-        "Английский": r"Bending moment $\mathit{M}_{\mathit{s}}$",
+        "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{s}} (\mathit{M}_{\mathit{y}})$",
+        "Английский": r"Bending moment $\mathit{M}_{\mathit{s}} (\mathit{M}_{\mathit{y}})$",
     },
     "Изгибающий момент My": {
         "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{y}}$",
         "Английский": r"Bending moment $\mathit{M}_{\mathit{y}}$",
     },
     "Изгибающий момент Mt (Mz)": {
-        "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{t}}$",
-        "Английский": r"Bending moment $\mathit{M}_{\mathit{t}}$",
+        "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{t}} (\mathit{M}_{\mathit{z}})$",
+        "Английский": r"Bending moment $\mathit{M}_{\mathit{t}} (\mathit{M}_{\mathit{z}})$",
     },
     "Изгибающий момент Mz": {
         "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{z}}$",

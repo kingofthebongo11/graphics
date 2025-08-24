@@ -3,7 +3,7 @@
 # Импортируем функции создания вкладок лениво, чтобы избежать зависимости
 # от графических библиотек при простом импорте пакета ``tabs``.
 
-__all__ = ["create_tab1", "create_tab2", "create_tab3"]
+__all__ = ["create_tab1", "create_tab2", "create_tab3", "create_tab4"]
 
 
 def create_tab1(*args, **kwargs):  # pragma: no cover - простая обёртка
@@ -22,3 +22,9 @@ def create_tab3(*args, **kwargs):  # pragma: no cover - простая обёр�
     from .tab3 import create_tab3 as _create_tab3
 
     return _create_tab3(*args, **kwargs)
+
+
+def create_tab4(*args, **kwargs):  # pragma: no cover - простая обёртка
+    from .tab4 import create_tab4 as _create_tab4
+
+    return _create_tab4(*args, **kwargs)

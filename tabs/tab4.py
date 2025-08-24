@@ -62,7 +62,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     # --- Дерево с верхним узлом пользователя ---
     tree = ttk.Treeview(tab4, columns=("top_folder",), show="tree headings")
-    tree.heading("#0", text="Пользователь")
+    tree.heading("#0", text="Название раздела")
     tree.heading("top_folder", text="TOP папка")
     tree.column("top_folder", width=200)
     tree.grid(
@@ -97,19 +97,19 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     )
     props.columnconfigure(1, weight=1)
 
-    ttk.Label(props, text="user_name:").grid(row=0, column=0, sticky="w")
+    ttk.Label(props, text="Название раздела").grid(row=0, column=0, sticky="w")
     user_var = tk.StringVar(value=user_name)
     user_entry = ttk.Entry(props, textvariable=user_var)
     user_entry.grid(row=0, column=1, sticky="ew")
 
-    ttk.Label(props, text="entity_kind:").grid(row=1, column=0, sticky="w")
+    ttk.Label(props, text="Тип").grid(row=1, column=0, sticky="w")
     entity_var = tk.StringVar(value="node")
     entity_box = ttk.Combobox(
         props, textvariable=entity_var, values=("element", "node"), state="readonly"
     )
     entity_box.grid(row=1, column=1, sticky="ew")
 
-    element_label = ttk.Label(props, text="element_type:")
+    element_label = ttk.Label(props, text="Тип элементов")
     element_var = tk.StringVar(value="beam")
     element_box = ttk.Combobox(
         props,

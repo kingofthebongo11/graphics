@@ -332,10 +332,12 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     # --- Генерация файлов ---
     def generate_cfile() -> None:
-        path = cfile_entry.get().strip()
-        if not path:
+        path_str = cfile_entry.get().strip()
+        if not path_str:
             messagebox.showerror("Ошибка", "Укажите путь к .cfile", parent=tab4)
             return
+
+        path = Path(path_str)
 
         try:
             roots = treeview_to_entity_nodes(tree)
@@ -343,7 +345,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             messagebox.showerror("Ошибка", str(exc), parent=tab4)
             return
 
-        commands = walk_tree_and_build_commands(roots, Path(path).parent)
+        commands = walk_tree_and_build_commands(roots, path.parent)
         write_cfile(commands, path)
         messagebox.showinfo("Готово", f"C-файл сохранён в {path}", parent=tab4)
 

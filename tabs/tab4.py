@@ -166,6 +166,8 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         if not sel:
             return
         item = sel[0]
+        if item == root_id:
+            return
         new_name = simpledialog.askstring("Переименовать", "Новое имя", parent=tab4)
         if new_name:
             tree.item(item, text=safe_name(new_name))
@@ -204,6 +206,28 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     def clear_all() -> None:
         for item in tree.get_children(root_id):
             tree.delete(item)
+
+    # --- Контекстное меню ---
+    menu = tk.Menu(tree, tearoff=0)
+    menu.add_command(label="Добавить", command=add_node)
+    menu.add_command(label="Удалить", command=remove_node)
+    menu.add_command(label="Переименовать", command=rename_node)
+
+    def show_menu(event: tk.Event) -> None:  # pragma: no cover - UI code
+        item = tree.identify_row(event.y)
+        if not item:
+            return
+        tree.selection_set(item)
+        # disable rename/delete for root
+        if item == root_id:
+            menu.entryconfigure(1, state="disabled")
+            menu.entryconfigure(2, state="disabled")
+        else:
+            menu.entryconfigure(1, state="normal")
+            menu.entryconfigure(2, state="normal")
+        menu.tk_popup(event.x_root, event.y_root)
+
+    tree.bind("<Button-3>", show_menu)
 
     # --- Генерация файлов ---
     def generate_cfile() -> None:

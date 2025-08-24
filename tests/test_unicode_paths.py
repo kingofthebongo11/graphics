@@ -13,7 +13,7 @@ def test_cyrillic_paths(tmp_path):
     # Проверка записи и чтения .cfile
     commands = ["привет", "мир"]
     write_cfile(commands, cfile_path)
-    assert cfile_path.read_text(encoding="utf-8") == "привет\nмир\n"
+    assert cfile_path.read_text(encoding="cp1251") == "привет\nмир\n"
 
     # Проверка сохранения и загрузки дерева
     tree = Tree(top="T", analyses=[AnalysisFolder(name="A", curves=[CurveNode(name="c", path="p")])])

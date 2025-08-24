@@ -23,7 +23,7 @@ def extract_labels(analysis_type: str) -> tuple[str, str]:
     Parameters
     ----------
     analysis_type:
-        Строка вида ``"Время-Продольная сила"``.
+        Строка вида ``"Время - Продольная сила"``.
 
     Returns
     -------
@@ -84,7 +84,7 @@ def main() -> None:
     parser.add_argument("txt_file", help="Путь к входному TXT файлу")
     parser.add_argument(
         "analysis_type",
-        help="Тип анализа, например 'Время-Продольная сила'",
+        help="Тип анализа, например 'Время - Продольная сила'",
     )
     parser.add_argument(
         "-o",

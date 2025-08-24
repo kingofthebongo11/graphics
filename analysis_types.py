@@ -2,20 +2,21 @@ from enum import Enum
 
 class AnalysisType(str, Enum):
     """Допустимые типы анализа."""
-    TIME_AXIAL_FORCE = "Время-Продольная сила"
-    TIME_SHEAR_FORCE_Y = "Время-Поперечная сила по Y"
-    TIME_SHEAR_FORCE_Z = "Время-Поперечная сила по Z"
-    TIME_BENDING_MOMENT_MS_MY = "Время-Изгибающий момент Ms (My)"
-    TIME_BENDING_MOMENT_MT_MZ = "Время-Изгибающий момент Mt (Mz)"
-    TIME_TORQUE_MX = "Время-Крутящий момент Mx"
-    TIME_NORMAL_STRESS_X = "Время-Нормальное напряжение X"
-    TIME_SHEAR_STRESS_XY = "Время-Касательное напряжение XY"
-    TIME_SHEAR_STRESS_ZX = "Время-Касательное напряжение ZX"
+
+    TIME_AXIAL_FORCE = "Время - Продольная сила"
+    TIME_SHEAR_FORCE_Y = "Время - Поперечная сила по Y"
+    TIME_SHEAR_FORCE_Z = "Время - Поперечная сила по Z"
+    TIME_BENDING_MOMENT_MS_MY = "Время - Изгибающий момент Ms (My)"
+    TIME_BENDING_MOMENT_MT_MZ = "Время - Изгибающий момент Mt (Mz)"
+    TIME_TORQUE_MX = "Время - Крутящий момент Mx"
+    TIME_NORMAL_STRESS_X = "Время - Нормальное напряжение X"
+    TIME_SHEAR_STRESS_XY = "Время - Касательное напряжение XY"
+    TIME_SHEAR_STRESS_ZX = "Время - Касательное напряжение ZX"
     TIME_PLASTIC_STRAIN_INTENSITY = (
-        "Время-Интенсивность пластических деформаций"
+        "Время - Интенсивность пластических деформаций"
     )
-    TIME_ELONGATION = "Время-Удлинение"
-    TIME_STRESS_INTENSITY = "Время-Интенсивность напряжений"
+    TIME_ELONGATION = "Время - Удлинение"
+    TIME_STRESS_INTENSITY = "Время - Интенсивность напряжений"
 
     @classmethod
     def list(cls) -> list[str]:
@@ -24,4 +25,12 @@ class AnalysisType(str, Enum):
 
 ANALYSIS_TYPES = AnalysisType.list()
 
-__all__ = ["AnalysisType", "ANALYSIS_TYPES"]
+# Карта доступных типов анализа для разных типов элементов.
+# В дальнейшем список для оболочек и узлов может быть расширен.
+ANALYSIS_TYPES_BY_ELEMENT: dict[str | None, list[str]] = {
+    "beam": ANALYSIS_TYPES,
+    "shell": [],
+    "node": [],
+}
+
+__all__ = ["AnalysisType", "ANALYSIS_TYPES", "ANALYSIS_TYPES_BY_ELEMENT"]

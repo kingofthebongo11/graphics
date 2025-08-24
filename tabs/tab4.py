@@ -19,7 +19,7 @@ from tree_schema import AnalysisNode, EntityNode, FileNode
 from ui import constants as ui_const
 from widgets import create_text, select_path
 from curves_pipeline import build_curves_report
-from analysis_types import ANALYSIS_TYPES
+from analysis_types import ANALYSIS_TYPES_BY_ELEMENT
 
 
 class AnalysisTypeDialog(simpledialog.Dialog):
@@ -224,9 +224,15 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         item = sel[0]
         parent = tree.parent(item)
 
+        try:
+            _, _, element_type = decode_topfolder(tree.item(item, "text"))
+        except Exception:
+            element_type = None
+
         if parent == "":
+            values = ANALYSIS_TYPES_BY_ELEMENT.get(element_type, [])
             dlg = AnalysisTypeDialog(
-                tab4, title="Выбор типа анализа", values=ANALYSIS_TYPES
+                tab4, title="Выбор типа анализа", values=values
             )
             choice = dlg.result
             if choice:

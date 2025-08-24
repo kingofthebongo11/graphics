@@ -1,5 +1,9 @@
 import pytest
-from tabs.function4tabs4.command_single import build_curve_commands
+from tabs.function4tabs4.command_single import (
+    build_curve_commands,
+    ETYPE,
+    ETIME,
+)
 
 
 def test_build_curve_commands_element():
@@ -14,7 +18,7 @@ def test_build_curve_commands_element():
     assert cmds == [
         "genselect clear all",
         "genselect beam add beam 7/0",
-        "etype 1 ;etime 4",
+        f"etype {ETYPE} ;etime {ETIME}",
         'xyplot 1 savefile curve_file "C:\\proj\\curves\\pilon-element-beam\\static\\7.txt" 1 all',
         "xyplot 1 donemenu",
         "deletewin 1",

@@ -11,7 +11,7 @@ from tabs.function4tabs4.command_all import collect_commands
 from tabs.function4tabs4.naming import safe_name
 from tabs.function4tabs4.tree_io import load_tree, save_tree
 from tabs.function4tabs4.tree_schema import Tree
-from topfolder_codec import encode_topfolder
+from topfolder_codec import decode_topfolder, encode_topfolder
 from ui import constants as ui_const
 from widgets import create_text, select_path
 
@@ -28,7 +28,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     tree.heading("top_folder", text="TOP папка")
     tree.column("top_folder", width=200)
     tree.grid(
-        row=0,
+        row=1,
         column=0,
         columnspan=8,
         sticky="nsew",
@@ -38,14 +38,77 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     scroll = ttk.Scrollbar(tab4, orient="vertical", command=tree.yview)
     tree.configure(yscrollcommand=scroll.set)
-    scroll.grid(row=0, column=8, sticky="ns", pady=ui_const.PADDING)
+    scroll.grid(row=1, column=8, sticky="ns", pady=ui_const.PADDING)
 
-    tab4.rowconfigure(0, weight=1)
+    tab4.rowconfigure(1, weight=1)
     tab4.columnconfigure(0, weight=1)
 
     user_name = safe_name(getpass.getuser())
     top_folder_name = encode_topfolder(user_name, "node")
     root_id = tree.insert("", "end", text=user_name, values=(top_folder_name,), open=True)
+
+    # --- Панель свойств верхней папки ---
+    props = ttk.LabelFrame(tab4, text="Свойства TOP папки")
+    props.grid(
+        row=0,
+        column=0,
+        columnspan=8,
+        sticky="ew",
+        padx=ui_const.PADDING,
+        pady=(ui_const.PADDING, 0),
+    )
+    props.columnconfigure(1, weight=1)
+
+    ttk.Label(props, text="user_name:").grid(row=0, column=0, sticky="w")
+    user_var = tk.StringVar(value=user_name)
+    user_entry = ttk.Entry(props, textvariable=user_var)
+    user_entry.grid(row=0, column=1, sticky="ew")
+
+    ttk.Label(props, text="entity_kind:").grid(row=1, column=0, sticky="w")
+    entity_var = tk.StringVar(value="node")
+    entity_box = ttk.Combobox(
+        props, textvariable=entity_var, values=("element", "node"), state="readonly"
+    )
+    entity_box.grid(row=1, column=1, sticky="ew")
+
+    element_label = ttk.Label(props, text="element_type:")
+    element_var = tk.StringVar(value="beam")
+    element_box = ttk.Combobox(
+        props,
+        textvariable=element_var,
+        values=("beam", "shell", "solid"),
+        state="readonly",
+    )
+
+    ttk.Label(props, text="top_folder:").grid(row=0, column=2, sticky="w", padx=(10, 0))
+    top_var = tk.StringVar(value=top_folder_name)
+    ttk.Label(props, textvariable=top_var).grid(row=0, column=3, sticky="w")
+
+    def update_top_folder(*_):
+        name = user_var.get()
+        kind = entity_var.get()
+        elem = element_var.get() if kind == "element" else None
+        try:
+            new_top = encode_topfolder(name, kind, elem)
+        except Exception:
+            return
+        top_var.set(new_top)
+        tree.item(root_id, text=name, values=(new_top,))
+
+    def on_entity_change(*_):
+        if entity_var.get() == "element":
+            element_label.grid(row=2, column=0, sticky="w")
+            element_box.grid(row=2, column=1, sticky="ew")
+        else:
+            element_label.grid_remove()
+            element_box.grid_remove()
+        update_top_folder()
+
+    user_var.trace_add("write", update_top_folder)
+    element_var.trace_add("write", update_top_folder)
+    entity_var.trace_add("write", on_entity_change)
+
+    on_entity_change()
 
     # --- Действия с деревом ---
     def add_node() -> None:
@@ -87,6 +150,15 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             return
         loaded = load_tree(path)
         tree.item(root_id, values=(loaded.top,))
+        try:
+            u, k, e = decode_topfolder(loaded.top)
+        except Exception:
+            messagebox.showerror("Ошибка", "Некорректное имя папки", parent=tab4)
+            return
+        user_var.set(u)
+        entity_var.set(k)
+        if e:
+            element_var.set(e)
 
     def clear_all() -> None:
         for item in tree.get_children(root_id):
@@ -111,7 +183,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     # --- Панель кнопок ---
     btn_frame = ttk.Frame(tab4)
-    btn_frame.grid(row=1, column=0, columnspan=8, sticky="w", padx=ui_const.PADDING)
+    btn_frame.grid(row=2, column=0, columnspan=8, sticky="w", padx=ui_const.PADDING)
 
     ttk.Button(btn_frame, text="+", width=3, command=add_node).pack(side=tk.LEFT)
     ttk.Button(btn_frame, text="−", width=3, command=remove_node).pack(
@@ -132,7 +204,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     # --- Путь к .cfile ---
     cfile_frame = ttk.Frame(tab4)
     cfile_frame.grid(
-        row=2,
+        row=3,
         column=0,
         columnspan=8,
         sticky="ew",
@@ -151,7 +223,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     # --- Путь к папке Curves ---
     curves_frame = ttk.Frame(tab4)
     curves_frame.grid(
-        row=3,
+        row=4,
         column=0,
         columnspan=8,
         sticky="ew",

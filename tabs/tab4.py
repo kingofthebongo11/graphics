@@ -16,6 +16,7 @@ from tabs.function4tabs4.tree_io import load_tree, save_tree
 from topfolder_codec import decode_topfolder, encode_topfolder
 from ui import constants as ui_const
 from widgets import create_text, select_path
+from curves_pipeline import build_curves_report
 
 
 class NumberInputDialog(simpledialog.Dialog):
@@ -287,7 +288,27 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         if not path:
             messagebox.showerror("Ошибка", "Укажите папку для кривых", parent=tab4)
             return
-        messagebox.showinfo("Готово", f"Графики сформированы в {path}", parent=tab4)
+
+        root = Path(path)
+        if not root.exists():
+            messagebox.showerror("Ошибка", f"Папка {path} не найдена", parent=tab4)
+            return
+
+        docx_path, errors = build_curves_report(root)
+        if errors:
+            error_file = root / "errors.log"
+            error_file.write_text("\n".join(errors), encoding="utf-8")
+            messagebox.showwarning(
+                "Готово с ошибками",
+                f"Возникли ошибки. См. {error_file}",
+                parent=tab4,
+            )
+        else:
+            messagebox.showinfo(
+                "Готово",
+                f"Отчёт сформирован: {docx_path}",
+                parent=tab4,
+            )
 
     # --- Панель кнопок ---
     btn_frame = ttk.Frame(tab4)

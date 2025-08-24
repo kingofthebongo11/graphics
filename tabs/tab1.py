@@ -102,7 +102,7 @@ def on_combo_changeX_Y_labels(
         logger.debug("Показ поля ввода для пользовательской величины")
         if not entry.winfo_ismapped():
             entry.place(
-                x=combo.winfo_x() + ui_const.LABEL_SIZE_OFFSET,
+                x=ui_const.AXIS_ENTRY_X,
                 y=combo.winfo_y(),
                 width=ui_const.ENTRY_WIDTH,
             )
@@ -125,7 +125,7 @@ def on_combo_changeX_Y_labels(
         entry.place_forget()
         size_entry.place_forget()
         label_size.place(
-            x=combo.winfo_x() + ui_const.LABEL_SIZE_OFFSET,
+            x=ui_const.AXIS_LABEL_SIZE_X,
             y=combo.winfo_y(),
         )
         values = units_mapping.get(selection, [])
@@ -133,7 +133,7 @@ def on_combo_changeX_Y_labels(
         size_combo.set("")
         if values:
             size_combo.place(
-                x=combo.winfo_x() + ui_const.SIZE_COMBO_OFFSET,
+                x=ui_const.AXIS_UNIT_X,
                 y=combo.winfo_y(),
                 width=ui_const.SIZE_COMBO_WIDTH,
             )
@@ -155,7 +155,7 @@ def on_unit_change(size_combo: ttk.Combobox, size_entry: tk.Entry) -> None:
     if selection == "Другое":
         size_combo.place_forget()
         size_entry.place(
-            x=size_combo.winfo_x(),
+            x=ui_const.AXIS_UNIT_X,
             y=size_combo.winfo_y(),
             width=ui_const.SIZE_COMBO_WIDTH,
         )
@@ -215,13 +215,13 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         entry.place_forget()
         size_label = ttk.Label(parent, text="Выберите размерность:")
         size_label.place(
-            x=combo.winfo_x() + ui_const.LABEL_SIZE_OFFSET,
+            x=ui_const.AXIS_LABEL_SIZE_X,
             y=combo.winfo_y(),
         )
         size_label.place_forget()
         size_combo = ttk.Combobox(parent, values=[], state="readonly")
         size_combo.place(
-            x=combo.winfo_x() + ui_const.SIZE_COMBO_OFFSET,
+            x=ui_const.AXIS_UNIT_X,
             y=combo.winfo_y(),
             width=ui_const.SIZE_COMBO_WIDTH,
         )
@@ -230,7 +230,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             parent, method="entry", height=1, state="normal", scrollbar=False
         )
         size_entry.place(
-            x=combo.winfo_x() + ui_const.SIZE_COMBO_OFFSET,
+            x=ui_const.AXIS_UNIT_X,
             y=combo.winfo_y(),
             width=ui_const.SIZE_COMBO_WIDTH,
         )

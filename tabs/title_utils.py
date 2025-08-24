@@ -54,10 +54,10 @@ _GREEK_MAP = {
 
 
 _LETTER_RANGE = r"A-Za-z\u0370-\u03FF"
-_INDEX_BODY = rf"(?:{{[^}}]+}}|[{_LETTER_RANGE}0-9]+)"
+_INDEX_BODY = rf"(?:{{(?:[^{{}}]|{{[^{{}}]*}})*}}|[{_LETTER_RANGE}0-9]+)"
 _TOKEN_PATTERN = re.compile(
-    rf"(?<![{_LETTER_RANGE}0-9])"
-    rf"([{_LETTER_RANGE}])"
+    rf"(?<!\\mathit\\{{)(?<![{_LETTER_RANGE}0-9\\])"
+    rf"(\\up[a-zA-Z]+|[{_LETTER_RANGE}])"
     rf"(?:_({_INDEX_BODY}))?"
     rf"(?:\^({_INDEX_BODY}))?"
     rf"(?![{_LETTER_RANGE}0-9])"
@@ -66,6 +66,9 @@ _TOKEN_PATTERN = re.compile(
 
 def _format_component(token: str) -> str:
     """Преобразовать строку индекса или показателя степени."""
+
+    if "\\" in token:
+        return token
 
     result = []
     for ch in token:
@@ -102,10 +105,16 @@ def _format_signature_impl(text: str, bold: bool) -> str:
         formatted = base_fmt
         if sub:
             sub_token = sub[1:-1] if sub.startswith("{") else sub
-            formatted += f"_{{{_format_component(sub_token)}}}"
+            if "\\" in sub_token:
+                formatted += f"_{{{sub_token}}}"
+            else:
+                formatted += f"_{{{_format_component(sub_token)}}}"
         if sup:
             sup_token = sup[1:-1] if sup.startswith("{") else sup
-            formatted += f"^{{{_format_component(sup_token)}}}"
+            if "\\" in sup_token:
+                formatted += f"^{{{sup_token}}}"
+            else:
+                formatted += f"^{{{_format_component(sup_token)}}}"
 
         if bold:
             formatted = f"\\boldsymbol{{{formatted}}}"

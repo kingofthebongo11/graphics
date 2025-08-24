@@ -1,13 +1,14 @@
 import tkinter as tk
-from tkinter import filedialog
+
+from .dialogs import ask_directory, ask_file
 
 
 def select_path(entry_widget, path_type="folder", saved_data=None):
     """Открывает диалог выбора пути и вставляет его в виджет."""
     if path_type == "folder":
-        selected_path = filedialog.askdirectory()
+        selected_path = ask_directory()
     elif path_type == "file":
-        selected_path = filedialog.askopenfilename()
+        selected_path = ask_file()
     else:
         raise ValueError("Недопустимый тип пути: используйте 'folder' или 'file'.")
 
@@ -15,6 +16,6 @@ def select_path(entry_widget, path_type="folder", saved_data=None):
         entry_widget.delete(0, tk.END)
         entry_widget.insert(0, selected_path)
         if saved_data is not None:
-            key = 'path'
+            key = "path"
             saved_data.update({key: entry_widget.get()})
 

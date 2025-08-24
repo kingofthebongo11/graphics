@@ -18,41 +18,31 @@ from topfolder_codec import decode_topfolder, encode_topfolder
 from ui import constants as ui_const
 from widgets import create_text, select_path
 from curves_pipeline import build_curves_report
+from analysis_types import ANALYSIS_TYPES
 
 
-class NumberInputDialog(simpledialog.Dialog):
-    """Диалог ввода номера элемента или узла.
+class AnalysisTypeDialog(simpledialog.Dialog):
+    """Диалог выбора типа анализа."""
 
-    Разрешает только числовой ввод. При ошибке подсвечивает поле ввода
-    и отображает текст ошибки.
-    """
+    def __init__(self, parent: tk.Misc, title: str, values: list[str]) -> None:
+        self._values = values
+        super().__init__(parent, title)
 
     def body(self, master: tk.Misc) -> tk.Widget:  # pragma: no cover - UI code
-        ttk.Label(master, text="Номер элемента/узла:").grid(
+        ttk.Label(master, text="Тип анализа:").grid(
             row=0, column=0, sticky="w", padx=5, pady=(5, 0)
         )
         self.var = tk.StringVar()
-        self.entry = ttk.Entry(master, textvariable=self.var)
-        self.entry.grid(row=1, column=0, padx=5, pady=5)
-        self.error_label = ttk.Label(master, text="", foreground="red")
-        self.error_label.grid(row=2, column=0, sticky="w", padx=5)
-        self._normal_bg = self.entry.cget("background")
-        self._error_bg = "#ffcccc"
-        self.entry.bind("<KeyRelease>", lambda _e: self._clear_error())
-        return self.entry
+        self.combo = ttk.Combobox(
+            master, textvariable=self.var, values=self._values, state="readonly"
+        )
+        self.combo.grid(row=1, column=0, padx=5, pady=5)
+        if self._values:
+            self.combo.current(0)
+        return self.combo
 
-    def _clear_error(self) -> None:
-        self.entry.configure(background=self._normal_bg)
-        self.error_label.config(text="")
-
-    def validate(self) -> bool:  # pragma: no cover - UI code
-        value = self.var.get().strip()
-        if not value.isdigit():
-            self.entry.configure(background=self._error_bg)
-            self.error_label.config(text="Допустимы только цифры")
-            return False
-        self.result = value
-        return True
+    def apply(self) -> None:  # pragma: no cover - UI code
+        self.result = self.var.get()
 
 
 def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
@@ -159,13 +149,12 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             name = f"TOP_{len(tree.get_children()) + 1}"
             top = encode_topfolder(safe_name(name), "node")
             tree.insert("", "end", text=name, values=(top,), open=True)
-        elif tree.parent(parent) == "":
-            dlg = NumberInputDialog(tab4, title="Добавить элемент/узел")
-            number = dlg.result
-            if number is not None:
-                tree.insert(parent, "end", text=number)
-        else:
-            tree.insert(parent, "end", text="Новый узел")
+            return
+
+        dlg = AnalysisTypeDialog(tab4, title="Выбор типа анализа", values=ANALYSIS_TYPES)
+        choice = dlg.result
+        if choice:
+            tree.insert(parent, "end", text=choice)
 
     def remove_node() -> None:
         for item in tree.selection():

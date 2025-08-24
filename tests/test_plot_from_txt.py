@@ -8,7 +8,7 @@ from analysis_types import AnalysisType
 def test_extract_labels():
     x, y = extract_labels(AnalysisType.TIME_AXIAL_FORCE.value)
     assert x == "Время"
-    assert y == "Продольное усилие"
+    assert y == "Продольная сила"
 
 
 def test_plot_from_txt(tmp_path):

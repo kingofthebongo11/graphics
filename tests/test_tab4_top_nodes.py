@@ -4,6 +4,7 @@ from tkinter import ttk
 
 import tabs.tab4 as tab4mod
 from tabs.tab4 import create_tab4
+from topfolder_codec import encode_topfolder
 
 
 def _create_app():
@@ -23,23 +24,32 @@ def test_add_rename_remove_top_nodes(monkeypatch):
 
     start = len(tree.get_children())
 
-    class DummySectionDialog:
-        def __init__(self, _parent, tree_widget, item=None):
-            if item:
-                tree_widget.item(item, text="Renamed")
-            else:
-                tree_widget.insert("", "end", text="Added")
-            self.result = "ok"
+    add_params = {"name": "top", "kind": "node", "elem": None}
+    rename_params = {"name": "new", "kind": "element", "elem": "beam"}
 
-    monkeypatch.setattr(tab4mod, "SectionDialog", DummySectionDialog)
+    def _make_dialog(params):
+        class DummySectionDialog:
+            def __init__(self, _parent, tree_widget, item=None):
+                text = encode_topfolder(
+                    params["name"], params["kind"], params["elem"]
+                )
+                if item:
+                    tree_widget.item(item, text=text)
+                else:
+                    tree_widget.insert("", "end", text=text)
+                self.result = text
 
+        return DummySectionDialog
+
+    monkeypatch.setattr(tab4mod, "SectionDialog", _make_dialog(add_params))
     tab.add_node()
-    assert len(tree.get_children()) == start + 1
-
     new_item = tree.get_children()[-1]
+    assert tree.item(new_item, "text") == encode_topfolder(**add_params)
+
     tree.selection_set(new_item)
+    monkeypatch.setattr(tab4mod, "SectionDialog", _make_dialog(rename_params))
     tab.rename_node()
-    assert tree.item(new_item, "text") == "Renamed"
+    assert tree.item(new_item, "text") == encode_topfolder(**rename_params)
 
     tab.remove_node()
     assert len(tree.get_children()) == start

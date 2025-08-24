@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-import logging
+from logging_utils import setup_logging
 
 from tabs.tab4 import create_tab4
 from tabs.tab3 import create_tab3
@@ -42,5 +42,5 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    setup_logging()
     main()

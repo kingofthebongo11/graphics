@@ -1,4 +1,4 @@
-import logging
+from logging_utils import get_logger
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk, messagebox
 from typing import List, Tuple
@@ -15,7 +15,7 @@ from .constants import (
 from ui import constants as ui_const
 
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def on_title_combo_change(

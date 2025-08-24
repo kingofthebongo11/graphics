@@ -187,7 +187,7 @@ def create_plot(
             ax.xaxis.get_offset_text().set_visible(False)
             try:
                 ax.set_xlabel(
-                    f"{x_label}, ({x_offset})",
+                    f"{x_label} ({x_offset})",
                     fontweight="normal",
                     fontstyle="normal",
                     fontsize=LABEL_SIZE,
@@ -195,7 +195,7 @@ def create_plot(
                 )
             except RuntimeError:
                 ax.set_xlabel(
-                    f"{x_label}, ({x_offset})",
+                    f"{x_label} ({x_offset})",
                     fontweight="normal",
                     fontstyle="normal",
                     fontsize=LABEL_SIZE,
@@ -206,7 +206,7 @@ def create_plot(
             ax.yaxis.get_offset_text().set_visible(False)
             try:
                 ax.set_ylabel(
-                    rf"{y_label}, ({y_offset})",
+                    rf"{y_label} ({y_offset})",
                     fontweight="normal",
                     fontstyle="normal",
                     fontsize=LABEL_SIZE,
@@ -214,7 +214,7 @@ def create_plot(
                 )
             except RuntimeError:
                 ax.set_ylabel(
-                    f"{y_label}, ({y_offset})",
+                    f"{y_label} ({y_offset})",
                     fontweight="normal",
                     fontstyle="normal",
                     fontsize=LABEL_SIZE,

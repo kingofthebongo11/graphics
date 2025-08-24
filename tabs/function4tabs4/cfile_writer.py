@@ -3,18 +3,16 @@
 from __future__ import annotations
 
 from pathlib import Path
-import os
 
 
-def write_cfile(commands: list[str], out_path: str | os.PathLike[str] | bytes) -> Path:
+def write_cfile(commands: list[str], out_path: Path) -> Path:
     """Записать ``commands`` в файл ``out_path``."""
-    dest = Path(os.fsdecode(out_path))
     try:
-        with dest.open("w", encoding="utf-8", newline="\r\n") as file:
+        with out_path.open("w", encoding="utf-8", newline="\r\n") as file:
             file.write("\n".join(commands) + "\n")
     except OSError as exc:
-        raise RuntimeError(f"Не удалось записать файл {dest}") from exc
-    return dest
+        raise RuntimeError(f"Не удалось записать файл {out_path}") from exc
+    return out_path
 
 
 __all__ = ["write_cfile"]

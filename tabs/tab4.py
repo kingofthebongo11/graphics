@@ -61,8 +61,15 @@ class SectionDialog(simpledialog.Dialog):
             row=0, column=0, sticky="w", padx=5, pady=(5, 0)
         )
         self.name_var = tk.StringVar()
-        entry = ttk.Entry(master, textvariable=self.name_var)
-        entry.grid(row=0, column=1, sticky="ew", padx=5, pady=(5, 0))
+        self.name_box = ttk.Combobox(
+            master,
+            textvariable=self.name_var,
+            values=["Колонна", "Плита", "Стена", "Балка"],
+            state="readonly",
+        )
+        self.name_box.grid(row=0, column=1, sticky="ew", padx=5, pady=(5, 0))
+        if self.name_box["values"]:
+            self.name_box.current(0)
 
         ttk.Label(master, text="Тип").grid(
             row=1, column=0, sticky="w", padx=5, pady=(5, 0)
@@ -125,19 +132,28 @@ class SectionDialog(simpledialog.Dialog):
                 u, k, e = decode_topfolder(self._tree.item(self._item, "text"))
             except Exception:
                 u, k, e = "", "node", None
+            values = list(self.name_box["values"])
+            if u in values:
+                self.name_box.current(values.index(u))
+            else:
+                values.append(u)
+                self.name_box["values"] = values
+                self.name_box.set(u)
             self.name_var.set(u)
             self.entity_var.set(k)
             if e:
                 self.element_var.set(e)
-        else:
-            self.name_var.set(safe_name(getpass.getuser()))
 
         on_entity_change()
-        return entry
+        return self.name_box
 
     def apply(self) -> None:  # pragma: no cover - UI code
-        text = self.top_var.get()
-        if not text:
+        name = safe_name(self.name_var.get())
+        kind = self.entity_var.get()
+        elem = self.element_var.get() if kind == "element" else None
+        try:
+            text = encode_topfolder(name, kind, elem)
+        except Exception:
             return
         if self._item:
             self._tree.item(self._item, text=text)

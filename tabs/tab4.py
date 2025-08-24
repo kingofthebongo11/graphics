@@ -52,10 +52,8 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     notebook.add(tab4, text="Вкладка 4")
 
     # --- Дерево с верхним узлом пользователя ---
-    tree = ttk.Treeview(tab4, columns=("top_folder",), show="tree headings")
-    tree.heading("#0", text="Название раздела")
-    tree.heading("top_folder", text="TOP папка")
-    tree.column("top_folder", width=200)
+    tree = ttk.Treeview(tab4, show="tree")
+    tree.heading("#0", text="Полное имя")
     tree.grid(
         row=1,
         column=0,
@@ -74,7 +72,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     user_name = safe_name(getpass.getuser())
     top_folder_name = encode_topfolder(user_name, "node")
-    root_id = tree.insert("", "end", text=user_name, values=(top_folder_name,), open=True)
+    root_id = tree.insert("", "end", text=top_folder_name, open=True)
     tab4.tree = tree  # type: ignore[attr-defined]
 
     # --- Панель свойств верхней папки ---
@@ -123,9 +121,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         except Exception:
             return
         top_var.set(new_top)
-        tree.item(root_id, text=name, values=(new_top,))
-        for child in tree.get_children(root_id):
-            tree.set(child, "top_folder", new_top)
+        tree.item(root_id, text=new_top)
 
     def on_entity_change(*_):
         if entity_var.get() == "element":
@@ -148,7 +144,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         if parent == "":
             name = f"TOP_{len(tree.get_children()) + 1}"
             top = encode_topfolder(safe_name(name), "node")
-            tree.insert("", "end", text=name, values=(top,), open=True)
+            tree.insert("", "end", text=top, open=True)
             return
 
         dlg = AnalysisTypeDialog(tab4, title="Выбор типа анализа", values=ANALYSIS_TYPES)
@@ -184,7 +180,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         )
         if not path:
             return
-        data = [Tree(top=tree.item(i, "values")[0]).to_dict() for i in tree.get_children()]
+        data = [Tree(top=tree.item(i, "text")).to_dict() for i in tree.get_children()]
         Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def load_tree_action() -> None:
@@ -205,7 +201,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             except Exception:
                 messagebox.showerror("Ошибка", "Некорректное имя папки", parent=tab4)
                 continue
-            iid = tree.insert("", "end", text=u, values=(t.top,), open=True)
+            iid = tree.insert("", "end", text=t.top, open=True)
             if not new_root:
                 new_root = iid
                 user_var.set(u)

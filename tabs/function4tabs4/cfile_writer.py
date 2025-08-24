@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .command_all import collect_commands
-from .tree_schema import Tree
 
-
-def write_cfile(tree: Tree, path: str | Path) -> Path:
-    """Записать команды из ``tree`` в файл ``path``."""
-    commands = collect_commands(tree)
-    dest = Path(path)
-    dest.write_text("\n".join(commands) + "\n", encoding="utf-8")
+def write_cfile(commands: list[str], out_path: str) -> Path:
+    """Записать ``commands`` в файл ``out_path``."""
+    dest = Path(out_path)
+    try:
+        with dest.open("w", encoding="utf-8", newline="\r\n") as file:
+            file.write("\n".join(commands) + "\n")
+    except OSError as exc:
+        raise RuntimeError(f"Не удалось записать файл {dest}") from exc
     return dest
 
 

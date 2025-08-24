@@ -367,12 +367,12 @@ TITLE_TRANSLATIONS = {
         "Английский": r"Elongation $\Delta \mathit{l}_{\mathit{z}}$",
     },
     "Деформация": {
-        "Русский": r"Деформация $\mathit{\varepsilon}$",
-        "Английский": r"Strain $\mathit{\varepsilon}$",
+        "Русский": r"Деформация \upvarepsilon",
+        "Английский": r"Strain \upvarepsilon",
     },
     "Пластическая деформация": {
-        "Русский": r"Пластическая деформация $\mathit{\varepsilon}_{\mathit{p}}$",
-        "Английский": r"Plastic strain $\mathit{\varepsilon}_{\mathit{p}}$",
+        "Русский": r"Пластическая деформация \upvarepsilon_{\mathit{p}}",
+        "Английский": r"Plastic strain \upvarepsilon_{\mathit{p}}",
     },
     "Сила": {"Русский": r"Сила $\mathit{F}$", "Английский": r"Force $\mathit{F}$"},
     "Продольная сила": {
@@ -393,48 +393,48 @@ TITLE_TRANSLATIONS = {
     },
     "Масса": {"Русский": r"Масса $\mathit{m}$", "Английский": r"Mass $\mathit{m}$"},
     "Напряжение": {
-        "Русский": r"Напряжение $\mathit{\sigma}$",
-        "Английский": r"Stress $\mathit{\sigma}$",
+        "Русский": r"Напряжение \upsigma",
+        "Английский": r"Stress \upsigma",
     },
     "Интенсивность напряжений": {
-        "Русский": r"Интенсивность напряжений $\mathit{\sigma}_{\mathit{i}}$",
-        "Английский": r"Stress intensity $\mathit{\sigma}_{\mathit{i}}$",
+        "Русский": r"Интенсивность напряжений \upsigma_{\mathit{i}}",
+        "Английский": r"Stress intensity \upsigma_{\mathit{i}}",
     },
     "Нормальное напряжение X": {
-        "Русский": r"Нормальное напряжение $\mathit{\sigma}_{\mathit{x}}$",
-        "Английский": r"Normal stress $\mathit{\sigma}_{\mathit{x}}$",
+        "Русский": r"Нормальное напряжение \upsigma_{\mathit{x}}",
+        "Английский": r"Normal stress \upsigma_{\mathit{x}}",
     },
     "Нормальное напряжение Y": {
-        "Русский": r"Нормальное напряжение $\mathit{\sigma}_{\mathit{y}}$",
-        "Английский": r"Normal stress $\mathit{\sigma}_{\mathit{y}}$",
+        "Русский": r"Нормальное напряжение \upsigma_{\mathit{y}}",
+        "Английский": r"Normal stress \upsigma_{\mathit{y}}",
     },
     "Нормальное напряжение Z": {
-        "Русский": r"Нормальное напряжение $\mathit{\sigma}_{\mathit{z}}$",
-        "Английский": r"Normal stress $\mathit{\sigma}_{\mathit{z}}$",
+        "Русский": r"Нормальное напряжение \upsigma_{\mathit{z}}",
+        "Английский": r"Normal stress \upsigma_{\mathit{z}}",
     },
     "Касательное напряжение XY": {
-        "Русский": r"Касательное напряжение $\mathit{\tau}_{\mathit{x}\mathit{y}}$",
-        "Английский": r"Shear stress $\mathit{\tau}_{\mathit{x}\mathit{y}}$",
+        "Русский": r"Касательное напряжение \uptau_{\mathit{x}\mathit{y}}",
+        "Английский": r"Shear stress \uptau_{\mathit{x}\mathit{y}}",
     },
     "Касательное напряжение XZ": {
-        "Русский": r"Касательное напряжение $\mathit{\tau}_{\mathit{x}\mathit{z}}$",
-        "Английский": r"Shear stress $\mathit{\tau}_{\mathit{x}\mathit{z}}$",
+        "Русский": r"Касательное напряжение \uptau_{\mathit{x}\mathit{z}}",
+        "Английский": r"Shear stress \uptau_{\mathit{x}\mathit{z}}",
     },
     "Касательное напряжение YX": {
-        "Русский": r"Касательное напряжение $\mathit{\tau}_{\mathit{y}\mathit{x}}$",
-        "Английский": r"Shear stress $\mathit{\tau}_{\mathit{y}\mathit{x}}$",
+        "Русский": r"Касательное напряжение \uptau_{\mathit{y}\mathit{x}}",
+        "Английский": r"Shear stress \uptau_{\mathit{y}\mathit{x}}",
     },
     "Касательное напряжение YZ": {
-        "Русский": r"Касательное напряжение $\mathit{\tau}_{\mathit{y}\mathit{z}}$",
-        "Английский": r"Shear stress $\mathit{\tau}_{\mathit{y}\mathit{z}}$",
+        "Русский": r"Касательное напряжение \uptau_{\mathit{y}\mathit{z}}",
+        "Английский": r"Shear stress \uptau_{\mathit{y}\mathit{z}}",
     },
     "Касательное напряжение ZX": {
-        "Русский": r"Касательное напряжение $\mathit{\tau}_{\mathit{z}\mathit{x}}$",
-        "Английский": r"Shear stress $\mathit{\tau}_{\mathit{z}\mathit{x}}$",
+        "Русский": r"Касательное напряжение \uptau_{\mathit{z}\mathit{x}}",
+        "Английский": r"Shear stress \uptau_{\mathit{z}\mathit{x}}",
     },
     "Касательное напряжение ZY": {
-        "Русский": r"Касательное напряжение $\mathit{\tau}_{\mathit{z}\mathit{y}}$",
-        "Английский": r"Shear stress $\mathit{\tau}_{\mathit{z}\mathit{y}}$",
+        "Русский": r"Касательное напряжение \uptau_{\mathit{z}\mathit{y}}",
+        "Английский": r"Shear stress \uptau_{\mathit{z}\mathit{y}}",
     },
     "Крутящий момент Mx": {
         "Русский": r"Крутящий момент $\mathit{M}_{\mathit{x}}$",
@@ -471,7 +471,7 @@ TITLES_SYMBOLS = {key: value.copy() for key, value in TITLE_TRANSLATIONS.items()
 
 # Заголовки графиков — жирный курсив
 TITLE_TRANSLATIONS_BOLD = {
-    key: {lang: re.sub(r"\\mathit\{([^}]*)\}", r"\\boldsymbol{\\mathit{\1}}", text)
+    key: {lang: re.sub(r"(\\mathit{[^}]+}|\\up[a-zA-Z]+)", r"\\boldsymbol{\1}", text)
           for lang, text in value.items()}
     for key, value in TITLE_TRANSLATIONS.items()
 }

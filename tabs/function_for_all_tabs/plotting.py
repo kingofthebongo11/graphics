@@ -1,5 +1,6 @@
 import logging
 import warnings
+import re
 from typing import Any, Dict, List, Optional
 
 import matplotlib.pyplot as plt
@@ -94,7 +95,8 @@ def create_plot(
             (title, "заголовке"),
         ):
             try:
-                parser.parse(text)
+                text_to_check = re.sub(r"\\up([a-zA-Z]+)", r"\\\1", text)
+                parser.parse(text_to_check)
             except ValueError as exc:
                 message = f"Некорректная LaTeX-формула в {desc}: {text}"
                 logger.error(message)

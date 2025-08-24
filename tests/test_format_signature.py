@@ -36,3 +36,10 @@ def test_bold_true():
     result = format_signature('Сила F_x', bold=True)
     _parse_or_fail(result)
     assert result == r"\textbf{Сила }$\boldsymbol{\mathit{F}_{\mathit{x}}}$"
+
+
+def test_no_nested_dollars_existing_indices():
+    text = 'Касательное напряжение \\uptau_{\\mathit{x}\\mathit{y}}'
+    result = format_signature(text, bold=False)
+    _parse_or_fail(result.replace('\\uptau', '\\tau'))
+    assert result == 'Касательное напряжение $\\uptau_{\\mathit{x}\\mathit{y}}$'

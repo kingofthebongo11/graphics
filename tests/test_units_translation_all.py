@@ -25,14 +25,29 @@ class ComboStub:
 @pytest.mark.parametrize(
     "quantity,pairs",
     [
-        ("Время", TIME_UNIT_PAIRS),
-        ("Перемещение по X", LENGTH_UNIT_PAIRS),
-        ("Деформация", [(ru, en) for ru, en in DEFORMATION_UNIT_PAIRS if ru != "—"]),
-        ("Сила", FORCE_UNIT_PAIRS),
-        ("Масса", MASS_UNIT_PAIRS),
-        ("Напряжение", STRESS_UNITS_PAIRS),
-        ("Крутящий момент Mx", MOMENT_UNIT_PAIRS),
-        ("Частота 1", FREQUENCY_UNIT_PAIRS),
+        ("Время", [(ru, en) for ru, en in TIME_UNIT_PAIRS if ru != "Нет"]),
+        (
+            "Перемещение по X",
+            [(ru, en) for ru, en in LENGTH_UNIT_PAIRS if ru != "Нет"],
+        ),
+        (
+            "Деформация",
+            [(ru, en) for ru, en in DEFORMATION_UNIT_PAIRS if ru != "Нет"],
+        ),
+        ("Сила", [(ru, en) for ru, en in FORCE_UNIT_PAIRS if ru != "Нет"]),
+        ("Масса", [(ru, en) for ru, en in MASS_UNIT_PAIRS if ru != "Нет"]),
+        (
+            "Напряжение",
+            [(ru, en) for ru, en in STRESS_UNITS_PAIRS if ru != "Нет"],
+        ),
+        (
+            "Крутящий момент Mx",
+            [(ru, en) for ru, en in MOMENT_UNIT_PAIRS if ru != "Нет"],
+        ),
+        (
+            "Частота 1",
+            [(ru, en) for ru, en in FREQUENCY_UNIT_PAIRS if ru != "Нет"],
+        ),
     ],
 )
 def test_units_translation(quantity, pairs):

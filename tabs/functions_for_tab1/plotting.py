@@ -59,7 +59,7 @@ class TitleProcessor:
         if self.combo_size is None:
             return ""
         unit_ru = self.combo_size.get()
-        if unit_ru in ("", "—"):
+        if unit_ru in ("", "Нет"):
             return ""
         ru, _ = self._get_ru_en_quantity()
         unit = unit_ru
@@ -67,7 +67,7 @@ class TitleProcessor:
             units_dict = UNITS_TRANSLATION.get(ru)
             if units_dict:
                 unit = units_dict.get(unit_ru, unit_ru)
-        if unit in ("", "—"):
+        if unit in ("", "None"):
             return ""
         return f", {unit}"
 

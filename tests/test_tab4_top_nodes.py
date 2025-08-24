@@ -5,6 +5,7 @@ from tkinter import ttk
 import tabs.tab4 as tab4mod
 from tabs.tab4 import create_tab4
 from topfolder_codec import encode_topfolder
+from analysis_types import ANALYSIS_TYPES_BY_ELEMENT
 
 
 def _create_app():
@@ -53,4 +54,34 @@ def test_add_rename_remove_top_nodes(monkeypatch):
 
     tab.remove_node()
     assert len(tree.get_children()) == start
+    root.destroy()
+
+
+def test_analysis_types_dependent_on_element_type(monkeypatch):
+    root, tab = _create_app()
+    tree = tab.tree
+
+    captured: list[list[str]] = []
+
+    class DummyDialog:
+        def __init__(self, _parent, title, values):  # noqa: D401
+            captured.append(values)
+            self.result = None
+
+    monkeypatch.setattr(tab4mod, "AnalysisTypeDialog", DummyDialog)
+
+    beam_top = tree.insert(
+        "", "end", text=encode_topfolder("b", "element", "beam")
+    )
+    tree.selection_set(beam_top)
+    tab.add_node()
+
+    shell_top = tree.insert(
+        "", "end", text=encode_topfolder("s", "element", "shell")
+    )
+    tree.selection_set(shell_top)
+    tab.add_node()
+
+    assert captured[0] == ANALYSIS_TYPES_BY_ELEMENT["beam"]
+    assert captured[1] == ANALYSIS_TYPES_BY_ELEMENT["shell"]
     root.destroy()

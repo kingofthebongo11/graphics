@@ -1,5 +1,6 @@
 import pytest
 from tabs.tab1 import on_combo_changeX_Y_labels
+from tabs.constants import UNITS_MAPPING, DEFAULT_UNITS
 
 
 class ComboStub:
@@ -14,8 +15,13 @@ class ComboStub:
 
 
 class EntryStub:
+    placed = False
+
+    def place(self, *args, **kwargs):
+        self.placed = True
+
     def place_forget(self):
-        pass
+        self.placed = False
 
 
 class LabelStub:
@@ -31,12 +37,13 @@ class SizeComboStub:
         self.current_index = None
         self.placed = False
     def __setitem__(self, key, value):
-        if key == 'values':
+        if key == "values":
             self.values = value
     def set(self, value):
         pass
     def place(self, *args, **kwargs):
         self.placed = True
+
     def place_forget(self):
         self.placed = False
     def current(self, index):
@@ -52,72 +59,31 @@ def _call(selection):
     entry = EntryStub()
     label = LabelStub()
     size_combo = SizeComboStub()
-    on_combo_changeX_Y_labels(combo, entry, label, size_combo)
+    size_entry = EntryStub()
+    on_combo_changeX_Y_labels(combo, entry, label, size_combo, size_entry)
     return size_combo.values, size_combo.current_index
 
 
 @pytest.mark.parametrize(
-    "selection,expected_values,expected_index",
+    "selection",
     [
-        ("Пластическая деформация", ["%", "—"], 1),
-        (
-            "Интенсивность пластических деформаций",
-            ["%", "—"],
-            1,
-        ),
-        (
-            "Интенсивность напряжений",
-            [
-                "МН/м²",
-                "МН/мм²",
-                "МН/см²",
-                "МПа",
-                "Н/м²",
-                "Н/мм²",
-                "Н/см²",
-                "Па",
-                "кН/м²",
-                "кН/мм²",
-                "кН/см²",
-                "кПа",
-                "кгс/м²",
-                "кгс/мм²",
-                "кгс/см²",
-                "тс/м²",
-                "тс/см²",
-            ],
-            7,
-        ),
-        ("Сила", ["Н", "кН", "кгс", "мН", "тс"], 0),
-        ("Удлинение по X", ["м", "мм", "см"], 0),
-        (
-            "Крутящий момент Mx",
-            ["Н·м", "кН·м", "кгс·м", "тс·м"],
-            0,
-        ),
-        (
-            "Изгибающий момент Ms (My)",
-            ["Н·м", "кН·м", "кгс·м", "тс·м"],
-            0,
-        ),
-        (
-            "Изгибающий момент My",
-            ["Н·м", "кН·м", "кгс·м", "тс·м"],
-            0,
-        ),
-        (
-            "Изгибающий момент Mt (Mz)",
-            ["Н·м", "кН·м", "кгс·м", "тс·м"],
-            0,
-        ),
-        (
-            "Изгибающий момент Mz",
-            ["Н·м", "кН·м", "кгс·м", "тс·м"],
-            0,
-        ),
+        "Пластическая деформация",
+        "Интенсивность пластических деформаций",
+        "Интенсивность напряжений",
+        "Сила",
+        "Удлинение по X",
+        "Крутящий момент Mx",
+        "Изгибающий момент Ms (My)",
+        "Изгибающий момент My",
+        "Изгибающий момент Mt (Mz)",
+        "Изгибающий момент Mz",
     ],
 )
-def test_units_for_new_physical_quantities(selection, expected_values, expected_index):
+def test_units_for_new_physical_quantities(selection):
     values, index = _call(selection)
+    expected_values = UNITS_MAPPING[selection]
+    expected_index = expected_values.index(DEFAULT_UNITS[selection])
     assert values == expected_values
     assert index == expected_index
+    assert values[0] == "Нет"
+    assert values[-1] == "Другое"

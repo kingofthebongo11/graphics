@@ -83,6 +83,7 @@ def on_combo_changeX_Y_labels(
     entry: tk.Entry,
     label_size: ttk.Label,
     size_combo: ttk.Combobox,
+    size_entry: tk.Entry,
 ) -> None:
     """
     Обрабатывает выбор в комбобоксе для осей:
@@ -108,6 +109,7 @@ def on_combo_changeX_Y_labels(
             entry.config(state="normal")
         label_size.place_forget()
         size_combo.place_forget()
+        size_entry.place_forget()
         size_combo["values"] = []
         size_combo.set("")
     elif selection == none_label:
@@ -115,11 +117,13 @@ def on_combo_changeX_Y_labels(
         entry.place_forget()
         label_size.place_forget()
         size_combo.place_forget()
+        size_entry.place_forget()
         size_combo["values"] = []
         size_combo.set("")
     else:
         logger.debug("Выбрана стандартная величина: %s", selection)
         entry.place_forget()
+        size_entry.place_forget()
         label_size.place(
             x=combo.winfo_x() + ui_const.LABEL_SIZE_OFFSET,
             y=combo.winfo_y(),
@@ -139,6 +143,26 @@ def on_combo_changeX_Y_labels(
         else:
             size_combo.place_forget()
 
+
+def on_unit_change(size_combo: ttk.Combobox, size_entry: tk.Entry) -> None:
+    """Обрабатывает выбор единицы измерения.
+
+    При выборе «Другое» скрывает комбобокс и показывает поле ввода.
+    При выборе «Нет» скрывает поле ввода.
+    """
+
+    selection = size_combo.get()
+    if selection == "Другое":
+        size_combo.place_forget()
+        size_entry.place(
+            x=size_combo.winfo_x(),
+            y=size_combo.winfo_y(),
+            width=ui_const.SIZE_COMBO_WIDTH,
+        )
+    elif selection == "Нет":
+        size_entry.place_forget()
+    else:
+        size_entry.place_forget()
 
 def create_tab1(notebook: ttk.Notebook) -> None:
     """Создает первую вкладку для построения графика.
@@ -169,7 +193,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         label_text: str,
         options: List[str],
         y_pos: int,
-    ) -> Tuple[ttk.Combobox, tk.Entry, ttk.Label, ttk.Combobox]:
+    ) -> Tuple[ttk.Combobox, tk.Entry, ttk.Label, ttk.Combobox, tk.Entry]:
         logger.debug("Добавление элементов управления для %s", label_text)
         label = ttk.Label(parent, text=label_text)
         label.place(x=ui_const.PADDING, y=y_pos)
@@ -202,13 +226,26 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             width=ui_const.SIZE_COMBO_WIDTH,
         )
         size_combo.place_forget()
+        size_entry = create_text(
+            parent, method="entry", height=1, state="normal", scrollbar=False
+        )
+        size_entry.place(
+            x=combo.winfo_x() + ui_const.SIZE_COMBO_OFFSET,
+            y=combo.winfo_y(),
+            width=ui_const.SIZE_COMBO_WIDTH,
+        )
+        size_entry.place_forget()
         combo.bind(
             "<<ComboboxSelected>>",
             lambda e: on_combo_changeX_Y_labels(
-                combo, entry, size_label, size_combo
+                combo, entry, size_label, size_combo, size_entry
             ),
         )
-        return combo, entry, size_label, size_combo
+        size_combo.bind(
+            "<<ComboboxSelected>>",
+            lambda e: on_unit_change(size_combo, size_entry),
+        )
+        return combo, entry, size_label, size_combo, size_entry
 
     # Поле для заголовка графика
     label_title = ttk.Label(
@@ -273,21 +310,29 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     )
 
     # Поля для осей X и Y, используя список физических величин
-    combo_titleX, path_entry_titleX, label_titleX_size, combo_titleX_size = (
-        add_axis_control(
-            input_frame,
-            "Выберите величину для оси X:",
-            PHYSICAL_QUANTITIES,
-            ui_const.LINE_HEIGHT * 2,
-        )
+    (
+        combo_titleX,
+        path_entry_titleX,
+        label_titleX_size,
+        combo_titleX_size,
+        combo_titleX_size_entry,
+    ) = add_axis_control(
+        input_frame,
+        "Выберите величину для оси X:",
+        PHYSICAL_QUANTITIES,
+        ui_const.LINE_HEIGHT * 2,
     )
-    combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size = (
-        add_axis_control(
-            input_frame,
-            "Выберите величину для оси Y:",
-            PHYSICAL_QUANTITIES,
-            ui_const.LINE_HEIGHT * 3,
-        )
+    (
+        combo_titleY,
+        path_entry_titleY,
+        label_titleY_size,
+        combo_titleY_size,
+        combo_titleY_size_entry,
+    ) = add_axis_control(
+        input_frame,
+        "Выберите величину для оси Y:",
+        PHYSICAL_QUANTITIES,
+        ui_const.LINE_HEIGHT * 3,
     )
     combo_title.bind(
         "<<ComboboxSelected>>",
@@ -299,10 +344,18 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     def on_language_change(event=None) -> None:
         on_title_combo_change(combo_title, entry_title_custom, title_var)
         on_combo_changeX_Y_labels(
-            combo_titleX, path_entry_titleX, label_titleX_size, combo_titleX_size
+            combo_titleX,
+            path_entry_titleX,
+            label_titleX_size,
+            combo_titleX_size,
+            combo_titleX_size_entry,
         )
         on_combo_changeX_Y_labels(
-            combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size
+            combo_titleY,
+            path_entry_titleY,
+            label_titleY_size,
+            combo_titleY_size,
+            combo_titleY_size_entry,
         )
         language = combo_language.get() or "Русский"
         legend_titles = [

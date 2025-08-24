@@ -44,6 +44,7 @@ def sort_unit_pairs(
 
 STRESS_UNITS_PAIRS = sort_unit_pairs(
     [
+        ("Нет", "None"),
         ("Па", "Pa"),
         ("кПа", "kPa"),
         ("МПа", "MPa"),
@@ -61,6 +62,7 @@ STRESS_UNITS_PAIRS = sort_unit_pairs(
         ("кгс/м²", "kgf/m²"),
         ("тс/см²", "tf/cm²"),
         ("тс/м²", "tf/m²"),
+        ("Другое", "Other"),
     ]
 )
 
@@ -68,47 +70,60 @@ STRESS_UNITS = [ru for ru, _ in STRESS_UNITS_PAIRS]
 STRESS_UNITS_EN = [en for _, en in STRESS_UNITS_PAIRS]
 
 TIME_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
     ("мс", "ms"),
     ("с", "s"),
     ("мин", "min"),
     ("ч", "h"),
+    ("Другое", "Other"),
 ])
 
 LENGTH_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
     ("мм", "mm"),
     ("см", "cm"),
     ("м", "m"),
+    ("Другое", "Other"),
 ])
 
 DEFORMATION_UNIT_PAIRS = sort_unit_pairs([
-    ("—", "—"),
+    ("Нет", "None"),
     ("%", "%"),
+    ("Другое", "Other"),
 ])
 
 FORCE_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
     ("мН", "mN"),
     ("Н", "N"),
     ("кН", "kN"),
     ("кгс", "kgf"),
     ("тс", "tf"),
+    ("Другое", "Other"),
 ])
 
 MASS_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
     ("г", "g"),
     ("кг", "kg"),
     ("т", "t"),
+    ("Другое", "Other"),
 ])
 
 MOMENT_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
     ("Н·м", "N·m"),
     ("кН·м", "kN·m"),
     ("кгс·м", "kgf·m"),
     ("тс·м", "tf·m"),
+    ("Другое", "Other"),
 ])
 
 FREQUENCY_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
     ("Гц", "Hz"),
     ("кГц", "kHz"),
+    ("Другое", "Other"),
 ])
 
 
@@ -172,9 +187,9 @@ DEFAULT_UNITS = {
     "Удлинение по X": "м",
     "Удлинение по Y": "м",
     "Удлинение по Z": "м",
-    "Деформация": "—",
-    "Пластическая деформация": "—",
-    "Интенсивность пластических деформаций": "—",
+    "Деформация": "Нет",
+    "Пластическая деформация": "Нет",
+    "Интенсивность пластических деформаций": "Нет",
     "Сила": "Н",
     "Продольная сила": "Н",
     "Поперечная сила": "Н",
@@ -321,9 +336,9 @@ DEFAULT_UNITS_EN = {
     "Elongation X": "m",
     "Elongation Y": "m",
     "Elongation Z": "m",
-    "Strain": "—",
-    "Plastic strain": "—",
-    "Plastic strain intensity": "—",
+    "Strain": "None",
+    "Plastic strain": "None",
+    "Plastic strain intensity": "None",
     "Force": "N",
     "Axial force": "N",
     "Shear force": "N",

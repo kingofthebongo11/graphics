@@ -23,6 +23,7 @@ class TopFolderPanel(ttk.LabelFrame):
         super().__init__(master, text="Свойства", padding=5, **kwargs)
 
         self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
 
         self.user_name_var = tk.StringVar()
         self.entity_kind_var = tk.StringVar(value=self.ENTITY_KINDS[0])
@@ -32,6 +33,10 @@ class TopFolderPanel(ttk.LabelFrame):
         ttk.Label(self, text="user_name").grid(row=0, column=0, sticky="w")
         user_entry = ttk.Entry(self, textvariable=self.user_name_var)
         user_entry.grid(row=0, column=1, sticky="ew")
+        top_entry = ttk.Entry(
+            self, textvariable=self.top_folder_var, state="readonly"
+        )
+        top_entry.grid(row=0, column=2, sticky="ew")
 
         ttk.Label(self, text="entity_kind").grid(row=1, column=0, sticky="w")
         entity_combo = ttk.Combobox(
@@ -40,7 +45,7 @@ class TopFolderPanel(ttk.LabelFrame):
             values=self.ENTITY_KINDS,
             state="readonly",
         )
-        entity_combo.grid(row=1, column=1, sticky="ew")
+        entity_combo.grid(row=1, column=1, columnspan=2, sticky="ew")
 
         self._element_label = ttk.Label(self, text="element_type")
         self._element_combo = ttk.Combobox(
@@ -50,10 +55,7 @@ class TopFolderPanel(ttk.LabelFrame):
             state="readonly",
         )
         self._element_label.grid(row=2, column=0, sticky="w")
-        self._element_combo.grid(row=2, column=1, sticky="ew")
-
-        ttk.Label(self, text="top_folder_name").grid(row=3, column=0, sticky="w")
-        ttk.Label(self, textvariable=self.top_folder_var).grid(row=3, column=1, sticky="w")
+        self._element_combo.grid(row=2, column=1, columnspan=2, sticky="ew")
 
         self.user_name_var.trace_add("write", self._update_name)
         self.entity_kind_var.trace_add("write", self._on_kind_change)

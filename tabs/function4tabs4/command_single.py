@@ -8,23 +8,27 @@ from pathlib import PureWindowsPath
 from .naming import safe_name
 
 
+ETYPE = 1
+ETIME = 4
+
+
 # Шаблоны выбора сущности в LS-PrePost.
 # Ключем служит кортеж (entity_kind, element_type).
 SELECT_TEMPLATES: Dict[Tuple[str, str | None], List[str]] = {
     ("element", "beam"): [
         "genselect clear all",
         "genselect beam add beam {element_id}/0",
-        "etype 1 ;etime 4",
+        f"etype {ETYPE} ;etime {ETIME}",
     ],
     ("element", "shell"): [
         "genselect clear all",
         "genselect shell add shell {element_id}/0",
-        "etype 1 ;etime 4",
+        f"etype {ETYPE} ;etime {ETIME}",
     ],
     ("element", "solid"): [
         "genselect clear all",
         "genselect solid add solid {element_id}/0",
-        "etype 1 ;etime 4",
+        f"etype {ETYPE} ;etime {ETIME}",
     ],
     ("node", None): [
         "genselect clear all",

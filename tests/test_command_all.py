@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from tabs.function4tabs4.command_all import collect_commands, walk_tree_and_build_commands
 from tabs.function4tabs4.tree_schema import Tree, AnalysisFolder, CurveNode
 from tabs.function4tabs4.naming import safe_name
@@ -27,6 +27,13 @@ def test_walk_tree_and_build_commands(tmp_path):
     )
     commands = walk_tree_and_build_commands([entity], base_project_dir=tmp_path)
     top_folder = encode_topfolder("user", "node")
-    expected_path = Path(tmp_path) / top_folder / "curves" / "static" / "1.dat"
-    expected_command = safe_name(str(expected_path))
-    assert commands == [expected_command]
+    expected_path = PureWindowsPath(
+        tmp_path, "curves", top_folder, "static", "1.txt"
+    )
+    assert commands == [
+        "genselect clear all",
+        "genselect node add node 1",
+        f'xyplot 1 savefile curve_file "{expected_path}" 1 all',
+        "xyplot 1 donemenu",
+        "deletewin 1",
+    ]

@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Iterable
 
-_SAFE_CHARS_RE = re.compile(r"[^A-Za-z0-9_.\-]")
+_SAFE_CHARS_RE = re.compile(r"[^A-Za-z0-9_.\-А-Яа-яЁё]")
 
 
 def safe_name(name: str, replacement: str = "_") -> str:

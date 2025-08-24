@@ -16,6 +16,41 @@ from ui import constants as ui_const
 from widgets import create_text, select_path
 
 
+class NumberInputDialog(simpledialog.Dialog):
+    """Диалог ввода номера элемента или узла.
+
+    Разрешает только числовой ввод. При ошибке подсвечивает поле ввода
+    и отображает текст ошибки.
+    """
+
+    def body(self, master: tk.Misc) -> tk.Widget:  # pragma: no cover - UI code
+        ttk.Label(master, text="Номер элемента/узла:").grid(
+            row=0, column=0, sticky="w", padx=5, pady=(5, 0)
+        )
+        self.var = tk.StringVar()
+        self.entry = ttk.Entry(master, textvariable=self.var)
+        self.entry.grid(row=1, column=0, padx=5, pady=5)
+        self.error_label = ttk.Label(master, text="", foreground="red")
+        self.error_label.grid(row=2, column=0, sticky="w", padx=5)
+        self._normal_bg = self.entry.cget("background")
+        self._error_bg = "#ffcccc"
+        self.entry.bind("<KeyRelease>", lambda _e: self._clear_error())
+        return self.entry
+
+    def _clear_error(self) -> None:
+        self.entry.configure(background=self._normal_bg)
+        self.error_label.config(text="")
+
+    def validate(self) -> bool:  # pragma: no cover - UI code
+        value = self.var.get().strip()
+        if not value.isdigit():
+            self.entry.configure(background=self._error_bg)
+            self.error_label.config(text="Допустимы только цифры")
+            return False
+        self.result = value
+        return True
+
+
 def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     """Создать четвёртую вкладку приложения."""
 
@@ -113,7 +148,13 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     # --- Действия с деревом ---
     def add_node() -> None:
         parent = tree.selection()[0] if tree.selection() else root_id
-        tree.insert(parent, "end", text="Новый узел")
+        if tree.parent(parent) == root_id:
+            dlg = NumberInputDialog(tab4, title="Добавить элемент/узел")
+            number = dlg.result
+            if number is not None:
+                tree.insert(parent, "end", text=number)
+        else:
+            tree.insert(parent, "end", text="Новый узел")
 
     def remove_node() -> None:
         for item in tree.selection():

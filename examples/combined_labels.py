@@ -15,7 +15,7 @@ y = [0, 1, 4, 9]
 fig, ax = plt.subplots()
 ax.plot(x, y)
 
-ax.set_title(r"Сила $\boldsymbol{F_x}$ при угле $\boldsymbol{\upalpha}$")
+ax.set_title(r"Сила $\boldsymbol{\mathit{F}_{\mathit{x}}}$ при угле $\boldsymbol{\upalpha}$")
 ax.set_xlabel(format_signature("Время t, с", bold=False))
 ax.set_ylabel(format_signature("Угол α, рад", bold=False))
 

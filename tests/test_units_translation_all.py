@@ -45,6 +45,10 @@ class ComboStub:
             [(ru, en) for ru, en in MOMENT_UNIT_PAIRS if ru != "Нет"],
         ),
         (
+            "Частота",
+            [(ru, en) for ru, en in FREQUENCY_UNIT_PAIRS if ru != "Нет"],
+        ),
+        (
             "Частота 1",
             [(ru, en) for ru, en in FREQUENCY_UNIT_PAIRS if ru != "Нет"],
         ),

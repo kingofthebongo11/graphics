@@ -6,13 +6,14 @@ import getpass
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
+import json
 from pathlib import Path
 
 from gui_bridge import tree_from_gui
 from tabs.function4tabs4.cfile_writer import write_cfile
 from tabs.function4tabs4.command_all import walk_tree_and_build_commands
 from tabs.function4tabs4.naming import safe_name
-from tabs.function4tabs4.tree_io import load_tree, save_tree
+from tabs.function4tabs4.tree_schema import Tree
 from topfolder_codec import decode_topfolder, encode_topfolder
 from ui import constants as ui_const
 from widgets import create_text, select_path
@@ -84,6 +85,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     user_name = safe_name(getpass.getuser())
     top_folder_name = encode_topfolder(user_name, "node")
     root_id = tree.insert("", "end", text=user_name, values=(top_folder_name,), open=True)
+    tab4.tree = tree  # type: ignore[attr-defined]
 
     # --- Панель свойств верхней папки ---
     props = ttk.LabelFrame(tab4, text="Свойства TOP папки")
@@ -152,8 +154,12 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     # --- Действия с деревом ---
     def add_node() -> None:
-        parent = tree.selection()[0] if tree.selection() else root_id
-        if tree.parent(parent) == root_id:
+        parent = tree.selection()[0] if tree.selection() else ""
+        if parent == "":
+            name = f"TOP_{len(tree.get_children()) + 1}"
+            top = encode_topfolder(safe_name(name), "node")
+            tree.insert("", "end", text=name, values=(top,), open=True)
+        elif tree.parent(parent) == "":
             dlg = NumberInputDialog(tab4, title="Добавить элемент/узел")
             number = dlg.result
             if number is not None:
@@ -163,23 +169,25 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     def remove_node() -> None:
         for item in tree.selection():
-            if item != root_id:
-                tree.delete(item)
+            tree.delete(item)
 
     def rename_node() -> None:
         sel = tree.selection()
         if not sel:
             return
         item = sel[0]
-        if item == root_id:
-            return
         new_name = simpledialog.askstring("Переименовать", "Новое имя", parent=tab4)
         if new_name:
             tree.item(item, text=safe_name(new_name))
 
     def collapse_all() -> None:
+        def _collapse(node: str) -> None:
+            tree.item(node, open=False)
+            for child in tree.get_children(node):
+                _collapse(child)
+
         for item in tree.get_children():
-            tree.item(item, open=False)
+            _collapse(item)
 
     def save_tree_action() -> None:
         path = filedialog.asksaveasfilename(
@@ -187,30 +195,40 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         )
         if not path:
             return
-        tree_obj = Tree(top=tree.item(root_id, "values")[0])
-        save_tree(tree_obj, path)
+        data = [Tree(top=tree.item(i, "values")[0]).to_dict() for i in tree.get_children()]
+        Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def load_tree_action() -> None:
+        nonlocal root_id
         path = filedialog.askopenfilename(
             filetypes=[("JSON", "*.json")], parent=tab4
         )
         if not path:
             return
-        loaded = load_tree(path)
-        tree.item(root_id, values=(loaded.top,))
-        try:
-            u, k, e = decode_topfolder(loaded.top)
-        except Exception:
-            messagebox.showerror("Ошибка", "Некорректное имя папки", parent=tab4)
-            return
-        user_var.set(u)
-        entity_var.set(k)
-        if e:
-            element_var.set(e)
-        update_top_folder()
+        raw = json.loads(Path(path).read_text(encoding="utf-8"))
+        for item in tree.get_children():
+            tree.delete(item)
+        new_root = ""
+        for item in raw:
+            t = Tree.from_dict(item)
+            try:
+                u, k, e = decode_topfolder(t.top)
+            except Exception:
+                messagebox.showerror("Ошибка", "Некорректное имя папки", parent=tab4)
+                continue
+            iid = tree.insert("", "end", text=u, values=(t.top,), open=True)
+            if not new_root:
+                new_root = iid
+                user_var.set(u)
+                entity_var.set(k)
+                if e:
+                    element_var.set(e)
+        if new_root:
+            root_id = new_root
+            update_top_folder()
 
     def clear_all() -> None:
-        for item in tree.get_children(root_id):
+        for item in tree.get_children():
             tree.delete(item)
 
     # --- Контекстное меню ---
@@ -221,16 +239,14 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     def show_menu(event: tk.Event) -> None:  # pragma: no cover - UI code
         item = tree.identify_row(event.y)
-        if not item:
-            return
-        tree.selection_set(item)
-        # disable rename/delete for root
-        if item == root_id:
-            menu.entryconfigure(1, state="disabled")
-            menu.entryconfigure(2, state="disabled")
-        else:
+        if item:
+            tree.selection_set(item)
             menu.entryconfigure(1, state="normal")
             menu.entryconfigure(2, state="normal")
+        else:
+            tree.selection_remove(tree.selection())
+            menu.entryconfigure(1, state="disabled")
+            menu.entryconfigure(2, state="disabled")
         menu.tk_popup(event.x_root, event.y_root)
 
     tree.bind("<Button-3>", show_menu)
@@ -273,13 +289,15 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
                     raise IndexError("Только один корневой элемент")
                 return _TkItem(self._tree, self._root)
 
-        try:
-            model_root = tree_from_gui(_TkWidget(tree, root_id))
-        except Exception as exc:  # pragma: no cover - UI error handling
-            messagebox.showerror("Ошибка", str(exc), parent=tab4)
-            return
+        roots = []
+        for item in tree.get_children():
+            try:
+                roots.append(tree_from_gui(_TkWidget(tree, item)))
+            except Exception as exc:  # pragma: no cover - UI error handling
+                messagebox.showerror("Ошибка", str(exc), parent=tab4)
+                return
 
-        commands = walk_tree_and_build_commands([model_root], Path(path).parent)
+        commands = walk_tree_and_build_commands(roots, Path(path).parent)
         write_cfile(commands, path)
         messagebox.showinfo("Готово", f"C-файл сохранён в {path}", parent=tab4)
 
@@ -369,6 +387,10 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     ttk.Button(
         curves_frame, text="Сформировать графики", command=generate_curves
     ).pack(side=tk.LEFT)
+
+    tab4.add_node = add_node  # type: ignore[attr-defined]
+    tab4.remove_node = remove_node  # type: ignore[attr-defined]
+    tab4.rename_node = rename_node  # type: ignore[attr-defined]
 
     return tab4
 

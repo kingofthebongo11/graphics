@@ -6,7 +6,7 @@ from .select_path import select_path
 from .message_log import message_log
 from .text_widget import create_text, clear_text
 from .plot_editor import PlotEditor
-from .dialogs import ask_directory, ask_file, show_error
+from .dialogs import ask_directory, ask_file, ask_save_file, show_error
 
 __all__ = [
     "make_context_menu",
@@ -18,6 +18,7 @@ __all__ = [
     "PlotEditor",
     "ask_directory",
     "ask_file",
+    "ask_save_file",
     "show_error",
 ]
 

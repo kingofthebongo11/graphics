@@ -409,7 +409,9 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     cfile_entry = create_text(cfile_frame, method="entry", state="normal")
     cfile_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
     ttk.Button(
-        cfile_frame, text="Обзор", command=lambda: select_path(cfile_entry, "file")
+        cfile_frame,
+        text="Обзор",
+        command=lambda: select_path(cfile_entry, "save_file"),
     ).pack(side=tk.LEFT, padx=5)
     ttk.Button(
         cfile_frame, text="Сформировать C-файл", command=generate_cfile

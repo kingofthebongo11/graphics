@@ -12,6 +12,14 @@ def ask_file() -> str:
     return path
 
 
+def ask_save_file() -> str:
+    """Открывает диалог сохранения файла."""
+    path = filedialog.asksaveasfilename()
+    if not path:
+        logger.info("Файл не выбран")
+    return path
+
+
 def ask_directory() -> str:
     """Открывает диалог выбора папки."""
     path = filedialog.askdirectory()

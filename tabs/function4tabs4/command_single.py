@@ -5,11 +5,19 @@ from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 from pathlib import PureWindowsPath
 
+from analysis_types import ANALYSIS_TYPES
 from .naming import safe_name
 
 
-ETYPE = 1
-ETIME = 4
+ETYPE_BY_ELEMENT: Dict[str, int] = {
+    "beam": 1,
+    "shell": 2,
+    "solid": 3,
+}
+
+ETIME_BY_ANALYSIS: Dict[str, int] = {
+    name: idx for idx, name in enumerate(ANALYSIS_TYPES, start=1)
+}
 
 
 # Шаблоны выбора сущности в LS-PrePost.
@@ -18,17 +26,17 @@ SELECT_TEMPLATES: Dict[Tuple[str, str | None], List[str]] = {
     ("element", "beam"): [
         "genselect clear all",
         "genselect beam add beam {element_id}/0",
-        f"etype {ETYPE} ;etime {ETIME}",
+        "etype {etype} ;etime {etime}",
     ],
     ("element", "shell"): [
         "genselect clear all",
         "genselect shell add shell {element_id}/0",
-        f"etype {ETYPE} ;etime {ETIME}",
+        "etype {etype} ;etime {etime}",
     ],
     ("element", "solid"): [
         "genselect clear all",
         "genselect solid add solid {element_id}/0",
-        f"etype {ETYPE} ;etime {ETIME}",
+        "etype {etype} ;etime {etime}",
     ],
     ("node", None): [
         "genselect clear all",
@@ -77,7 +85,21 @@ def build_curve_commands(
     except KeyError as exc:  # pragma: no cover - should not happen after validation
         raise ValueError("unsupported entity selection") from exc
 
-    select_cmds = [cmd.format(element_id=element_id) for cmd in template]
+    etype = None
+    if element_type is not None:
+        try:
+            etype = ETYPE_BY_ELEMENT[element_type]
+        except KeyError as exc:  # pragma: no cover - validated above
+            raise ValueError("unsupported element_type") from exc
+
+    try:
+        etime = ETIME_BY_ANALYSIS[analysis_type]
+    except KeyError as exc:
+        raise ValueError("unsupported analysis_type") from exc
+
+    select_cmds = [
+        cmd.format(element_id=element_id, etype=etype, etime=etime) for cmd in template
+    ]
 
     curve_path = PureWindowsPath(
         base_project_dir,

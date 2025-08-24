@@ -1,4 +1,5 @@
 from pathlib import Path, PureWindowsPath
+from analysis_types import AnalysisType
 from tabs.function4tabs4.command_all import collect_commands, walk_tree_and_build_commands
 from tabs.function4tabs4.tree_schema import Tree, AnalysisFolder, CurveNode
 from tabs.function4tabs4.naming import safe_name
@@ -20,15 +21,16 @@ def test_collect_commands():
 
 
 def test_walk_tree_and_build_commands(tmp_path):
+    analysis = AnalysisType.TIME_AXIAL_FORCE.value
     entity = EntityNode(
         user_name="user",
         entity_kind="node",
-        children=[AnalysisNode("static", children=[FileNode(1)])],
+        children=[AnalysisNode(analysis, children=[FileNode(1)])],
     )
     commands = walk_tree_and_build_commands([entity], base_project_dir=tmp_path)
     top_folder = encode_topfolder("user", "node")
     expected_path = PureWindowsPath(
-        tmp_path, "curves", top_folder, "static", "1.txt"
+        tmp_path, "curves", top_folder, analysis, "1.txt"
     )
     assert commands == [
         "genselect clear all",

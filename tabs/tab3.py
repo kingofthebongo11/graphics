@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from widgets.select_path import select_path
-from widgets.text_widget import create_text, clear_text
+from widgets import clear_text, create_text, select_path
 from .functions_for_tab3.processing import function1
 
 

@@ -1,5 +1,6 @@
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 from matplotlib.figure import Figure
 
 from types import SimpleNamespace
@@ -18,21 +19,26 @@ def test_save_file_uses_updated_last_graph(tmp_path):
     ax = fig.add_subplot(111)
     ax.plot([0, 1], [0, 1])
     plotting.last_graph.clear()
-    plotting.last_graph.update({
-        'curves_info': [{'X_values': [0, 1], 'Y_values': [0, 1]}],
-        'X_label': 'X',
-        'Y_label': 'Y',
-        'title': 'T',
-        'fig': fig,
-    })
+    plotting.last_graph.update(
+        {
+            "curves_info": [{"X_values": [0, 1], "Y_values": [0, 1]}],
+            "x_label": "X",
+            "y_label": "Y",
+            "title": "T",
+            "fig": fig,
+        }
+    )
 
-    entry = SimpleNamespace(get=lambda: 'graph')
-    fmt_widget = SimpleNamespace(get=lambda: 'png')
-    file_path = tmp_path / 'out.png'
+    entry = SimpleNamespace(get=lambda: "graph")
+    fmt_widget = SimpleNamespace(get=lambda: "png")
+    file_path = tmp_path / "out.png"
 
-    with patch('tabs.functions_for_tab1.plotting.filedialog.asksaveasfilename', return_value=str(file_path)), \
-         patch('tabs.functions_for_tab1.plotting.messagebox.showinfo'), \
-         patch('tabs.functions_for_tab1.plotting.messagebox.showerror'):
+    with patch(
+        "tabs.functions_for_tab1.plotting.filedialog.asksaveasfilename",
+        return_value=str(file_path),
+    ), patch("tabs.functions_for_tab1.plotting.messagebox.showinfo"), patch(
+        "tabs.functions_for_tab1.plotting.messagebox.showerror"
+    ):
         tab1.save_file(entry, fmt_widget, tab1.last_graph)
 
     assert file_path.exists()

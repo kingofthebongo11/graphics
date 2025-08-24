@@ -1,8 +1,5 @@
 import tempfile
-import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from tabs.functions_for_tab1.curves_from_file.combined_curve import read_X_Y_from_combined
 
 
@@ -33,7 +30,7 @@ def test_text_file_column_selection():
 
 
 def test_lsdyna_file_column_selection():
-    tmp = _create_temp_file('1 10\n2 20\n3 30\n')
+    tmp = _create_temp_file('LS-DYNA\n1 10\n2 20\n3 30\n')
     curve_info = {
         'X_source': {
             'source': 'Файл кривой LS-Dyna',
@@ -71,7 +68,7 @@ def test_text_file_column_selection_str_values():
 
 
 def test_lsdyna_file_column_selection_str_values():
-    tmp = _create_temp_file('1 10\n2 20\n3 30\n')
+    tmp = _create_temp_file('LS-DYNA\n1 10\n2 20\n3 30\n')
     curve_info = {
         'X_source': {
             'source': 'Файл кривой LS-Dyna',
@@ -90,16 +87,17 @@ def test_lsdyna_file_column_selection_str_values():
 
 
 def test_invalid_column_defaults_to_axis():
-    tmp = _create_temp_file('1 10\n2 20\n3 30\n')
+    tmp_text = _create_temp_file('1 10\n2 20\n3 30\n')
+    tmp_ls = _create_temp_file('LS-DYNA\n1 10\n2 20\n3 30\n')
     curve_info = {
         'X_source': {
             'source': 'Текстовой файл',
-            'curve_file': tmp.name,
+            'curve_file': tmp_text.name,
             'column': 5,  # недопустимый столбец
         },
         'Y_source': {
             'source': 'Файл кривой LS-Dyna',
-            'curve_file': tmp.name,
+            'curve_file': tmp_ls.name,
             'column': -1,  # недопустимый столбец
         },
     }

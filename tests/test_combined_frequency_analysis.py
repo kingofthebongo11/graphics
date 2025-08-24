@@ -1,13 +1,10 @@
 import tempfile
-import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from tabs.functions_for_tab1.curves_from_file.combined_curve import read_X_Y_from_combined
 
 
 def _create_temp_file(content: str):
-    tmp = tempfile.NamedTemporaryFile('w+', delete=False)
+    tmp = tempfile.NamedTemporaryFile('w+', suffix='.txt', delete=False)
     tmp.write(content)
     tmp.flush()
     return tmp

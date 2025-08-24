@@ -1,233 +1,592 @@
+import logging
 import tkinter as tk  # Alias for Tk functionality
-from tkinter import ttk
+from tkinter import ttk, messagebox
+from typing import List, Tuple
+from .functions_for_tab1 import update_curves, generate_graph, save_file
+from .functions_for_tab1.plotting import last_graph
+from widgets import PlotEditor, create_text
+from tabs.function_for_all_tabs import create_plot_canvas
+from .constants import (
+    DEFAULT_UNITS,
+    PHYSICAL_QUANTITIES,
+    UNITS_MAPPING,
+    LEGEND_TITLE_TRANSLATIONS,
+)
+from ui import constants as ui_const
 
-from .functions_for_tab1 import update_curves, generate_graph, save_file, last_graph
-from widgets import PlotEditor
 
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from widgets.text_widget import create_text
+logger = logging.getLogger(__name__)
 
 
-def on_combo_changeX_Y_labels(combo, entry, label_size, size_combo):
+def on_title_combo_change(
+    combo: ttk.Combobox,
+    entry: tk.Entry,
+    title_var: tk.StringVar,
+) -> None:
+    """Обновляет выбор заголовка графика.
+
+    При выборе "Другое" отображает поле ввода и сохраняет выбранный вариант.
+    При выборе готового варианта скрывает поле ввода и устанавливает
+    выбранный текст в переменную заголовка.
+    """
+
+    other_label = "Другое"
+
+    selection = combo.get()
+    if selection == other_label:
+        entry.place(
+            x=combo.winfo_x() + ui_const.LABEL_SIZE_OFFSET,
+            y=combo.winfo_y(),
+            width=ui_const.ENTRY_WIDTH,
+        )
+        title_var.set(other_label)
+    else:
+        entry.place_forget()
+        title_var.set(selection)
+
+
+def on_legend_title_change(
+    combo: ttk.Combobox,
+    entry: tk.Entry,
+    title_var: tk.StringVar,
+    language: str,
+) -> None:
+    """Обрабатывает выбор подписи легенды.
+
+    Если выбран вариант «Другое», показывает поле ввода и сохраняет выбор.
+    Иначе скрывает поле ввода и записывает выбранный текст в переменную.
+    """
+
+    other_label = LEGEND_TITLE_TRANSLATIONS["Другое"].get(language, "Другое")
+
+    selection = combo.get()
+    if selection == other_label:
+        combo.place_forget()
+        entry.place(
+            x=ui_const.LEGEND_TITLE_ENTRY_X,
+            y=ui_const.LEGEND_TITLE_Y,
+            width=ui_const.ENTRY_WIDTH,
+        )
+        title_var.set(other_label)
+    else:
+        combo.place(
+            x=ui_const.LEGEND_TITLE_COMBO_X,
+            y=ui_const.LEGEND_TITLE_Y,
+            width=ui_const.COMBO_WIDTH,
+        )
+        entry.place_forget()
+        title_var.set(selection)
+
+
+def on_combo_changeX_Y_labels(
+    combo: ttk.Combobox,
+    entry: tk.Entry,
+    label_size: ttk.Label,
+    size_combo: ttk.Combobox,
+    size_entry: tk.Entry,
+) -> None:
     """
     Обрабатывает выбор в комбобоксе для осей:
     - Если выбрано "Другое", отображает текстовое поле для ввода и скрывает выбор размерности.
     - Иначе скрывает текстовое поле, показывает метку и комбобокс размерности с нужными единицами.
     """
-    UNITS_MAPPING = {
-        "Время": ["мс", "с", "мин", "ч"],
-        "Перемещение по X": ["мм", "см", "м"],
-        "Перемещение по Y": ["мм", "см", "м"],
-        "Перемещение по Z": ["мм", "см", "м"],
-        "Удлинение": ["мм", "см", "м"],
-        "Деформация": ["—", "%"],
-        "Сила": ["мН", "Н", "кН"],
-        "Масса": ["г", "кг", "т"],
-        "Напряжение": ["Па", "кПа", "МПа"],
-        "Частота 1": ["Гц", "кГц"],
-        "Частота 2": ["Гц", "кГц"],
-        "Частота 3": ["Гц", "кГц"],
-        "Другое": []
-    }
-    DEFAULT_UNITS = {
-        "Время": "с",
-        "Перемещение по X": "м",
-        "Перемещение по Y": "м",
-        "Перемещение по Z": "м",
-        "Удлинение": "м",
-        "Деформация": "—",
-        "Сила": "Н",
-        "Масса": "кг",
-        "Напряжение": "Па",
-        "Частота 1": "Гц",
-        "Частота 2": "Гц",
-        "Частота 3": "Гц",
-    }
+
+    other_label = "Другое"
+    none_label = "Нет"
+    units_mapping = UNITS_MAPPING
+    default_units = DEFAULT_UNITS
+
     selection = combo.get()
-    if selection == "Другое":
+    logger.info("Выбор в комбобоксе: %s", selection)
+    if selection == other_label:
+        logger.debug("Показ поля ввода для пользовательской величины")
         if not entry.winfo_ismapped():
-            entry.place(x=combo.winfo_x() + 200, y=combo.winfo_y(), width=300)
-            entry.config(state='normal')
+            entry.place(
+                x=ui_const.AXIS_ENTRY_X,
+                y=combo.winfo_y(),
+                width=ui_const.ENTRY_WIDTH,
+            )
+            entry.config(state="normal")
         label_size.place_forget()
         size_combo.place_forget()
-        size_combo['values'] = []
+        size_entry.place_forget()
+        size_combo["values"] = []
         size_combo.set("")
-    elif selection == "Нет":
+    elif selection == none_label:
+        logger.debug("Скрытие элементов оси")
         entry.place_forget()
         label_size.place_forget()
         size_combo.place_forget()
-        size_combo['values'] = []
+        size_entry.place_forget()
+        size_combo["values"] = []
         size_combo.set("")
     else:
+        logger.debug("Выбрана стандартная величина: %s", selection)
         entry.place_forget()
-        label_size.place(x=combo.winfo_x() + 200, y=combo.winfo_y())
-        values = UNITS_MAPPING.get(selection, [])
-        size_combo['values'] = values
+        size_entry.place_forget()
+        label_size.place(
+            x=ui_const.AXIS_LABEL_SIZE_X,
+            y=combo.winfo_y(),
+        )
+        values = units_mapping.get(selection, [])
+        size_combo["values"] = values
         size_combo.set("")
         if values:
-            size_combo.place(x=combo.winfo_x() + 350, y=combo.winfo_y(), width=150)
-            default_unit = DEFAULT_UNITS.get(selection)
+            size_combo.place(
+                x=ui_const.AXIS_UNIT_X,
+                y=combo.winfo_y(),
+                width=ui_const.SIZE_COMBO_WIDTH,
+            )
+            default_unit = default_units.get(selection)
             if default_unit in values:
                 size_combo.current(values.index(default_unit))
         else:
             size_combo.place_forget()
 
 
-def create_tab1(notebook):
-    # Список физических величин для прочностных расчетов
-    PHYSICAL_QUANTITIES = [
-        "Нет", "Время", "Деформация", "Масса", "Напряжение",
-        "Перемещение по X", "Перемещение по Y", "Перемещение по Z",
-        "Сила", "Удлинение", "Частота 1", "Частота 2", "Частота 3",
-        "Другое",
+def on_unit_change(size_combo: ttk.Combobox, size_entry: tk.Entry) -> None:
+    """Обрабатывает выбор единицы измерения.
 
-    ]
+    При выборе «Другое» скрывает комбобокс и показывает поле ввода.
+    При выборе «Нет» скрывает поле ввода.
+    """
 
+    selection = size_combo.get()
+    if selection == "Другое":
+        size_combo.place_forget()
+        size_entry.place(
+            x=ui_const.AXIS_UNIT_X,
+            y=size_combo.winfo_y(),
+            width=ui_const.SIZE_COMBO_WIDTH,
+        )
+    elif selection == "Нет":
+        size_entry.place_forget()
+    else:
+        size_entry.place_forget()
+
+def create_tab1(notebook: ttk.Notebook) -> None:
+    """Создает первую вкладку для построения графика.
+
+    Параметры:
+        notebook: виджет, в который добавляется вкладка.
+
+    Возвращает:
+        None.
+    """
+
+    logger.info("Создание первой вкладки")
     # Создание первой вкладки
     tab1 = ttk.Frame(notebook)
     notebook.add(tab1, text="Создание изображения графика")
 
     input_frame = ttk.Frame(tab1)
-    input_frame.place(x=10, y=10, width=750, height=160)
+    input_frame.place(
+        x=ui_const.PADDING,
+        y=ui_const.PADDING,
+        width=ui_const.INPUT_FRAME_WIDTH,
+        height=ui_const.INPUT_FRAME_HEIGHT,
+    )
 
     # Вспомогательная функция для создания элементов управления осями
-    def add_axis_control(parent, label_text, options, y_pos):
+    def add_axis_control(
+        parent: ttk.Frame,
+        label_text: str,
+        options: List[str],
+        y_pos: int,
+    ) -> Tuple[ttk.Combobox, tk.Entry, ttk.Label, ttk.Combobox, tk.Entry]:
+        logger.debug("Добавление элементов управления для %s", label_text)
         label = ttk.Label(parent, text=label_text)
-        label.place(x=10, y=y_pos)
-        combo = ttk.Combobox(parent, values=options, state='readonly')
-        combo.place(x=200, y=y_pos, width=150)
+        label.place(x=ui_const.PADDING, y=y_pos)
+        combo = ttk.Combobox(parent, values=options, state="readonly")
+        combo.place(
+            x=ui_const.AXIS_COMBO_X,
+            y=y_pos,
+            width=ui_const.COMBO_WIDTH,
+        )
         combo.current(0)
-        entry = create_text(parent, method="entry", height=1, state='disabled', scrollbar=False)
-        entry.place(x=400, y=y_pos, width=300)
+        entry = create_text(
+            parent, method="entry", height=1, state="disabled", scrollbar=False
+        )
+        entry.place(
+            x=ui_const.AXIS_ENTRY_X,
+            y=y_pos,
+            width=ui_const.ENTRY_WIDTH,
+        )
         entry.place_forget()
         size_label = ttk.Label(parent, text="Выберите размерность:")
-        size_label.place(x=combo.winfo_x() + 200, y=combo.winfo_y())
+        size_label.place(
+            x=ui_const.AXIS_LABEL_SIZE_X,
+            y=combo.winfo_y(),
+        )
         size_label.place_forget()
-        size_combo = ttk.Combobox(parent, values=[], state='readonly')
-        size_combo.place(x=combo.winfo_x() + 350, y=combo.winfo_y(), width=150)
+        size_combo = ttk.Combobox(parent, values=[], state="readonly")
+        size_combo.place(
+            x=ui_const.AXIS_UNIT_X,
+            y=combo.winfo_y(),
+            width=ui_const.SIZE_COMBO_WIDTH,
+        )
         size_combo.place_forget()
+        size_entry = create_text(
+            parent, method="entry", height=1, state="normal", scrollbar=False
+        )
+        size_entry.place(
+            x=ui_const.AXIS_UNIT_X,
+            y=combo.winfo_y(),
+            width=ui_const.SIZE_COMBO_WIDTH,
+        )
+        size_entry.place_forget()
         combo.bind(
             "<<ComboboxSelected>>",
-            lambda e: on_combo_changeX_Y_labels(combo, entry, size_label, size_combo)
+            lambda e: on_combo_changeX_Y_labels(
+                combo, entry, size_label, size_combo, size_entry
+            ),
         )
-        return combo, entry, size_label, size_combo
+        size_combo.bind(
+            "<<ComboboxSelected>>",
+            lambda e: on_unit_change(size_combo, size_entry),
+        )
+        return combo, entry, size_label, size_combo, size_entry
 
     # Поле для заголовка графика
-    label_title = ttk.Label(input_frame, text="Укажите название графика:")
-    label_title.place(x=10, y=0)
-    path_entry_title = create_text(
-        input_frame, method="entry", height=1, state='normal', scrollbar=False
+    label_title = ttk.Label(
+        input_frame, text="Выберите или введите название графика:"
     )
-    path_entry_title.place(x=10, y=30, width=300)
+    label_title.place(x=ui_const.PADDING, y=0)
+    title_var = tk.StringVar()
+    combo_title = ttk.Combobox(
+        input_frame,
+        values=PHYSICAL_QUANTITIES,
+        state="readonly",
+        textvariable=title_var,
+    )
+    combo_title.place(
+        x=ui_const.PADDING,
+        y=ui_const.LINE_HEIGHT,
+        width=ui_const.COMBO_WIDTH,
+    )
+    combo_title.current(0)
+    entry_title_custom = create_text(
+        input_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    entry_title_custom.place(
+        x=ui_const.PADDING,
+        y=ui_const.LINE_HEIGHT,
+        width=ui_const.ENTRY_WIDTH,
+    )
+    entry_title_custom.place_forget()
 
     # Выбор языка
     label_language = ttk.Label(input_frame, text="Выберите язык:")
-    label_language.place(x=550, y=0)
+    label_language.place(x=ui_const.LANGUAGE_X, y=0)
     combo_language = ttk.Combobox(
-        input_frame,
-        values=["Русский", "Английский"],
-        state='readonly'
+        input_frame, values=["Русский", "Английский"], state="readonly"
     )
     combo_language.current(0)
-    combo_language.place(x=550, y=30, width=150)
+    combo_language.place(
+        x=ui_const.LANGUAGE_X,
+        y=ui_const.LINE_HEIGHT,
+        width=ui_const.SMALL_COMBO_WIDTH,
+    )
+
+    # Подпись легенды
+    legend_title_var = tk.StringVar()
+    legend_title_combo = ttk.Combobox(
+        input_frame,
+        state="readonly",
+        textvariable=legend_title_var,
+    )
+    legend_title_entry = create_text(
+        input_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    legend_title_entry.place_forget()
+    legend_title_combo.bind(
+        "<<ComboboxSelected>>",
+        lambda e: on_legend_title_change(
+            legend_title_combo,
+            legend_title_entry,
+            legend_title_var,
+            combo_language.get() or "Русский",
+        ),
+    )
 
     # Поля для осей X и Y, используя список физических величин
-    combo_titleX, path_entry_titleX, label_titleX_size, combo_titleX_size = add_axis_control(
-        input_frame, "Выберите величину для оси X:", PHYSICAL_QUANTITIES, 60
+    (
+        combo_titleX,
+        path_entry_titleX,
+        label_titleX_size,
+        combo_titleX_size,
+        combo_titleX_size_entry,
+    ) = add_axis_control(
+        input_frame,
+        "Выберите величину для оси X:",
+        PHYSICAL_QUANTITIES,
+        ui_const.LINE_HEIGHT * 2,
     )
-    combo_titleY, path_entry_titleY, label_titleY_size, combo_titleY_size = add_axis_control(
-        input_frame, "Выберите величину для оси Y:", PHYSICAL_QUANTITIES, 90
+    (
+        combo_titleY,
+        path_entry_titleY,
+        label_titleY_size,
+        combo_titleY_size,
+        combo_titleY_size_entry,
+    ) = add_axis_control(
+        input_frame,
+        "Выберите величину для оси Y:",
+        PHYSICAL_QUANTITIES,
+        ui_const.LINE_HEIGHT * 3,
     )
+    combo_title.bind(
+        "<<ComboboxSelected>>",
+        lambda e: on_title_combo_change(
+            combo_title, entry_title_custom, title_var
+        ),
+    )
+
+    def on_language_change(event=None) -> None:
+        on_title_combo_change(combo_title, entry_title_custom, title_var)
+        on_combo_changeX_Y_labels(
+            combo_titleX,
+            path_entry_titleX,
+            label_titleX_size,
+            combo_titleX_size,
+            combo_titleX_size_entry,
+        )
+        on_combo_changeX_Y_labels(
+            combo_titleY,
+            path_entry_titleY,
+            label_titleY_size,
+            combo_titleY_size,
+            combo_titleY_size_entry,
+        )
+        language = combo_language.get() or "Русский"
+        legend_titles = [
+            values.get(language, key)
+            for key, values in LEGEND_TITLE_TRANSLATIONS.items()
+        ]
+        legend_title_combo["values"] = legend_titles
+        if legend_titles:
+            legend_title_combo.current(0)
+            legend_title_var.set(legend_title_combo.get())
+        legend_title_entry.place_forget()
+
+    combo_language.bind("<<ComboboxSelected>>", on_language_change)
+    on_language_change()
     # Фрейм для сохранения файла
     save_frame = ttk.Frame(tab1)
-    save_frame.place(x=10, y=300, width=600, height=100)
+    save_frame.place(
+        x=ui_const.PADDING,
+        y=ui_const.SAVE_FRAME_Y,
+        width=ui_const.SAVE_FRAME_WIDTH,
+        height=ui_const.SAVE_FRAME_HEIGHT,
+    )
 
     # Переменная для чекбокса легенды
     checkbox_var = tk.BooleanVar(value=False)
 
+    def toggle_legend_title_visibility() -> None:
+        if checkbox_var.get():
+            legend_title_combo.place(
+                x=ui_const.LEGEND_TITLE_COMBO_X,
+                y=ui_const.LEGEND_TITLE_Y,
+                width=ui_const.COMBO_WIDTH,
+            )
+            if not legend_title_var.get() and legend_title_combo["values"]:
+                legend_title_combo.current(0)
+                legend_title_var.set(legend_title_combo.get())
+        else:
+            legend_title_combo.place_forget()
+            legend_title_entry.place_forget()
+            legend_title_var.set("")
 
     # Управление количеством кривых
-    label_curves = ttk.Label(input_frame, text="Выберите количество кривых на графике:")
-    label_curves.place(x=10, y=120)
+    label_curves = ttk.Label(
+        input_frame, text="Выберите количество кривых на графике:"
+    )
+    label_curves.place(x=ui_const.PADDING, y=ui_const.CURVE_LABEL_Y)
     saved_data_curves = []
     curve_options = [str(i) for i in range(1, 6)]
-    combo_curves = ttk.Combobox(input_frame, values=curve_options, state='readonly')
-    combo_curves.place(x=250, y=120, width=150)
+    combo_curves = ttk.Combobox(
+        input_frame, values=curve_options, state="readonly"
+    )
+    combo_curves.place(
+        x=ui_const.CURVE_COMBO_X,
+        y=ui_const.CURVE_LABEL_Y,
+        width=ui_const.SMALL_COMBO_WIDTH,
+    )
     combo_curves.current(0)  # select '1'
 
     # Фрейм для полей ввода кривых
     curves_frame = ttk.Frame(tab1)
-    curves_frame.place(x=10, y=170, width=1500, height=200)
-    update_curves(curves_frame, '1', save_frame, checkbox_var, saved_data_curves)
+    curves_frame.place(
+        x=ui_const.PADDING,
+        y=ui_const.CURVES_FRAME_Y,
+        width=ui_const.CURVES_FRAME_WIDTH,
+        height=ui_const.CURVES_FRAME_HEIGHT,
+    )
+    update_curves(curves_frame, "1", save_frame, checkbox_var, saved_data_curves)
     combo_curves.bind(
         "<<ComboboxSelected>>",
         lambda e: update_curves(
-            curves_frame, combo_curves.get(), save_frame, checkbox_var, saved_data_curves
-        )
+            curves_frame,
+            combo_curves.get(),
+            save_frame,
+            checkbox_var,
+            saved_data_curves,
+        ),
     )
 
     # Фрейм для предпросмотра графика
     preview_frame = ttk.Frame(tab1)
-    preview_frame.place(x=800, y=30, width=640, height=480)
-    fig, ax = plt.subplots()
-    canvas = FigureCanvasTkAgg(fig, master=preview_frame)
-    canvas.draw()
-    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    preview_frame.place(
+        x=ui_const.PREVIEW_X,
+        y=ui_const.LINE_HEIGHT,
+        width=ui_const.PREVIEW_WIDTH,
+        height=ui_const.PREVIEW_HEIGHT,
+    )
+
+    def show_usage() -> None:
+        logger.info("Отображение инструкции по использованию")
+        text = (
+            "1. В верхней части вкладки выберите язык интерфейса — он влияет на подписи осей, заголовки и элементы управления.\n"
+            "2. Выберите заголовок графика из списка или пункт «Другое» для ввода собственного текста.\n"
+            "3. Для осей X и Y выберите величину из списка: вариант «Другое» позволяет ввести своё название, а «Нет» скрывает название и единицы; при необходимости задайте размерность.\n"
+            "При выборе «Нет» в комбобоксах заголовка графика и осей подпись не отображается.\n"
+            "4. Выберите количество кривых и загрузите данные для каждой; при необходимости активируйте чекбокс «Легенда» и введите подпись кривой. Без включённой легенды подписи не отображаются.\n"
+            "5. Поддерживаемые форматы данных: текстовые файлы (*.txt, *.dat) — каждая строка содержит два числа; Excel-файлы (*.xlsx, *.xlsm, *.csv) с двумя столбцами или строками и возможностью указания диапазонов; файлы кривых LS-DYNA; результаты частотного анализа LS-DYNA.\n"
+            "6. Дополнительные настройки: для Excel можно менять ориентацию (строки/столбцы), задавать смещения и диапазоны; для частотного анализа выбираются параметр и направление; при чтении LS-DYNA проверяются служебные маркеры и игнорируются строки-комментарии.\n"
+            "7. Нажмите «Построить график» для отображения.\n"
+            "8. После построения графика откроется редактор, где можно изменять цвет, толщину и стиль линий, "
+            "применять цветовые палитры; все изменения сразу видны на графике.\n"
+            "9. Для сохранения изображения сначала введите имя файла, затем выберите формат (png, jpg, svg, pdf) и нажмите «Сохранить». "
+            "Файл сохраняется в текущей рабочей директории приложения, если не указано иное."
+        )
+        win = tk.Toplevel(tab1)
+        win.withdraw()
+        win.title("Как использовать")
+        tk.Label(
+            win, text=text, justify=tk.LEFT, wraplength=ui_const.WRAP_LENGTH
+        ).pack(padx=ui_const.PADDING, pady=ui_const.PADDING)
+        ttk.Button(win, text="Ок", command=win.destroy).pack(
+            pady=(0, ui_const.PADDING)
+        )
+
+        win.update_idletasks()
+        width = win.winfo_reqwidth()
+        height = win.winfo_reqheight()
+        x = (win.winfo_screenwidth() - width) // 2
+        y = (win.winfo_screenheight() - height) // 2
+        win.geometry(f"{width}x{height}+{x}+{y}")
+        win.transient(tab1.winfo_toplevel())
+        win.grab_set()
+        win.lift()
+        win.attributes("-topmost", True)
+        win.deiconify()
+
+    info_button = ttk.Button(tab1, text="Как использовать", command=show_usage)
+    info_button.place(x=ui_const.PREVIEW_X, y=0)
+    fig, ax, canvas = create_plot_canvas(preview_frame)
 
     editor_visible = {"shown": False}
     plot_editor = PlotEditor(tab1, ax, canvas)
-    plot_editor.place(x=800, y=560, width=640, height=180)
+    plot_editor.place(
+        x=ui_const.EDITOR_X,
+        y=ui_const.EDITOR_Y,
+        width=ui_const.PREVIEW_WIDTH,
+        height=ui_const.EDITOR_HEIGHT,
+    )
     plot_editor.place_forget()
 
-    def build_graph():
-        generate_graph(
-            ax, fig, canvas, path_entry_title,
-            combo_titleX, combo_titleX_size, path_entry_titleX,
-            combo_titleY, combo_titleY_size, path_entry_titleY,
-            checkbox_var, curves_frame, combo_curves, combo_language
-        )
-        plot_editor.refresh()
-        if not editor_visible["shown"]:
-            plot_editor.place(x=800, y=560, width=640, height=180)
-            editor_visible["shown"] = True
+    def build_graph() -> None:
+        logger.info("Построение графика")
+        try:
+            generate_graph(
+                ax,
+                fig,
+                canvas,
+                combo_title,
+                entry_title_custom,
+                combo_titleX,
+                combo_titleX_size,
+                path_entry_titleX,
+                combo_titleY,
+                combo_titleY_size,
+                path_entry_titleY,
+                checkbox_var,
+                curves_frame,
+                combo_curves,
+                combo_language,
+                legend_title_combo,
+                legend_title_entry,
+                legend_title_var,
+            )
+            plot_editor.refresh()
+            if not editor_visible["shown"]:
+                plot_editor.place(
+                    x=ui_const.EDITOR_X,
+                    y=ui_const.EDITOR_Y,
+                    width=ui_const.PREVIEW_WIDTH,
+                    height=ui_const.EDITOR_HEIGHT,
+                )
+                editor_visible["shown"] = True
+            logger.info("График построен успешно")
+        except ValueError as exc:
+            logger.error("Ошибка построения графика", exc_info=True)
+            messagebox.showerror("Ошибка", f"Не удалось построить график:\n{exc}")
+        except Exception as exc:
+            logger.exception("Ошибка при построении графика")
+            messagebox.showerror(
+                "Ошибка",
+                f"Не удалось построить график:\n{exc}\nПроверьте введённые данные и попробуйте снова.",
+            )
 
     # Кнопка построения графика
-    btn_generate_graph = ttk.Button(
-        tab1,
-        text="Построить график",
-        command=build_graph
-    )
-    btn_generate_graph.place(x=1050, y=520)
+    btn_generate_graph = ttk.Button(tab1, text="Построить график", command=build_graph)
+    btn_generate_graph.place(x=ui_const.BUTTON_BUILD_X, y=ui_const.BUTTON_BUILD_Y)
 
     # Элементы для сохранения файла
     label_save = ttk.Label(save_frame, text="Введите имя файла:")
-    label_save.place(x=10, y=0)
+    label_save.place(x=ui_const.PADDING, y=0)
     entry_save = create_text(
-        save_frame, method="entry", height=1, state='normal', scrollbar=False
+        save_frame, method="entry", height=1, state="normal", scrollbar=False
     )
-    entry_save.place(x=10, y=30, width=300)
+    entry_save.place(
+        x=ui_const.PADDING,
+        y=ui_const.LINE_HEIGHT,
+        width=ui_const.ENTRY_WIDTH,
+    )
     label_format = ttk.Label(save_frame, text="Формат:")
-    label_format.place(x=330, y=0)
-    combo_format = ttk.Combobox(save_frame, values=["png", "jpg", "svg", "pdf"], state='readonly')
-    combo_format.place(x=330, y=30, width=80)
+    label_format.place(x=ui_const.FORMAT_LABEL_X, y=0)
+    combo_format = ttk.Combobox(
+        save_frame, values=["png", "jpg", "svg", "pdf"], state="readonly"
+    )
+    combo_format.place(
+        x=ui_const.FORMAT_LABEL_X,
+        y=ui_const.LINE_HEIGHT,
+        width=ui_const.FORMAT_COMBO_WIDTH,
+    )
     combo_format.current(0)
     save_button = ttk.Button(
         save_frame,
         text="Сохранить",
-        command=lambda: save_file(entry_save, combo_format, last_graph)
+        command=lambda: save_file(entry_save, combo_format, last_graph),
     )
-    save_button.place(x=420, y=30)
+    save_button.place(x=ui_const.SAVE_BUTTON_X, y=ui_const.LINE_HEIGHT)
 
     # Чекбокс легенды
+    def on_legend_checkbox_toggle() -> None:
+        update_curves(
+            curves_frame,
+            combo_curves.get(),
+            save_frame,
+            checkbox_var,
+            saved_data_curves,
+        )
+        toggle_legend_title_visibility()
+
     checkbox = ttk.Checkbutton(
         input_frame,
         text="Легенда",
         variable=checkbox_var,
-        command=lambda: update_curves(
-            curves_frame, combo_curves.get(), save_frame, checkbox_var, saved_data_curves
-        )
+        command=on_legend_checkbox_toggle,
     )
-    checkbox.place(x=450, y=120)
-
-
+    checkbox.place(x=ui_const.CHECKBOX_X, y=ui_const.CURVE_LABEL_Y)
+    toggle_legend_title_visibility()

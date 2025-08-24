@@ -129,6 +129,8 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             return
         top_var.set(new_top)
         tree.item(root_id, text=name, values=(new_top,))
+        for child in tree.get_children(root_id):
+            tree.set(child, "top_folder", new_top)
 
     def on_entity_change(*_):
         if entity_var.get() == "element":
@@ -202,6 +204,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         entity_var.set(k)
         if e:
             element_var.set(e)
+        update_top_folder()
 
     def clear_all() -> None:
         for item in tree.get_children(root_id):

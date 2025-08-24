@@ -27,8 +27,9 @@ def read_pairs_any(
         Функции чтения для форматов Excel, LS-DYNA и текстовых файлов.
         Передаются как параметры для упрощения тестирования.
     """
+    path = Path(path).resolve()
     curve_info = {"curve_file": path}
-    suffix = Path(path).suffix.lower()
+    suffix = path.suffix.lower()
     if suffix in {".xlsx", ".xlsm", ".csv"}:
         read_excel(curve_info)
     elif suffix == ".txt":

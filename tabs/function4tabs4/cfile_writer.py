@@ -7,6 +7,7 @@ from pathlib import Path
 
 def write_cfile(commands: list[str], out_path: Path) -> Path:
     """Записать ``commands`` в файл ``out_path``."""
+    out_path = Path(out_path).resolve()
     try:
         with out_path.open("w", encoding="utf-8", newline="\r\n") as file:
             file.write("\n".join(commands) + "\n")

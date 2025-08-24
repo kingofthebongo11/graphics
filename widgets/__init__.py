@@ -6,6 +6,7 @@ from .select_path import select_path
 from .message_log import message_log
 from .text_widget import create_text, clear_text
 from .plot_editor import PlotEditor
+from .top_folder_panel import TopFolderPanel
 
 __all__ = [
     "make_context_menu",
@@ -15,5 +16,6 @@ __all__ = [
     "create_text",
     "clear_text",
     "PlotEditor",
+    "TopFolderPanel",
 ]
 

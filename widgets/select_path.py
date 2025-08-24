@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from .dialogs import ask_directory, ask_file
+from .dialogs import ask_directory, ask_file, ask_save_file
 
 
 def select_path(entry_widget, path_type="folder", saved_data=None):
@@ -9,8 +9,10 @@ def select_path(entry_widget, path_type="folder", saved_data=None):
         selected_path = ask_directory()
     elif path_type == "file":
         selected_path = ask_file()
+    elif path_type == "save_file":
+        selected_path = ask_save_file()
     else:
-        raise ValueError("Недопустимый тип пути: используйте 'folder' или 'file'.")
+        raise ValueError("Недопустимый тип пути: используйте 'folder', 'file' или 'save_file'.")
 
     if selected_path:
         entry_widget.delete(0, tk.END)

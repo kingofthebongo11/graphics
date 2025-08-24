@@ -135,7 +135,14 @@ def test_format_designation(token, in_math, expected):
     assert format_designation(token, in_math) == expected
 
 
-def test_bold_math_symbols_uses_format_designation(monkeypatch):
+@pytest.mark.parametrize(
+    "text,expected_calls",
+    [
+        ("M_x", [("M_x", False)]),
+        (r"\upalpha", [(r"\upalpha", False)]),
+    ],
+)
+def test_bold_math_symbols_uses_format_designation(monkeypatch, text, expected_calls):
     calls = []
 
     def fake(token, in_math):
@@ -143,8 +150,24 @@ def test_bold_math_symbols_uses_format_designation(monkeypatch):
         return token
 
     monkeypatch.setattr("tabs.title_utils.format_designation", fake)
-    bold_math_symbols("M_x")
-    assert calls == [("M_x", False)]
+    bold_math_symbols(text)
+    assert calls == expected_calls
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        (r"\upalpha", r"$\boldsymbol{\upalpha}$"),
+        (r"$\upbeta$", r"$\boldsymbol{\upbeta}$"),
+    ],
+)
+def test_bold_math_symbols_handles_upgreek(text, expected):
+    result = bold_math_symbols(text)
+    sanitized = result.replace("\\upalpha", "\\alpha").replace(
+        "\\upbeta", "\\beta"
+    )
+    parser.parse(sanitized)
+    assert result == expected
 
 
 def test_format_title_bolditalic_plain_text():

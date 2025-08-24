@@ -183,7 +183,9 @@ def bold_math_symbols(text: str) -> str:
     ``\mathbfit``) and respects existing math mode delimited by ``$``.
     """
 
-    pattern = re.compile(r"\\mathit\{[^}]+\}|\bM(?:_?[xyz])\b")
+    pattern = re.compile(
+        r"\\mathit\{[^}]+\}|\\up[a-zA-Z]+|\bM(?:_?[xyz])\b"
+    )
 
     def is_inside_math(s: str, pos: int) -> bool:
         count = 0

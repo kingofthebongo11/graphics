@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from topfolder_codec import encode_topfolder
+
 EntityKind = Literal["element", "node"]
 ElementType = Literal["beam", "shell", "solid"]
 
@@ -50,6 +52,16 @@ class EntityNode:
     entity_kind: EntityKind
     element_type: ElementType | None = None
     children: list[AnalysisNode] = field(default_factory=list)
+    top_folder_name: str = field(init=False)
+
+    def __post_init__(self) -> None:  # pragma: no cover - simple assignment
+        self.recalc_top_folder_name()
+
+    def recalc_top_folder_name(self) -> None:
+        """Recalculate and store encoded top folder name."""
+        self.top_folder_name = encode_topfolder(
+            self.user_name, self.entity_kind, self.element_type
+        )
 
     def to_dict(self) -> dict:
         data = {

@@ -22,12 +22,22 @@ def test_add_rename_remove_top_nodes(monkeypatch):
     tree = tab.tree
 
     start = len(tree.get_children())
+
+    class DummySectionDialog:
+        def __init__(self, _parent, tree_widget, item=None):
+            if item:
+                tree_widget.item(item, text="Renamed")
+            else:
+                tree_widget.insert("", "end", text="Added")
+            self.result = "ok"
+
+    monkeypatch.setattr(tab4mod, "SectionDialog", DummySectionDialog)
+
     tab.add_node()
     assert len(tree.get_children()) == start + 1
 
     new_item = tree.get_children()[-1]
     tree.selection_set(new_item)
-    monkeypatch.setattr(tab4mod.simpledialog, "askstring", lambda *a, **k: "Renamed")
     tab.rename_node()
     assert tree.item(new_item, "text") == "Renamed"
 

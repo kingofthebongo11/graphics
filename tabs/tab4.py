@@ -175,15 +175,29 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
     # --- Действия с деревом ---
     def add_node() -> None:
-        parent = tree.selection()[0] if tree.selection() else ""
-        if parent == "":
+        sel = tree.selection()
+        if not sel:
             SectionDialog(tab4, tree)
             return
 
-        dlg = AnalysisTypeDialog(tab4, title="Выбор типа анализа", values=ANALYSIS_TYPES)
-        choice = dlg.result
-        if choice:
-            tree.insert(parent, "end", text=choice)
+        item = sel[0]
+        parent = tree.parent(item)
+
+        if parent == "":
+            dlg = AnalysisTypeDialog(
+                tab4, title="Выбор типа анализа", values=ANALYSIS_TYPES
+            )
+            choice = dlg.result
+            if choice:
+                tree.insert(item, "end", text=choice)
+            return
+
+        if tree.parent(parent) == "":
+            number = simpledialog.askstring(
+                "Номер элемента", "Введите номер", parent=tab4
+            )
+            if number:
+                tree.insert(item, "end", text=safe_name(number))
 
     def remove_node() -> None:
         for item in tree.selection():
@@ -251,15 +265,23 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         item = tree.identify_row(event.y)
         if item:
             tree.selection_set(item)
+            if tree.parent(item) != "" and tree.parent(tree.parent(item)) != "":
+                menu.entryconfigure(0, state="disabled")
+            else:
+                menu.entryconfigure(0, state="normal")
             menu.entryconfigure(1, state="normal")
             menu.entryconfigure(2, state="normal")
         else:
             tree.selection_remove(tree.selection())
+            menu.entryconfigure(0, state="normal")
             menu.entryconfigure(1, state="disabled")
             menu.entryconfigure(2, state="disabled")
         menu.tk_popup(event.x_root, event.y_root)
 
     tree.bind("<Button-3>", show_menu)
+    tree.bind("<Insert>", lambda e: add_node())
+    tree.bind("<Delete>", lambda e: remove_node())
+    tree.bind("<F2>", lambda e: rename_node())
 
     # --- Генерация файлов ---
     def generate_cfile() -> None:

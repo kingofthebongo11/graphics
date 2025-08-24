@@ -21,7 +21,7 @@ def _create_app():
 def test_add_analysis_type(monkeypatch):
     root, tab = _create_app()
     tree = tab.tree
-    parent = tree.get_children()[0]
+    parent = tree.insert("", "end", text="top")
     tree.selection_set(parent)
     choice = ANALYSIS_TYPES[0]
 
@@ -33,4 +33,26 @@ def test_add_analysis_type(monkeypatch):
     tab.add_node()
     child = tree.get_children(parent)[-1]
     assert tree.item(child, "text") == choice
+    root.destroy()
+
+
+def test_add_element_number(monkeypatch):
+    root, tab = _create_app()
+    tree = tab.tree
+    top = tree.insert("", "end", text="top")
+    tree.selection_set(top)
+    choice = ANALYSIS_TYPES[0]
+
+    class DummyDialog:
+        def __init__(self, *a, **k):
+            self.result = choice
+
+    monkeypatch.setattr(tab4mod, "AnalysisTypeDialog", DummyDialog)
+    tab.add_node()
+    analysis = tree.get_children(top)[-1]
+    tree.selection_set(analysis)
+    monkeypatch.setattr(tab4mod.simpledialog, "askstring", lambda *a, **k: "15")
+    tab.add_node()
+    child = tree.get_children(analysis)[-1]
+    assert tree.item(child, "text") == "15"
     root.destroy()

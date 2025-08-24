@@ -13,6 +13,7 @@ def test_cyrillic_paths(tmp_path):
     # Проверка записи и чтения .cfile
     commands = ["привет", "мир"]
     write_cfile(commands, cfile_path)
+    # Используем кодировку cp1251, поскольку команды содержат русские символы
     assert cfile_path.read_text(encoding="cp1251") == "привет\nмир\n"
 
     # Проверка сохранения и загрузки дерева

@@ -3,6 +3,7 @@ from tkinter import ttk
 
 import logging
 
+from tabs.tab4 import create_tab4
 from tabs.tab3 import create_tab3
 from tabs.tab2 import create_tab2
 from tabs.tab1 import create_tab1
@@ -31,6 +32,7 @@ def main():
     create_tab1(notebook)
     create_tab2(notebook)
     create_tab3(notebook)
+    create_tab4(notebook)
 
     # Привязка обработчика закрытия окна
     root.protocol("WM_DELETE_WINDOW", lambda: on_closing(root))

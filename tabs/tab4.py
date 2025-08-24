@@ -45,6 +45,67 @@ class AnalysisTypeDialog(simpledialog.Dialog):
         self.result = self.var.get()
 
 
+class SectionDialog(simpledialog.Dialog):
+    """Диалог выбора раздела и типа сущности."""
+
+    _sections = ("Колонна", "Балка", "Перекрытие", "Стена")
+
+    def body(self, master: tk.Misc) -> tk.Widget:  # pragma: no cover - UI code
+        ttk.Label(master, text="Раздел:").grid(
+            row=0, column=0, sticky="w", padx=5, pady=(5, 0)
+        )
+        self.section_var = tk.StringVar()
+        self.section_box = ttk.Combobox(
+            master,
+            textvariable=self.section_var,
+            values=self._sections,
+            state="readonly",
+        )
+        self.section_box.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
+        if self._sections:
+            self.section_box.current(0)
+
+        ttk.Label(master, text="Тип:").grid(
+            row=2, column=0, sticky="w", padx=5, pady=(5, 0)
+        )
+        self.entity_var = tk.StringVar(value="узел")
+        self.entity_box = ttk.Combobox(
+            master,
+            textvariable=self.entity_var,
+            values=("узел", "элемент"),
+            state="readonly",
+        )
+        self.entity_box.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+
+        self.element_label = ttk.Label(master, text="Тип элемента:")
+        self.element_var = tk.StringVar(value="beam")
+        self.element_box = ttk.Combobox(
+            master,
+            textvariable=self.element_var,
+            values=("beam", "shell", "solid"),
+            state="readonly",
+        )
+
+        def on_entity_change(*_):
+            if self.entity_var.get() == "элемент":
+                self.element_label.grid(row=4, column=0, sticky="w", padx=5, pady=(5, 0))
+                self.element_box.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
+            else:
+                self.element_label.grid_remove()
+                self.element_box.grid_remove()
+
+        self.entity_var.trace_add("write", on_entity_change)
+        on_entity_change()
+
+        return self.section_box
+
+    def apply(self) -> None:  # pragma: no cover - UI code
+        section = self.section_var.get()
+        entity = self.entity_var.get()
+        elem = self.element_var.get() if entity == "элемент" else None
+        self.result = {"section": section, "entity": entity, "element": elem}
+
+
 def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     """Создать четвёртую вкладку приложения."""
 

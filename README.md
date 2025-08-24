@@ -95,4 +95,4 @@ Run the example with:
 python examples/combined_labels.py
 ```
 
-You will get a plot where the title displays bold symbols such as $\boldsymbol{F_x}$ and $\boldsymbol{\upalpha}$, while the axis labels show `$\mathit{t}$` and `$\upalpha$` without bold formatting.
+You will get a plot where the title displays bold symbols such as $\boldsymbol{\mathit{F}_{\mathit{x}}}$ and $\boldsymbol{\upalpha}$, while the axis labels show `$\mathit{t}$` and `$\upalpha$` without bold formatting.

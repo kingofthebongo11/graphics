@@ -35,8 +35,6 @@ def on_combo_change_curve_type(
     label_path_Y,
     path_entry_Y,
     select_button_Y,
-    label_analysis_type,
-    combo_analysis_type,
 ):
     def _init_geom(widget):
         if not hasattr(widget, "_orig_geom"):
@@ -87,8 +85,6 @@ def on_combo_change_curve_type(
         label_path_Y.place_forget()
         path_entry_Y.place_forget()
         select_button_Y.place_forget()
-        label_analysis_type.place_forget()
-        combo_analysis_type.place_forget()
     elif combo.get() == "Комбинированный":
         label_curve_typeX.place_forget()
         combo_curve_typeX.place_forget()
@@ -130,8 +126,6 @@ def on_combo_change_curve_type(
         label_path_Y.place(x=base_x, y=base_y_label + 50)
         path_entry_Y.place(x=base_x, y=base_y_entry + 50, width=width)
         select_button_Y.place(x=button_x, y=base_y_button + 50)
-        label_analysis_type.place_forget()
-        combo_analysis_type.place_forget()
     elif combo.get() == "Файл кривой LS-Dyna":
         label_curve_typeX.place_forget()
         combo_curve_typeX.place_forget()
@@ -179,5 +173,3 @@ def on_combo_change_curve_type(
         label_path_Y.place_forget()
         path_entry_Y.place_forget()
         select_button_Y.place_forget()
-        label_analysis_type.place_forget()
-        combo_analysis_type.place_forget()

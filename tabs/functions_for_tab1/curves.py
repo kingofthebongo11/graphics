@@ -6,7 +6,6 @@ from widgets import create_text, select_path
 
 from .events import on_combobox_event, on_combo_change_curve_type
 from ui import constants as ui_const
-from analysis_types import ANALYSIS_TYPES
 
 
 def _build_source_section(axis: str, input_frame: tk.Widget, i: int, saved_data: list[dict]) -> Dict[str, Any]:
@@ -540,19 +539,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     )
     combo_curve_typeY_type._name = f"curve_{i}_typeYFtype"
 
-    label_analysis_type = ttk.Label(input_frame, text="Тип анализа:")
-    combo_analysis_type = ttk.Combobox(
-        input_frame, values=ANALYSIS_TYPES, state="readonly"
-    )
-    combo_analysis_type._name = f"curve_{i}_analysis_type"
-    saved_at = saved_data[i - 1].get("analysis_type")
-    if saved_at:
-        combo_analysis_type.set(saved_at)
-    combo_analysis_type.bind(
-        "<<ComboboxSelected>>",
-        lambda e: saved_data[i - 1].update({"analysis_type": combo_analysis_type.get()}),
-    )
-
     x_source = _build_source_section("X", input_frame, i, saved_data)
     y_source = _build_source_section("Y", input_frame, i, saved_data)
 
@@ -587,8 +573,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 paths["label_path_Y"],
                 paths["path_entry_Y"],
                 paths["select_button_Y"],
-                label_analysis_type,
-                combo_analysis_type,
             )
         for w in [
             options["label_param"],
@@ -708,8 +692,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
                 paths["label_path_Y"],
                 paths["path_entry_Y"],
                 paths["select_button_Y"],
-                label_analysis_type,
-                combo_analysis_type,
             ),
             lambda e: saved_data[i - 1].update({"curve_type": combo_curve_type.get()}),
             lambda e: toggle_excel_options(),
@@ -763,8 +745,6 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         paths["label_path_Y"],
         paths["path_entry_Y"],
         paths["select_button_Y"],
-        label_analysis_type,
-        combo_analysis_type,
     )
     toggle_X_source_options()
     toggle_Y_source_options()
@@ -794,7 +774,7 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
         saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
-                           'curve_typeX_type': "", 'curve_typeY_type': "", 'analysis_type': "", 'horizontal': False,
+                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False,
                            'use_offset': False, 'offset_horizontal': 0, 'offset_vertical': 0,
                            'use_ranges': False, 'range_x': '', 'range_y': '',
                            'X_source': {}, 'Y_source': {}})

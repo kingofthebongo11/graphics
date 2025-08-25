@@ -7,7 +7,7 @@ from topfolder_codec import encode_topfolder
 from tree_schema import EntityNode, AnalysisNode, FileNode
 from tabs.function4tabs4.command_all import walk_tree_and_build_commands
 from tabs.function4tabs4.cfile_writer import write_cfile
-from analysis_types import ANALYSIS_TYPES
+from analysis_types import ANALYSIS_TYPES_BEAM
 
 
 def test_treeview_to_entity_nodes_and_cfile(tmp_path):
@@ -20,7 +20,7 @@ def test_treeview_to_entity_nodes_and_cfile(tmp_path):
 
     top_text = encode_topfolder("user", "node")
     top = tree.insert("", "end", text=top_text)
-    analysis_type = ANALYSIS_TYPES[0]
+    analysis_type = ANALYSIS_TYPES_BEAM[0]
     analysis = tree.insert(top, "end", text=analysis_type)
     tree.insert(analysis, "end", text="1")
 

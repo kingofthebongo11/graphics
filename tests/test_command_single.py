@@ -1,16 +1,12 @@
 import pytest
-from analysis_types import AnalysisType
-from tabs.function4tabs4.command_single import (
-    build_curve_commands,
-    ETYPE_BY_ELEMENT,
-    ETIME_BY_ANALYSIS,
-)
+from analysis_types import AnalysisType, ANALYSIS_TYPE_CODES
+from tabs.function4tabs4.command_single import build_curve_commands, ETYPE_BY_ELEMENT
 
 
 def test_build_curve_commands_element():
     analysis = AnalysisType.TIME_AXIAL_FORCE.value
     etype = ETYPE_BY_ELEMENT["beam"]
-    etime = ETIME_BY_ANALYSIS[analysis]
+    etime = ANALYSIS_TYPE_CODES["beam"][analysis]
     cmds = build_curve_commands(
         base_project_dir="C:\\proj",
         top_folder_name="pilon-element-beam",
@@ -71,3 +67,17 @@ def test_build_curve_commands_invalid(kwargs):
     base_args.update(kwargs)
     with pytest.raises(ValueError):
         build_curve_commands(**base_args)
+
+
+@pytest.mark.parametrize("analysis, etime", ANALYSIS_TYPE_CODES["shell"].items())
+def test_build_curve_commands_shell(analysis, etime):
+    etype = ETYPE_BY_ELEMENT["shell"]
+    cmds = build_curve_commands(
+        base_project_dir="C:\\proj",
+        top_folder_name="pilon-element-shell",
+        analysis_type=analysis,
+        entity_kind="element",
+        element_type="shell",
+        element_id=3,
+    )
+    assert cmds[2] == f"etype {etype} ;etime {etime}"

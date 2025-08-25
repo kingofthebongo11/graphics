@@ -5,7 +5,7 @@ from tkinter import ttk
 import tabs.tab4 as tab4mod
 from tabs.tab4 import create_tab4
 from topfolder_codec import encode_topfolder
-from analysis_types import ANALYSIS_TYPES_BY_ELEMENT
+from analysis_types import ANALYSIS_TYPES_BEAM, ANALYSIS_TYPES_SHELL
 
 
 def _create_app():
@@ -82,6 +82,6 @@ def test_analysis_types_dependent_on_element_type(monkeypatch):
     tree.selection_set(shell_top)
     tab.add_node()
 
-    assert captured[0] == ANALYSIS_TYPES_BY_ELEMENT["beam"]
-    assert captured[1] == ANALYSIS_TYPES_BY_ELEMENT["shell"]
+    assert captured[0] == ANALYSIS_TYPES_BEAM
+    assert captured[1] == ANALYSIS_TYPES_SHELL
     root.destroy()

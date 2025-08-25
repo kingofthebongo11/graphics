@@ -188,19 +188,13 @@ def treeview_to_entity_nodes(tree: ttk.Treeview) -> list[EntityNode]:
 
 
 def _adjust_curves_root(path: Path) -> tuple[Path | None, str | None]:
-    """Проверить ``path`` на признак корня проекта и вернуть папку с кривыми."""
+    """Проверить ``path`` на наличие подпапки ``curves``.
 
-    markers = ("pyproject.toml", ".git")
-    if any((path / m).exists() for m in markers):
-        curves_dir = path / "curves"
-        if curves_dir.is_dir():
-            return curves_dir, None
-        return None, f"В проекте {path} отсутствует подкаталог 'curves'"
+    Возвращает кортеж ``(путь, None)`` при успешном поиске подпапки или
+    ``(None, сообщение об ошибке)`` в противном случае.
+    """
 
-    if path.name == "curves" and path.is_dir():
-        return path, None
-
-    curves_dir = path / "curves"
+    curves_dir = path if path.name == "curves" else path / "curves"
     if curves_dir.is_dir():
         return curves_dir, None
     return None, f"В директории {path} отсутствует подкаталог 'curves'"

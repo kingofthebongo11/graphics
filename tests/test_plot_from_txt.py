@@ -6,9 +6,10 @@ from analysis_types import AnalysisType
 
 
 def test_extract_labels():
-    x, y = extract_labels(AnalysisType.TIME_AXIAL_FORCE.value)
-    assert x == "Время"
-    assert y == "Продольная сила"
+    x, y, title = extract_labels(AnalysisType.TIME_AXIAL_FORCE.value)
+    assert x == "Время $\\mathit{\\mathit{t}}$, с"
+    assert y == "Продольная сила $\\mathit{\\mathit{N}}$, Н"
+    assert title == y
 
 
 def test_plot_from_txt(tmp_path):

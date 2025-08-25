@@ -69,6 +69,10 @@ STRESS_UNITS_PAIRS = sort_unit_pairs(
 STRESS_UNITS = [ru for ru, _ in STRESS_UNITS_PAIRS]
 STRESS_UNITS_EN = [en for _, en in STRESS_UNITS_PAIRS]
 
+# Давление использует те же единицы, что и напряжение
+PRESSURE_UNIT_PAIRS = STRESS_UNITS_PAIRS
+PRESSURE_UNITS_EN = STRESS_UNITS_EN
+
 TIME_UNIT_PAIRS = sort_unit_pairs([
     ("Нет", "None"),
     ("мс", "ms"),
@@ -119,6 +123,16 @@ MOMENT_UNIT_PAIRS = sort_unit_pairs([
     ("Другое", "Other"),
 ])
 
+PLATE_MOMENT_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
+    ("Н·м/м", "N·m/m"),
+    ("кН·м/м", "kN·m/m"),
+    ("кгс·м/м", "kgf·m/m"),
+    ("тс·м/м", "tf·m/m"),
+    ("Другое", "Other"),
+])
+
+
 FREQUENCY_UNIT_PAIRS = sort_unit_pairs([
     ("Нет", "None"),
     ("Гц", "Hz"),
@@ -145,6 +159,7 @@ UNITS_PAIRS = {
     "Поперечная сила по Y": FORCE_UNIT_PAIRS,
     "Поперечная сила по Z": FORCE_UNIT_PAIRS,
     "Масса": MASS_UNIT_PAIRS,
+    "Давление (п)": PRESSURE_UNIT_PAIRS,
     "Напряжение": STRESS_UNITS_PAIRS,
     "Интенсивность напряжений": STRESS_UNITS_PAIRS,
     "Нормальное напряжение X": STRESS_UNITS_PAIRS,
@@ -162,6 +177,9 @@ UNITS_PAIRS = {
     "Изгибающий момент My": MOMENT_UNIT_PAIRS,
     "Изгибающий момент Mt (Mz)": MOMENT_UNIT_PAIRS,
     "Изгибающий момент Mz": MOMENT_UNIT_PAIRS,
+    "Изгибающий момент Mx(п)": PLATE_MOMENT_UNIT_PAIRS,
+    "Изгибающий момент My(п)": PLATE_MOMENT_UNIT_PAIRS,
+    "Изгибающий момент Mxy(п)": PLATE_MOMENT_UNIT_PAIRS,
     "Частота": FREQUENCY_UNIT_PAIRS,
     "Частота 1": FREQUENCY_UNIT_PAIRS,
     "Частота 2": FREQUENCY_UNIT_PAIRS,
@@ -197,6 +215,7 @@ DEFAULT_UNITS = {
     "Поперечная сила по Y": "Н",
     "Поперечная сила по Z": "Н",
     "Масса": "кг",
+    "Давление (п)": "Па",
     "Напряжение": "Па",
     "Интенсивность напряжений": "Па",
     "Нормальное напряжение X": "Па",
@@ -214,6 +233,9 @@ DEFAULT_UNITS = {
     "Изгибающий момент My": "Н·м",
     "Изгибающий момент Mt (Mz)": "Н·м",
     "Изгибающий момент Mz": "Н·м",
+    "Изгибающий момент Mx(п)": "Н·м/м",
+    "Изгибающий момент My(п)": "Н·м/м",
+    "Изгибающий момент Mxy(п)": "Н·м/м",
     "Частота": "Гц",
     "Частота 1": "Гц",
     "Частота 2": "Гц",
@@ -230,6 +252,9 @@ PHYSICAL_QUANTITIES = sort_options(
         "Изгибающий момент My",
         "Изгибающий момент Mt (Mz)",
         "Изгибающий момент Mz",
+        "Изгибающий момент Mx(п)",
+        "Изгибающий момент My(п)",
+        "Изгибающий момент Mxy(п)",
         "Интенсивность пластических деформаций",
         "Интенсивность напряжений",
         "Касательное напряжение XY",
@@ -240,6 +265,7 @@ PHYSICAL_QUANTITIES = sort_options(
         "Касательное напряжение ZY",
         "Крутящий момент Mx",
         "Масса",
+        "Давление (п)",
         "Напряжение",
         "Нормальное напряжение X",
         "Нормальное напряжение Y",
@@ -274,6 +300,9 @@ PHYSICAL_QUANTITIES_TRANSLATION = {
     "Изгибающий момент My": "Bending moment My",
     "Изгибающий момент Mt (Mz)": "Bending moment Mt (Mz)",
     "Изгибающий момент Mz": "Bending moment Mz",
+    "Изгибающий момент Mx(п)": "Bending moment Mx",
+    "Изгибающий момент My(п)": "Bending moment My",
+    "Изгибающий момент Mxy(п)": "Bending moment Mxy",
     "Интенсивность пластических деформаций": "Plastic strain intensity",
     "Интенсивность напряжений": "Stress intensity",
     "Касательное напряжение XY": "Shear stress XY",
@@ -284,6 +313,7 @@ PHYSICAL_QUANTITIES_TRANSLATION = {
     "Касательное напряжение ZY": "Shear stress ZY",
     "Крутящий момент Mx": "Torque Mx",
     "Масса": "Mass",
+    "Давление (п)": "Pressure",
     "Напряжение": "Stress",
     "Нормальное напряжение X": "Normal stress X",
     "Нормальное напряжение Y": "Normal stress Y",
@@ -324,6 +354,7 @@ DEFORMATION_UNITS_EN = [en for _, en in DEFORMATION_UNIT_PAIRS]
 FORCE_UNITS_EN = [en for _, en in FORCE_UNIT_PAIRS]
 MASS_UNITS_EN = [en for _, en in MASS_UNIT_PAIRS]
 MOMENT_UNITS_EN = [en for _, en in MOMENT_UNIT_PAIRS]
+PLATE_MOMENT_UNITS_EN = [en for _, en in PLATE_MOMENT_UNIT_PAIRS]
 FREQUENCY_UNITS_EN = [en for _, en in FREQUENCY_UNIT_PAIRS]
 
 UNITS_MAPPING_EN = {
@@ -366,6 +397,8 @@ DEFAULT_UNITS_EN = {
     "Bending moment My": "N·m",
     "Bending moment Mt (Mz)": "N·m",
     "Bending moment Mz": "N·m",
+    "Pressure": "Pa",
+    "Bending moment Mxy": "N·m/m",
     "Frequency": "Hz",
     "Frequency 1": "Hz",
     "Frequency 2": "Hz",
@@ -500,6 +533,22 @@ TITLE_TRANSLATIONS = {
     "Изгибающий момент Mz": {
         "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{z}}$",
         "Английский": r"Bending moment $\mathit{M}_{\mathit{z}}$",
+    },
+    "Изгибающий момент Mx(п)": {
+        "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{x}}$",
+        "Английский": r"Bending moment $\mathit{M}_{\mathit{x}}$",
+    },
+    "Изгибающий момент My(п)": {
+        "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{y}}$",
+        "Английский": r"Bending moment $\mathit{M}_{\mathit{y}}$",
+    },
+    "Изгибающий момент Mxy(п)": {
+        "Русский": r"Изгибающий момент $\mathit{M}_{\mathit{xy}}$",
+        "Английский": r"Bending moment $\mathit{M}_{\mathit{xy}}$",
+    },
+    "Давление (п)": {
+        "Русский": r"Давление $\mathit{p}$",
+        "Английский": r"Pressure $\mathit{p}$",
     },
     "Частота": {
         "Русский": r"Частота $\mathit{f}$",

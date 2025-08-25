@@ -345,6 +345,16 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             messagebox.showerror("Ошибка", str(exc), parent=tab4)
             return
 
+        curves_root = path.parent / "curves"
+        for node in roots:
+            top_folder = encode_topfolder(
+                node.user_name, node.entity_kind, node.element_type
+            )
+            for analysis in node.children:
+                (curves_root / top_folder / analysis.analysis_type).mkdir(
+                    parents=True, exist_ok=True
+                )
+
         commands = walk_tree_and_build_commands(roots, path.parent)
         write_cfile(commands, path)
         messagebox.showinfo("Готово", f"C-файл сохранён в {path}", parent=tab4)

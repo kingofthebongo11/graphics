@@ -20,11 +20,13 @@ ETYPE_BY_ELEMENT: Dict[str, int] = {
 SELECT_TEMPLATES: Dict[Tuple[str, str | None], List[str]] = {
     ("element", "beam"): [
         "genselect clear all",
+        "genselect target beam",
         "genselect beam add beam {element_id}/0",
         "etype {etype} ;etime {etime}",
     ],
     ("element", "shell"): [
         "genselect clear all",
+        "genselect target shell",
         "genselect shell add shell {element_id}/0",
         "etype {etype} ;etime {etime}",
     ],

@@ -13,7 +13,13 @@ import argparse
 from tabs.function_for_all_tabs.validation import ensure_analysis_type
 from tabs.function_for_all_tabs import create_plot, read_pairs_any
 from tabs.functions_for_tab1.plotting import TitleProcessor
-from tabs.constants import DEFAULT_UNITS, TITLE_TRANSLATIONS, TITLES_SYMBOLS
+from tabs.constants import (
+    DEFAULT_UNITS,
+    TITLE_TRANSLATIONS,
+    TITLES_SYMBOLS,
+    LEGEND_TITLE_TRANSLATIONS,
+)
+from topfolder_codec import decode_topfolder
 
 
 def extract_labels(analysis_type: str) -> tuple[str, str, str]:
@@ -140,13 +146,17 @@ def plot_from_txt_files(txt_files: list[str], analysis_type: str) -> str:
     analysis_dir = Path(txt_files[0]).parent
     output_path = str(analysis_dir.with_suffix(".png"))
 
+    _, entity_kind, _ = decode_topfolder(analysis_dir.parent.name)
+    legend_key = "№ Элементов" if entity_kind == "element" else "№ Узлов"
+    legend_title = LEGEND_TITLE_TRANSLATIONS[legend_key]["Русский"]
+
     create_plot(
         curves,
         x_label=x_label,
         y_label=y_label,
         title=title,
         legend=True,
-        legend_title=analysis_type,
+        legend_title=legend_title,
         save_file=True,
         file_plt=output_path,
     )

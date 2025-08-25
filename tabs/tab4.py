@@ -30,16 +30,23 @@ class AnalysisTypeDialog(simpledialog.Dialog):
         super().__init__(parent, title)
 
     def body(self, master: tk.Misc) -> tk.Widget:  # pragma: no cover - UI code
+        master.columnconfigure(0, weight=1)
         ttk.Label(master, text="Тип анализа:").grid(
             row=0, column=0, sticky="w", padx=5, pady=(5, 0)
         )
         self.var = tk.StringVar()
         self.combo = ttk.Combobox(
-            master, textvariable=self.var, values=self._values, state="readonly"
+            master,
+            textvariable=self.var,
+            values=self._values,
+            state="readonly",
+            width=40,
         )
-        self.combo.grid(row=1, column=0, padx=5, pady=5)
+        self.combo.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
         if self._values:
             self.combo.current(0)
+        master.update_idletasks()
+        self.minsize(self.combo.winfo_reqwidth() + 10, master.winfo_reqheight())
         return self.combo
 
     def apply(self) -> None:  # pragma: no cover - UI code

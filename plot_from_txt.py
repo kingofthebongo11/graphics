@@ -12,11 +12,12 @@ import argparse
 
 from tabs.function_for_all_tabs.validation import ensure_analysis_type
 from tabs.function_for_all_tabs import create_plot, read_pairs_any
-from tabs.title_utils import format_signature
+from tabs.functions_for_tab1.plotting import TitleProcessor
+from tabs.constants import DEFAULT_UNITS, TITLE_TRANSLATIONS, TITLES_SYMBOLS
 
 
-def extract_labels(analysis_type: str) -> tuple[str, str]:
-    """Получить подписи осей из ``analysis_type``.
+def extract_labels(analysis_type: str) -> tuple[str, str, str]:
+    """Получить подписи осей и заголовок из ``analysis_type``.
 
     Parameters
     ----------
@@ -25,16 +26,38 @@ def extract_labels(analysis_type: str) -> tuple[str, str]:
 
     Returns
     -------
-    tuple[str, str]
-        Подписи осей ``(X, Y)`` с применённым форматированием.
+    tuple[str, str, str]
+        Подписи осей ``(X, Y)`` и заголовок ``title`` с оформленными
+        обозначениями и единицами измерения.
     """
 
     atype = ensure_analysis_type(analysis_type)
     x_raw, y_raw = (part.strip() for part in atype.split("-", 1))
-    return (
-        format_signature(x_raw, bold=False),
-        format_signature(y_raw, bold=False),
+
+    class Getter:
+        def __init__(self, value: str):
+            self._value = value
+
+        def get(self) -> str:
+            return self._value
+
+    x_title = Getter(x_raw)
+    y_title = Getter(y_raw)
+    x_unit = Getter(DEFAULT_UNITS.get(x_raw, ""))
+    y_unit = Getter(DEFAULT_UNITS.get(y_raw, ""))
+
+    x_proc = TitleProcessor(
+        x_title, combo_size=x_unit, translations=TITLE_TRANSLATIONS
     )
+    y_proc = TitleProcessor(
+        y_title, combo_size=y_unit, translations=TITLE_TRANSLATIONS
+    )
+    title_proc = TitleProcessor(y_title, combo_size=y_unit, translations=TITLES_SYMBOLS)
+
+    xlabel = x_proc.get_processed_title()
+    ylabel = y_proc.get_processed_title()
+    title = title_proc.get_processed_title()
+    return xlabel, ylabel, title
 
 
 def plot_from_txt(txt_file: str, analysis_type: str, output: str | None = None) -> str:
@@ -63,14 +86,14 @@ def plot_from_txt(txt_file: str, analysis_type: str, output: str | None = None) 
 
     curve_info = {"curve_file": txt_file, "X_values": xs, "Y_values": ys}
 
-    x_label, y_label = extract_labels(analysis_type)
+    x_label, y_label, title = extract_labels(analysis_type)
     output_path = output or str(Path(txt_file).with_suffix(".png"))
 
     create_plot(
         [curve_info],
         x_label=x_label,
         y_label=y_label,
-        title="",
+        title=title,
         save_file=True,
         file_plt=output_path,
     )
@@ -113,7 +136,7 @@ def plot_from_txt_files(txt_files: list[str], analysis_type: str) -> str:
     if not curves:
         raise ValueError("Не удалось прочитать данные из файлов")
 
-    x_label, y_label = extract_labels(analysis_type)
+    x_label, y_label, title = extract_labels(analysis_type)
     analysis_dir = Path(txt_files[0]).parent
     output_path = str(analysis_dir.with_suffix(".png"))
 
@@ -121,7 +144,7 @@ def plot_from_txt_files(txt_files: list[str], analysis_type: str) -> str:
         curves,
         x_label=x_label,
         y_label=y_label,
-        title="",
+        title=title,
         legend=True,
         legend_title=analysis_type,
         save_file=True,

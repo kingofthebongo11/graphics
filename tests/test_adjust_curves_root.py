@@ -31,3 +31,10 @@ def test_adjust_curves_root_project_without_curves(tmp_path):
     resolved, err = tab4._adjust_curves_root(tmp_path)
     assert resolved is None
     assert err
+
+
+def test_adjust_curves_root_nonexistent_curves_dir(tmp_path):
+    path = tmp_path / "curves"
+    resolved, err = tab4._adjust_curves_root(path)
+    assert resolved is None
+    assert err

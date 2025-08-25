@@ -16,7 +16,6 @@ from tabs.functions_for_tab1.plotting import TitleProcessor
 from tabs.constants import (
     DEFAULT_UNITS,
     TITLE_TRANSLATIONS,
-    TITLE_TRANSLATIONS_BOLD,
     LEGEND_TITLE_TRANSLATIONS,
 )
 from topfolder_codec import decode_topfolder
@@ -61,8 +60,8 @@ def extract_labels(analysis_type: str) -> tuple[str, str, str]:
     )
     title_proc = TitleProcessor(
         graph_title,
-        combo_size=y_unit,
-        translations=TITLE_TRANSLATIONS_BOLD,
+        combo_size=Getter(""),
+        translations=TITLE_TRANSLATIONS,
         bold_math=True,
     )
 

@@ -211,7 +211,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     """Создать четвёртую вкладку приложения."""
 
     tab4 = ttk.Frame(notebook)
-    notebook.add(tab4, text="Вкладка 4")
+    notebook.add(tab4, text="Авто-кривые Ls-Dyna")
 
     # --- Дерево ---
     tree = ttk.Treeview(tab4, show="tree")

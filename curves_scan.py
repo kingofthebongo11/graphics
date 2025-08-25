@@ -15,6 +15,11 @@ def _clean_name(name: str) -> str:
 def scan_curves(root_dir: Path | str) -> Tuple[Dict[str, Dict[str, List[str]]], List[str]]:
     """Сканирует каталог с кривыми и собирает файлы по топ-папкам.
 
+    Имена топ-папок используются как есть, включая возможные числовые
+    префиксы (например, ``01-проект``). Это позволяет хранить рядом
+    несколько вариантов одного проекта. Для подпапок анализов префикс по-
+    прежнему удаляется.
+
     Параметры:
         root_dir: Корневая директория, содержащая топ-папки.
 
@@ -36,7 +41,7 @@ def scan_curves(root_dir: Path | str) -> Tuple[Dict[str, Dict[str, List[str]]], 
         return result, errors
 
     for top_path in top_dirs:
-        clean_top_name = _clean_name(top_path.name)
+        clean_top_name = top_path.name
         analyses: Dict[str, List[str]] = {}
         had_subdirs = False
         for analysis_dir in top_path.iterdir():

@@ -27,7 +27,7 @@ def test_scan_curves_collects_files(tmp_path):
         },
     }
 
-    result = scan_curves(tmp_path)
+    result, errors = scan_curves(tmp_path)
 
     for analyses in expected.values():
         for files in analyses.values():
@@ -37,6 +37,7 @@ def test_scan_curves_collects_files(tmp_path):
             files.sort()
 
     assert result == expected
+    assert not errors
 
 
 def test_scan_curves_empty_or_missing(tmp_path):
@@ -45,6 +46,19 @@ def test_scan_curves_empty_or_missing(tmp_path):
     # Топ-папка без подпапок анализа
     (tmp_path / "uzli-node").mkdir()
 
-    result = scan_curves(tmp_path)
+    result, errors = scan_curves(tmp_path)
 
     assert result == {}
+    assert sorted(errors) == sorted(
+        [
+            "Топ-папка 'pilon-element-beam' не содержит подпапок анализов",
+            "Топ-папка 'uzli-node' не содержит подпапок анализов",
+        ]
+    )
+
+
+def test_scan_curves_no_top_folders(tmp_path):
+    result, errors = scan_curves(tmp_path)
+
+    assert result == {}
+    assert errors == ["Не найдено ни одной топ-папки"]

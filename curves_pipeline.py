@@ -27,7 +27,8 @@ def build_curves_report(curves_root: Path | str) -> Tuple[Path | None, List[str]
     errors: List[str] = []
 
     try:
-        structure = scan_curves(root)
+        structure, scan_errors = scan_curves(root)
+        errors.extend(scan_errors)
     except Exception as exc:  # pragma: no cover - защитный код
         errors.append(f"Сканирование: {exc}")
         structure = {}

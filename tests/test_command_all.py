@@ -1,6 +1,9 @@
 from pathlib import Path, PureWindowsPath
 from analysis_types import AnalysisType
-from tabs.function4tabs4.command_all import collect_commands, walk_tree_and_build_commands
+from tabs.function4tabs4.command_all import (
+    collect_commands,
+    walk_tree_and_build_commands,
+)
 from tabs.function4tabs4.tree_schema import Tree, AnalysisFolder, CurveNode
 from tabs.function4tabs4.naming import safe_name
 from tree_schema import EntityNode, AnalysisNode, FileNode
@@ -27,8 +30,11 @@ def test_walk_tree_and_build_commands(tmp_path):
         entity_kind="node",
         children=[AnalysisNode(analysis, children=[FileNode(1)])],
     )
-    commands = walk_tree_and_build_commands([entity], base_project_dir=tmp_path)
-    top_folder = encode_topfolder("user", "node")
+    numbered = f"1-{encode_topfolder('user', 'node')}"
+    commands = walk_tree_and_build_commands(
+        [entity], base_project_dir=tmp_path, top_folder_names=[numbered]
+    )
+    top_folder = numbered
     expected_path = PureWindowsPath(
         tmp_path, "curves", top_folder, analysis, "1.txt"
     )

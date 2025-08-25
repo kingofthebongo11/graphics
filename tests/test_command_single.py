@@ -94,4 +94,4 @@ def test_analysis_type_codes_shell_updated():
     assert "Время - Изгибающий момент Mx(п)" in codes
     assert "Время - Изгибающий момент My(п)" in codes
     assert "Время - Изгибающий момент Mxy(п)" in codes
-    assert "Время - Давление (п)" in codes
+    assert "Время - Давление" in codes

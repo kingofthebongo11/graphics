@@ -15,7 +15,12 @@ def _format_section_title(folder_name: str) -> str:
 
 
 def _add_images_from_dir(document: Document, directory: Path) -> None:
-    """Добавляет все PNG изображения из каталога в документ."""
+    """Добавляет в документ PNG из каталога и одноимённый файл из родителя."""
+
+    parent_image = directory.with_suffix(".png")
+    if parent_image.exists():
+        document.add_picture(str(parent_image))
+
     for image_path in sorted(directory.glob("*.png")):
         document.add_picture(str(image_path))
 

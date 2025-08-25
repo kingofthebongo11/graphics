@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 from docx import Document
 
 
 def _format_section_title(folder_name: str) -> str:
     """Форматирует название топ-папки для заголовка раздела."""
-    first, *rest = folder_name.split("-", 1)
+    clean_name = re.sub(r"^\d+[\-_ ]*", "", folder_name)
+    first, *rest = clean_name.split("-", 1)
     if rest:
         return f"{first} ({rest[0]})"
     return first
@@ -29,7 +31,11 @@ def build_report(curves_root: Path | str) -> Path:
     root = Path(curves_root)
     document = Document()
 
-    for top_path in sorted(filter(Path.is_dir, root.iterdir())):
+    def _prefix(path: Path) -> int:
+        match = re.match(r"^(\d+)", path.name)
+        return int(match.group(1)) if match else float("inf")
+
+    for top_path in sorted(filter(Path.is_dir, root.iterdir()), key=_prefix):
         document.add_heading(_format_section_title(top_path.name), level=1)
         for image_path in sorted(top_path.rglob("*.png")):
             document.add_picture(str(image_path))

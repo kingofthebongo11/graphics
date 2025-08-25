@@ -17,6 +17,7 @@ def test_build_curve_commands_element():
     )
     assert cmds == [
         "genselect clear all",
+        "genselect target beam",
         "genselect beam add beam 7/0",
         f"etype {etype} ;etime {etime}",
         f'xyplot 1 savefile curve_file "C:\\proj\\curves\\pilon-element-beam\\{analysis}\\7.txt" 1 all',
@@ -80,4 +81,9 @@ def test_build_curve_commands_shell(analysis, etime):
         element_type="shell",
         element_id=3,
     )
-    assert cmds[2] == f"etype {etype} ;etime {etime}"
+    assert cmds[:3] == [
+        "genselect clear all",
+        "genselect target shell",
+        "genselect shell add shell 3/0",
+    ]
+    assert cmds[3] == f"etype {etype} ;etime {etime}"

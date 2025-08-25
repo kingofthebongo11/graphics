@@ -31,16 +31,16 @@ def test_walk_tree_and_build_commands(tmp_path):
         children=[AnalysisNode(analysis, children=[FileNode(1)])],
     )
     numbered = f"1-{encode_topfolder('user', 'node')}"
-    analysis_map = {analysis: f"1-{analysis}"}
+    folder_map = {(0, 0): f"1-{analysis}"}
     commands = walk_tree_and_build_commands(
         [entity],
         base_project_dir=tmp_path,
         top_folder_names=[numbered],
-        analysis_name_maps=[analysis_map],
+        analysis_folder_names=folder_map,
     )
     top_folder = numbered
     expected_path = PureWindowsPath(
-        tmp_path, "curves", top_folder, analysis_map[analysis], "1.txt"
+        tmp_path, "curves", top_folder, folder_map[(0, 0)], "1.txt"
     )
     assert commands == [
         "genselect clear all",

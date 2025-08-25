@@ -45,6 +45,22 @@ def test_build_curve_commands_node():
     ]
 
 
+def test_build_curve_commands_custom_dirname():
+    analysis = AnalysisType.TIME_AXIAL_FORCE.value
+    cmds = build_curve_commands(
+        base_project_dir="C:\\proj",
+        top_folder_name="uzli-node",
+        analysis_type=analysis,
+        entity_kind="node",
+        element_type=None,
+        element_id=15,
+        analysis_dirname="1-custom",
+    )
+    assert cmds[2] == (
+        'xyplot 1 savefile curve_file "C:\\proj\\curves\\uzli-node\\1-custom\\15.txt" 1 all'
+    )
+
+
 @pytest.mark.parametrize(
     "kwargs",
     [

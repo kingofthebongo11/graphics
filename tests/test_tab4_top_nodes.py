@@ -84,4 +84,8 @@ def test_analysis_types_dependent_on_element_type(monkeypatch):
 
     assert captured[0] == ANALYSIS_TYPES_BEAM
     assert captured[1] == ANALYSIS_TYPES_SHELL
+    assert "Время - Изгибающий момент Mx(п)" in ANALYSIS_TYPES_SHELL
+    assert "Время - Изгибающий момент My(п)" in ANALYSIS_TYPES_SHELL
+    assert "Время - Изгибающий момент Mxy(п)" in ANALYSIS_TYPES_SHELL
+    assert "Время - Давление (п)" in ANALYSIS_TYPES_SHELL
     root.destroy()

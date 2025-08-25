@@ -14,19 +14,11 @@ def _format_section_title(folder_name: str) -> str:
     return first
 
 
-def _add_images_from_dir(document: Document, directory: Path) -> None:
-    """Добавляет в документ PNG из каталога и одноимённый файл из родителя."""
-
-    parent_image = directory.with_suffix(".png")
-    if parent_image.exists():
-        document.add_picture(str(parent_image))
-
-    for image_path in sorted(directory.glob("*.png")):
-        document.add_picture(str(image_path))
-
-
 def build_report(curves_root: Path | str) -> Path:
     """Собирает отчет по PNG файлам в каталоге Curves.
+
+    Для каждой топ-папки создаёт заголовок первого уровня и добавляет
+    все найденные в ней графики (PNG) из вложенных каталогов.
 
     Параметры:
         curves_root: Каталог с топ-папками.
@@ -39,9 +31,8 @@ def build_report(curves_root: Path | str) -> Path:
 
     for top_path in sorted(filter(Path.is_dir, root.iterdir())):
         document.add_heading(_format_section_title(top_path.name), level=1)
-        for analysis_dir in sorted(filter(Path.is_dir, top_path.iterdir())):
-            document.add_heading(analysis_dir.name, level=2)
-            _add_images_from_dir(document, analysis_dir)
+        for image_path in sorted(top_path.rglob("*.png")):
+            document.add_picture(str(image_path))
 
     output_path = root / "Report.docx"
     document.save(str(output_path))

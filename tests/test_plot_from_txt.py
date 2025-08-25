@@ -4,9 +4,8 @@ from unittest.mock import patch
 from plot_from_txt import extract_labels, plot_from_txt, plot_from_txt_files
 from analysis_types import AnalysisType
 from tabs.constants import (
-    DEFAULT_UNITS,
     LEGEND_TITLE_TRANSLATIONS,
-    TITLE_TRANSLATIONS_BOLD,
+    TITLE_TRANSLATIONS,
 )
 from tabs.title_utils import format_signature
 
@@ -16,7 +15,7 @@ def test_extract_labels():
     assert x == "Время $\\mathit{\\mathit{t}}$, с"
     assert y == "Продольная сила $\\mathit{\\mathit{N}}$, Н"
     expected_title = format_signature(
-        f"{TITLE_TRANSLATIONS_BOLD['Продольная сила']['Русский']}, {DEFAULT_UNITS['Продольная сила']}",
+        TITLE_TRANSLATIONS["Продольная сила"]["Русский"],
         bold=True,
     )
     assert title == expected_title

@@ -6,7 +6,7 @@ from analysis_types import AnalysisType
 from tabs.constants import (
     DEFAULT_UNITS,
     LEGEND_TITLE_TRANSLATIONS,
-    TITLES_SYMBOLS,
+    TITLE_TRANSLATIONS_BOLD,
 )
 from tabs.title_utils import format_signature
 
@@ -16,7 +16,7 @@ def test_extract_labels():
     assert x == "Время $\\mathit{\\mathit{t}}$, с"
     assert y == "Продольная сила $\\mathit{\\mathit{N}}$, Н"
     expected_title = format_signature(
-        f"{TITLES_SYMBOLS['Продольная сила']['Русский']}, {DEFAULT_UNITS['Продольная сила']}",
+        f"{TITLE_TRANSLATIONS_BOLD['Продольная сила']['Русский']}, {DEFAULT_UNITS['Продольная сила']}",
         bold=True,
     )
     assert title == expected_title

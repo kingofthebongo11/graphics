@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def read_X_Y_from_excel(curve_info):
     try:
-        path = Path(curve_info['curve_file'])
+        path = Path(curve_info['curve_file']).resolve()
         suffix = path.suffix.lower()
         X_data = []
         Y_data = []

@@ -8,12 +8,14 @@ from matplotlib.axes import Axes
 
 from tabs.function_for_all_tabs import create_plot
 from tabs.title_utils import format_signature
+from settings import configure_matplotlib
 
 Curve = Dict[str, List[float]]
 
 
 def create_plot_canvas(parent: tk.Widget) -> Tuple[Figure, Axes, FigureCanvasTkAgg]:
     """Create a Matplotlib canvas embedded in ``parent`` widget."""
+    configure_matplotlib()
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master=parent)
     canvas.draw()

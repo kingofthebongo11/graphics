@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from tkinter import messagebox
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ def read_X_Y_from_ls_dyna(curve_info):
     Строки, не содержащие хотя бы двух числовых значений (заголовки,
     комментарии и т.п.), пропускаются без генерации сообщения об ошибке.
     """
-    path = curve_info['curve_file']
+    path = Path(curve_info['curve_file']).resolve()
     X_data: list[float] = []
     Y_data: list[float] = []
     try:

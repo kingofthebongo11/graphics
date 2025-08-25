@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 def read_X_Y_from_text_file(curve_info):
     try:
-        path = Path(curve_info['curve_file'])
+        path = Path(curve_info['curve_file']).resolve()
         suffix = path.suffix.lower()
         if suffix and suffix != '.txt':
             logger.error("Неподдерживаемый формат файла: %s", suffix)

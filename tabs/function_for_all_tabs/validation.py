@@ -27,6 +27,10 @@ class NotEnoughPointsError(ValidationError):
     """Недостаточно точек для операции."""
 
 
+class InvalidAnalysisTypeError(ValidationError):
+    """Недопустимый тип анализа."""
+
+
 def ensure_not_empty(seq, name: str = "данные"):
     """Гарантирует, что последовательность не пуста."""
     if not seq:
@@ -64,6 +68,15 @@ def ensure_min_length(data, min_len: int = 2, name: str = "точек"):
     return data
 
 
+def ensure_analysis_type(analysis_type: str):
+    """Проверяет, что тип анализа поддерживается."""
+    from analysis_types import ANALYSIS_TYPES  # локальный импорт для избежания циклов
+
+    if analysis_type not in ANALYSIS_TYPES:
+        raise InvalidAnalysisTypeError("Некорректный тип анализа")
+    return analysis_type
+
+
 __all__ = [
     "ValidationError",
     "EmptyDataError",
@@ -71,9 +84,11 @@ __all__ = [
     "SizeMismatchError",
     "ZeroStepError",
     "NotEnoughPointsError",
+    "InvalidAnalysisTypeError",
     "ensure_not_empty",
     "ensure_numbers",
     "ensure_same_length",
     "ensure_non_zero_step",
     "ensure_min_length",
+    "ensure_analysis_type",
 ]

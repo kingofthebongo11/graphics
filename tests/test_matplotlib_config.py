@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+from cycler import cycler
+
+from color_palettes import PALETTES
 from settings import configure_matplotlib
 
 
@@ -9,6 +12,7 @@ def test_matplotlib_usetex_and_preamble():
     assert plt.rcParams['font.size'] == 12
     assert plt.rcParams['axes.labelsize'] == 14.4
     assert plt.rcParams['axes.titlesize'] == 17.28
+    assert plt.rcParams['axes.prop_cycle'] == cycler(color=PALETTES['LS-Dyna'])
     preamble = plt.rcParams['text.latex.preamble']
     required_packages = [
         '\\usepackage[utf8]{inputenc}',

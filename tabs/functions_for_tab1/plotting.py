@@ -312,7 +312,6 @@ def generate_graph(
                     curve_info.setdefault("Y_source", {}).update(
                         {"curve_file": widget.get()}
                     )
-
                 if widget_name == f"curve_{i}_horizontal":
                     curve_info["horizontal"] = widget.var.get()
 
@@ -369,7 +368,6 @@ def generate_graph(
             if not Path(file).exists():
                 messagebox.showerror("Ошибка", f"Файл {file} не найден")
                 return
-
         # Добавляем информацию о кривой в общий список
         if "X_source" in curve_info and "column" not in curve_info["X_source"]:
             curve_info["X_source"]["column"] = 0

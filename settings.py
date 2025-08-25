@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+from cycler import cycler
+
+from color_palettes import PALETTES
 
 
 def configure_matplotlib():
@@ -25,3 +28,4 @@ def configure_matplotlib():
             r'\usepackage{upgreek}',
         ]),
     })
+    plt.rcParams["axes.prop_cycle"] = cycler(color=PALETTES["LS-Dyna"])

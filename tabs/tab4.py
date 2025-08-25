@@ -388,14 +388,14 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         if not root.exists():
             messagebox.showerror("Ошибка", f"Папка {path} не найдена", parent=tab4)
             return
-        root, err = _adjust_curves_root(root)
-        if err:
+        curves_root, err = _adjust_curves_root(root)
+        if curves_root is None:
             messagebox.showerror("Ошибка", err, parent=tab4)
             return
 
-        docx_path, errors = build_curves_report(root)
+        docx_path, errors = build_curves_report(curves_root)
         if errors:
-            error_file = root / "errors.log"
+            error_file = curves_root / "errors.log"
             error_file.write_text("\n".join(errors), encoding="utf-8")
             messagebox.showwarning(
                 "Готово с ошибками",

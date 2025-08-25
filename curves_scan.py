@@ -4,6 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Dict, List, Tuple
+import re
+
+
+def _clean_name(name: str) -> str:
+    """Удаляет ведущий числовой префикс вида ``<число>-``."""
+    return re.sub(r"^\d+-", "", name)
 
 
 def scan_curves(root_dir: Path | str) -> Tuple[Dict[str, Dict[str, List[str]]], List[str]]:
@@ -30,6 +36,7 @@ def scan_curves(root_dir: Path | str) -> Tuple[Dict[str, Dict[str, List[str]]], 
         return result, errors
 
     for top_path in top_dirs:
+        clean_top_name = _clean_name(top_path.name)
         analyses: Dict[str, List[str]] = {}
         had_subdirs = False
         for analysis_dir in top_path.iterdir():
@@ -42,19 +49,20 @@ def scan_curves(root_dir: Path | str) -> Tuple[Dict[str, Dict[str, List[str]]], 
                 if file_path.is_file() and file_path.suffix in {".png", ".txt"}:
                     files.append(str(file_path))
 
+            clean_analysis_name = _clean_name(analysis_dir.name)
             if files:
-                analyses[analysis_dir.name] = files
+                analyses[clean_analysis_name] = files
             else:
                 errors.append(
-                    f"Подпапка анализа '{analysis_dir.name}' в топ-папке "
-                    f"'{top_path.name}' не содержит файлов"
+                    f"Подпапка анализа '{clean_analysis_name}' в топ-папке "
+                    f"'{clean_top_name}' не содержит файлов"
                 )
 
         if analyses:
-            result[top_path.name] = analyses
+            result[clean_top_name] = analyses
         elif not had_subdirs:
             errors.append(
-                f"Топ-папка '{top_path.name}' не содержит подпапок анализов"
+                f"Топ-папка '{clean_top_name}' не содержит подпапок анализов"
             )
 
     return result, errors

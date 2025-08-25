@@ -2,12 +2,12 @@ from curves_scan import scan_curves
 
 
 def test_scan_curves_collects_files(tmp_path):
-    pilon_analysis_dir = tmp_path / "pilon-element-beam" / "static"
+    pilon_analysis_dir = tmp_path / "01-pilon-element-beam" / "10-static"
     pilon_analysis_dir.mkdir(parents=True)
     (pilon_analysis_dir / "file.png").touch()
     (pilon_analysis_dir / "file.txt").touch()
 
-    uzli_analysis_dir = tmp_path / "uzli-node" / "dynamic"
+    uzli_analysis_dir = tmp_path / "2-uzli-node" / "3-dynamic"
     uzli_analysis_dir.mkdir(parents=True)
     (uzli_analysis_dir / "file.png").touch()
     (uzli_analysis_dir / "file.txt").touch()
@@ -42,9 +42,9 @@ def test_scan_curves_collects_files(tmp_path):
 
 def test_scan_curves_empty_or_missing(tmp_path):
     # Топ-папка с пустой подпапкой анализа
-    (tmp_path / "pilon-element-beam" / "static").mkdir(parents=True)
+    (tmp_path / "1-pilon-element-beam" / "2-static").mkdir(parents=True)
     # Топ-папка без подпапок анализа
-    (tmp_path / "uzli-node").mkdir()
+    (tmp_path / "02-uzli-node").mkdir()
 
     result, errors = scan_curves(tmp_path)
 

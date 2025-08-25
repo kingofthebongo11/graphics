@@ -156,8 +156,6 @@ def on_combo_change_curve_type(
         path_entry_Y.place_forget()
         select_button_Y.place_forget()
 
-        label_analysis_type.place(x=combo.winfo_x() + 170, y=combo.winfo_y() - 20)
-        combo_analysis_type.place(x=combo.winfo_x() + 170, y=combo.winfo_y(), width=150)
     else:
         label_curve_typeX.place_forget()
         combo_curve_typeX.place_forget()

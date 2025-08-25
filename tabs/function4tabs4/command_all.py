@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, List, Sequence
+from typing import Iterable, List, Mapping, Sequence
 
 from .command_single import build_command, build_curve_commands
 from .tree_schema import Tree
@@ -16,6 +16,7 @@ def walk_tree_and_build_commands(
     base_project_dir: Path | str,
     curves_dirname: str = "curves",
     top_folder_names: Sequence[str] | None = None,
+    analysis_name_maps: Sequence[Mapping[str, str]] | None = None,
 ) -> List[str]:
     """Обойти дерево и построить команды для всех кривых."""
     commands: List[str] = []
@@ -29,10 +30,19 @@ def walk_tree_and_build_commands(
     else:
         names = list(top_folder_names)
 
-    for node, top_folder_name in zip(nodes, names):
+    if analysis_name_maps is None:
+        analysis_name_maps = [{} for _ in nodes]
+    else:
+        analysis_name_maps = list(analysis_name_maps)
+        if len(analysis_name_maps) < len(nodes):
+            analysis_name_maps.extend({} for _ in range(len(nodes) - len(analysis_name_maps)))
+
+    for node, top_folder_name, analysis_map in zip(nodes, names, analysis_name_maps):
 
         for analysis in node.children:
-
+            numbered_analysis = analysis_map.get(
+                analysis.analysis_type, analysis.analysis_type
+            )
             for file_node in analysis.children:
                 commands.extend(
                     build_curve_commands(
@@ -43,6 +53,7 @@ def walk_tree_and_build_commands(
                         node.element_type,
                         file_node.id,
                         curves_dirname,
+                        numbered_analysis,
                     )
                 )
 

@@ -7,7 +7,7 @@ from typing import List, Tuple
 import logging
 
 from curves_scan import scan_curves
-from plot_from_txt import plot_from_txt
+from plot_from_txt import plot_from_txt_files
 
 try:  # pragma: no cover - зависимость может отсутствовать
     from report_docx import build_report
@@ -41,15 +41,14 @@ def build_curves_report(curves_root: Path | str) -> Tuple[Path | None, List[str]
 
     for analyses in structure.values():
         for analysis_type, files in analyses.items():
-            existing_pngs = {Path(f) for f in files if f.lower().endswith(".png")}
-            for txt_file in (Path(f) for f in files if f.lower().endswith(".txt")):
-                png_file = txt_file.with_suffix(".png")
-                if png_file not in existing_pngs:
-                    try:
-                        plot_from_txt(str(txt_file), analysis_type, str(png_file))
-                        existing_pngs.add(png_file)
-                    except Exception as exc:  # pragma: no cover - отсутствие GUI
-                        errors.append(f"{txt_file}: {exc}")
+            analysis_dir = Path(files[0]).parent
+            txt_files = [f for f in files if f.lower().endswith(".txt")]
+            png_file = analysis_dir.with_suffix(".png")
+            if txt_files and not png_file.exists():
+                try:
+                    plot_from_txt_files(txt_files, analysis_type)
+                except Exception as exc:  # pragma: no cover - отсутствие GUI
+                    errors.append(f"{analysis_dir}: {exc}")
 
     docx_path: Path | None = None
     if build_report is None:

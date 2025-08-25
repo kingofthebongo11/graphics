@@ -26,5 +26,5 @@ def test_build_curves_report(tmp_path):
         docx_path, errors = build_curves_report(tmp_path)
 
     assert not errors
-    assert (analysis_dir / "curve.png").exists()
+    assert analysis_dir.with_suffix(".png").exists()
     assert docx_path is not None and docx_path.exists()

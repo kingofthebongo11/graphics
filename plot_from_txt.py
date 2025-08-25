@@ -77,6 +77,59 @@ def plot_from_txt(txt_file: str, analysis_type: str, output: str | None = None) 
     return output_path
 
 
+def plot_from_txt_files(txt_files: list[str], analysis_type: str) -> str:
+    """Построить график по нескольким файлам и сохранить его рядом с папкой анализа.
+
+    Parameters
+    ----------
+    txt_files:
+        Список путей к файлам с данными ``X Y``.
+    analysis_type:
+        Тип анализа из :mod:`analysis_types`.
+
+    Returns
+    -------
+    str
+        Путь к сохранённому файлу PNG.
+    """
+
+    if not txt_files:
+        raise ValueError("Не передано ни одного файла")
+
+    curves: list[dict[str, object]] = []
+    for file in txt_files:
+        xs, ys = read_pairs_any(file)
+        if not xs or not ys:
+            continue
+        curves.append(
+            {
+                "curve_file": file,
+                "X_values": xs,
+                "Y_values": ys,
+                "curve_legend": Path(file).stem,
+            }
+        )
+
+    if not curves:
+        raise ValueError("Не удалось прочитать данные из файлов")
+
+    x_label, y_label = extract_labels(analysis_type)
+    analysis_dir = Path(txt_files[0]).parent
+    output_path = str(analysis_dir.with_suffix(".png"))
+
+    create_plot(
+        curves,
+        x_label=x_label,
+        y_label=y_label,
+        title="",
+        legend=True,
+        legend_title=analysis_type,
+        save_file=True,
+        file_plt=output_path,
+    )
+    return output_path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Построить PNG-график по данным из файла",

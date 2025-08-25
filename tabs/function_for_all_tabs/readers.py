@@ -32,13 +32,14 @@ def read_pairs_any(
     suffix = path.suffix.lower()
     if suffix in {".xlsx", ".xlsm", ".csv"}:
         read_excel(curve_info)
-    elif suffix == ".txt":
-        read_text(curve_info)
     else:
         try:
             read_ls_dyna(curve_info)
         except Exception:
             read_text(curve_info)
+        else:
+            if "X_values" not in curve_info or "Y_values" not in curve_info:
+                read_text(curve_info)
     return curve_info.get("X_values", []), curve_info.get("Y_values", [])
 
 

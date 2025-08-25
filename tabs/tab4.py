@@ -282,6 +282,29 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         if new_name:
             tree.item(item, text=safe_name(new_name))
 
+    def move_up() -> None:
+        sel = tree.selection()
+        if not sel:
+            return
+        item = sel[0]
+        parent = tree.parent(item)
+        index = tree.index(item)
+        if index <= 0:
+            return
+        tree.move(item, parent, index - 1)
+
+    def move_down() -> None:
+        sel = tree.selection()
+        if not sel:
+            return
+        item = sel[0]
+        parent = tree.parent(item)
+        index = tree.index(item)
+        children = tree.get_children(parent)
+        if index >= len(children) - 1:
+            return
+        tree.move(item, parent, index + 1)
+
     def collapse_all() -> None:
         def _collapse(node: str) -> None:
             tree.item(node, open=False)
@@ -448,6 +471,10 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     ttk.Button(btn_frame, text="−", width=3, command=remove_node).pack(
         side=tk.LEFT, padx=5
     )
+    ttk.Button(btn_frame, text="↑", width=3, command=move_up).pack(side=tk.LEFT)
+    ttk.Button(btn_frame, text="↓", width=3, command=move_down).pack(
+        side=tk.LEFT, padx=5
+    )
     ttk.Button(btn_frame, text="Переименовать", command=rename_node).pack(side=tk.LEFT)
     ttk.Button(btn_frame, text="Свернуть всё", command=collapse_all).pack(
         side=tk.LEFT, padx=5
@@ -505,6 +532,8 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     tab4.add_node = add_node  # type: ignore[attr-defined]
     tab4.remove_node = remove_node  # type: ignore[attr-defined]
     tab4.rename_node = rename_node  # type: ignore[attr-defined]
+    tab4.move_up = move_up  # type: ignore[attr-defined]
+    tab4.move_down = move_down  # type: ignore[attr-defined]
 
     return tab4
 

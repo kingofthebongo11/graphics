@@ -3,14 +3,23 @@ from unittest.mock import patch
 
 from plot_from_txt import extract_labels, plot_from_txt, plot_from_txt_files
 from analysis_types import AnalysisType
-from tabs.constants import LEGEND_TITLE_TRANSLATIONS
+from tabs.constants import (
+    DEFAULT_UNITS,
+    LEGEND_TITLE_TRANSLATIONS,
+    TITLES_SYMBOLS,
+)
+from tabs.title_utils import format_signature
 
 
 def test_extract_labels():
     x, y, title = extract_labels(AnalysisType.TIME_AXIAL_FORCE.value)
     assert x == "Время $\\mathit{\\mathit{t}}$, с"
     assert y == "Продольная сила $\\mathit{\\mathit{N}}$, Н"
-    assert title == y
+    expected_title = format_signature(
+        f"{TITLES_SYMBOLS['Продольная сила']['Русский']}, {DEFAULT_UNITS['Продольная сила']}",
+        bold=True,
+    )
+    assert title == expected_title
 
 
 def test_plot_from_txt(tmp_path):

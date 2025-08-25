@@ -58,7 +58,9 @@ def extract_labels(analysis_type: str) -> tuple[str, str, str]:
     y_proc = TitleProcessor(
         y_title, combo_size=y_unit, translations=TITLE_TRANSLATIONS
     )
-    title_proc = TitleProcessor(y_title, combo_size=y_unit, translations=TITLES_SYMBOLS)
+    title_proc = TitleProcessor(
+        y_title, combo_size=y_unit, translations=TITLES_SYMBOLS, bold_math=True
+    )
 
     xlabel = x_proc.get_processed_title()
     ylabel = y_proc.get_processed_title()

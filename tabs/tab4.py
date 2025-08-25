@@ -196,7 +196,14 @@ def _adjust_curves_root(path: Path) -> tuple[Path | None, str | None]:
         if curves_dir.is_dir():
             return curves_dir, None
         return None, f"В проекте {path} отсутствует подкаталог 'curves'"
-    return path, None
+
+    if path.name == "curves" and path.is_dir():
+        return path, None
+
+    curves_dir = path / "curves"
+    if curves_dir.is_dir():
+        return curves_dir, None
+    return None, f"В директории {path} отсутствует подкаталог 'curves'"
 
 
 def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:

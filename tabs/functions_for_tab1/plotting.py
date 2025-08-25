@@ -19,7 +19,6 @@ from tabs.constants import (
     LEGEND_TITLE_TRANSLATIONS,
 )
 from tabs.title_utils import format_signature
-from tabs.function_for_all_tabs.validation import ensure_analysis_type, InvalidAnalysisTypeError
 
 logger = logging.getLogger(__name__)
 
@@ -313,9 +312,6 @@ def generate_graph(
                     curve_info.setdefault("Y_source", {}).update(
                         {"curve_file": widget.get()}
                     )
-                elif widget_name == f"curve_{i}_analysis_type":
-                    curve_info["analysis_type"] = widget.get()
-
                 if widget_name == f"curve_{i}_horizontal":
                     curve_info["horizontal"] = widget.var.get()
 
@@ -372,13 +368,6 @@ def generate_graph(
             if not Path(file).exists():
                 messagebox.showerror("Ошибка", f"Файл {file} не найден")
                 return
-            if curve_info.get("curve_type") == "Файл кривой LS-Dyna":
-                try:
-                    ensure_analysis_type(curve_info.get("analysis_type", ""))
-                except InvalidAnalysisTypeError:
-                    messagebox.showerror("Ошибка", f"Некорректный тип анализа для кривой {i}")
-                    return
-
         # Добавляем информацию о кривой в общий список
         if "X_source" in curve_info and "column" not in curve_info["X_source"]:
             curve_info["X_source"]["column"] = 0

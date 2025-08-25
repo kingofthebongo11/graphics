@@ -51,7 +51,7 @@ def test_scan_curves_empty_or_missing(tmp_path):
     assert result == {}
     assert sorted(errors) == sorted(
         [
-            "Топ-папка 'pilon-element-beam' не содержит подпапок анализов",
+            "Подпапка анализа 'static' в топ-папке 'pilon-element-beam' не содержит файлов",
             "Топ-папка 'uzli-node' не содержит подпапок анализов",
         ]
     )

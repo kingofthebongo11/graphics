@@ -383,6 +383,7 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
 
         next_number = max(existing_numbers, default=0) + 1
         numbered_top_folders: list[str] = []
+        analysis_name_maps: list[dict[str, str]] = []
         for node in roots:
             top_folder = encode_topfolder(
                 node.user_name, node.entity_kind, node.element_type
@@ -390,13 +391,22 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             numbered = f"{next_number}-{top_folder}"
             numbered_top_folders.append(numbered)
             next_number += 1
+            analysis_map: dict[str, str] = {}
+            analysis_number = 1
             for analysis in node.children:
-                (curves_root / numbered / analysis.analysis_type).mkdir(
+                numbered_analysis = f"{analysis_number}-{analysis.analysis_type}"
+                analysis_map[analysis.analysis_type] = numbered_analysis
+                (curves_root / numbered / numbered_analysis).mkdir(
                     parents=True, exist_ok=True
                 )
+                analysis_number += 1
+            analysis_name_maps.append(analysis_map)
 
         commands = walk_tree_and_build_commands(
-            roots, path.parent, top_folder_names=numbered_top_folders
+            roots,
+            path.parent,
+            top_folder_names=numbered_top_folders,
+            analysis_name_maps=analysis_name_maps,
         )
         write_cfile(commands, path)
         messagebox.showinfo("Готово", f"C-файл сохранён в {path}", parent=tab4)

@@ -57,6 +57,7 @@ def build_curve_commands(
     element_type: str | None,
     element_id: int,
     curves_dirname: str = "curves",
+    analysis_dirname: str | None = None,
 ) -> List[str]:
     """Построить последовательность команд для сохранения кривой.
 
@@ -105,7 +106,7 @@ def build_curve_commands(
         base_project_dir,
         curves_dirname,
         top_folder_name,
-        analysis_type,
+        analysis_dirname or analysis_type,
         f"{element_id}.txt",
     )
 

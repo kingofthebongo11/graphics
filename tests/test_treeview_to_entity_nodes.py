@@ -60,7 +60,10 @@ def test_treeview_to_entity_nodes_and_cfile(tmp_path):
                 tree2.insert(an_id, "end", text=str(file.id))
     assert treeview_to_entity_nodes(tree2) == expected
 
-    commands = walk_tree_and_build_commands(nodes, tmp_path)
+    numbered = [f"1-{encode_topfolder('user', 'node')}" for _ in nodes]
+    commands = walk_tree_and_build_commands(
+        nodes, tmp_path, top_folder_names=numbered
+    )
     path = tmp_path / "out.cfile"
     write_cfile(commands, path)
     assert path.exists()

@@ -373,16 +373,31 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             return
 
         curves_root = path.parent / "curves"
+        existing_numbers: list[int] = []
+        if curves_root.exists():
+            for child in curves_root.iterdir():
+                if child.is_dir():
+                    prefix = child.name.split("-", 1)[0]
+                    if prefix.isdigit():
+                        existing_numbers.append(int(prefix))
+
+        next_number = max(existing_numbers, default=0) + 1
+        numbered_top_folders: list[str] = []
         for node in roots:
             top_folder = encode_topfolder(
                 node.user_name, node.entity_kind, node.element_type
             )
+            numbered = f"{next_number}-{top_folder}"
+            numbered_top_folders.append(numbered)
+            next_number += 1
             for analysis in node.children:
-                (curves_root / top_folder / analysis.analysis_type).mkdir(
+                (curves_root / numbered / analysis.analysis_type).mkdir(
                     parents=True, exist_ok=True
                 )
 
-        commands = walk_tree_and_build_commands(roots, path.parent)
+        commands = walk_tree_and_build_commands(
+            roots, path.parent, top_folder_names=numbered_top_folders
+        )
         write_cfile(commands, path)
         messagebox.showinfo("Готово", f"C-файл сохранён в {path}", parent=tab4)
 

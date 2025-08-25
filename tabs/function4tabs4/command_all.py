@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable, List, Sequence
 
 from .command_single import build_command, build_curve_commands
 from .tree_schema import Tree
@@ -15,21 +15,24 @@ def walk_tree_and_build_commands(
     root: Iterable[EntityNode],
     base_project_dir: Path | str,
     curves_dirname: str = "curves",
+    top_folder_names: Sequence[str] | None = None,
 ) -> List[str]:
     """Обойти дерево и построить команды для всех кривых."""
     commands: List[str] = []
     base_dir = Path(base_project_dir)
 
-    # --- Перебор верхних узлов ---
-    for node in root:
-        top_folder_name = encode_topfolder(
-            node.user_name, node.entity_kind, node.element_type
-        )
+    nodes = list(root)
+    if top_folder_names is None:
+        names = [
+            encode_topfolder(n.user_name, n.entity_kind, n.element_type) for n in nodes
+        ]
+    else:
+        names = list(top_folder_names)
 
-        # --- Перебор анализов ---
+    for node, top_folder_name in zip(nodes, names):
+
         for analysis in node.children:
 
-            # --- Перебор файлов ---
             for file_node in analysis.children:
                 commands.extend(
                     build_curve_commands(

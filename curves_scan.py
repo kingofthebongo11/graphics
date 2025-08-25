@@ -31,10 +31,12 @@ def scan_curves(root_dir: Path | str) -> Tuple[Dict[str, Dict[str, List[str]]], 
 
     for top_path in top_dirs:
         analyses: Dict[str, List[str]] = {}
+        had_subdirs = False
         for analysis_dir in top_path.iterdir():
             if not analysis_dir.is_dir():
                 continue
 
+            had_subdirs = True
             files: List[str] = []
             for file_path in analysis_dir.iterdir():
                 if file_path.is_file() and file_path.suffix in {".png", ".txt"}:
@@ -42,10 +44,15 @@ def scan_curves(root_dir: Path | str) -> Tuple[Dict[str, Dict[str, List[str]]], 
 
             if files:
                 analyses[analysis_dir.name] = files
+            else:
+                errors.append(
+                    f"Подпапка анализа '{analysis_dir.name}' в топ-папке "
+                    f"'{top_path.name}' не содержит файлов"
+                )
 
         if analyses:
             result[top_path.name] = analyses
-        else:
+        elif not had_subdirs:
             errors.append(
                 f"Топ-папка '{top_path.name}' не содержит подпапок анализов"
             )

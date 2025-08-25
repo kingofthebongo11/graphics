@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import List, Tuple
+import logging
 
 from curves_scan import scan_curves
 from plot_from_txt import plot_from_txt
@@ -28,6 +29,11 @@ def build_curves_report(curves_root: Path | str) -> Tuple[Path | None, List[str]
 
     try:
         structure, scan_errors = scan_curves(root)
+        if scan_errors:
+            (root / "errors.log").write_text("\n".join(scan_errors), encoding="utf-8")
+            logging.warning(
+                "Обнаружены проблемы при сканировании, см. errors.log"
+            )
         errors.extend(scan_errors)
     except Exception as exc:  # pragma: no cover - защитный код
         errors.append(f"Сканирование: {exc}")

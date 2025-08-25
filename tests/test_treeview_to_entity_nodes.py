@@ -19,7 +19,7 @@ def test_treeview_to_entity_nodes_and_cfile(tmp_path):
     root.withdraw()
     tree = ttk.Treeview(root)
 
-    top_text = encode_topfolder("user", "node")
+    top_text = f"1-{encode_topfolder('user', 'node')}"
     top = tree.insert("", "end", text=top_text)
     analysis_type = ANALYSIS_TYPES_BEAM[0]
     analysis = tree.insert(top, "end", text=analysis_type)
@@ -50,9 +50,7 @@ def test_treeview_to_entity_nodes_and_cfile(tmp_path):
         top2 = tree2.insert(
             "",
             "end",
-            text=encode_topfolder(
-                entity.user_name, entity.entity_kind, entity.element_type
-            ),
+            text=f"1-{encode_topfolder(entity.user_name, entity.entity_kind, entity.element_type)}",
         )
         for analysis2 in entity.children:
             an_id = tree2.insert(top2, "end", text=analysis2.analysis_type)

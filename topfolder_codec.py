@@ -53,13 +53,29 @@ def encode_topfolder(user_name: str, entity_kind: str, element_type: Optional[st
 def decode_topfolder(folder_name: str) -> Tuple[str, str, Optional[str]]:
     """Decode folder name into components.
 
-    Returns a tuple ``(user_name, entity_kind, element_type)`` where
-    ``element_type`` может быть ``None``.
+    Допускается ведущий префикс вида ``"<число>-"``. Он игнорируется при
+    декодировании и используется только для уточнения сообщений об ошибках.
+
+    Returns
+    -------
+    tuple
+        ``(user_name, entity_kind, element_type)`` где ``element_type`` может
+        быть ``None``.
     """
+
+    prefix = None
+    if "-" in folder_name:
+        first, rest = folder_name.split("-", 1)
+        if first.isdigit():
+            prefix = first
+            folder_name = rest
+            if not folder_name:
+                raise ValueError("Неверный формат имени папки с префиксом.")
 
     parts = folder_name.split("-")
     if len(parts) not in (2, 3):
-        raise ValueError("Неверный формат имени папки.")
+        msg = "Неверный формат имени папки с префиксом." if prefix else "Неверный формат имени папки."
+        raise ValueError(msg)
 
     user_name = _validate_user_name(parts[0])
     entity_kind = parts[1]

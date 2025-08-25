@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 from pathlib import PureWindowsPath
 
-from analysis_types import ANALYSIS_TYPES
+from analysis_types import ANALYSIS_TYPE_CODES
 from .naming import safe_name
 
 
@@ -14,11 +14,6 @@ ETYPE_BY_ELEMENT: Dict[str, int] = {
     "shell": 2,
     "solid": 3,
 }
-
-ETIME_BY_ANALYSIS: Dict[str, int] = {
-    name: idx for idx, name in enumerate(ANALYSIS_TYPES, start=1)
-}
-
 
 # Шаблоны выбора сущности в LS-PrePost.
 # Ключем служит кортеж (entity_kind, element_type).
@@ -93,7 +88,10 @@ def build_curve_commands(
             raise ValueError("unsupported element_type") from exc
 
     try:
-        etime = ETIME_BY_ANALYSIS[analysis_type]
+        if element_type is None:
+            etime = ANALYSIS_TYPE_CODES["beam"][analysis_type]
+        else:
+            etime = ANALYSIS_TYPE_CODES[element_type][analysis_type]
     except KeyError as exc:
         raise ValueError("unsupported analysis_type") from exc
 

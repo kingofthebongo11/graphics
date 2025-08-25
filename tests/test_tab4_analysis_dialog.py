@@ -4,7 +4,7 @@ from tkinter import ttk
 
 import tabs.tab4 as tab4mod
 from tabs.tab4 import create_tab4
-from analysis_types import ANALYSIS_TYPES
+from analysis_types import ANALYSIS_TYPES_BEAM
 
 
 def _create_app():
@@ -32,7 +32,7 @@ def test_add_analysis_type(monkeypatch):
     parent = tree.get_children("")[-1]
     tree.selection_set(parent)
 
-    choice = ANALYSIS_TYPES[0]
+    choice = ANALYSIS_TYPES_BEAM[0]
 
     class DummyDialog:
         def __init__(self, *a, **k):
@@ -59,7 +59,7 @@ def test_add_element_number(monkeypatch):
     top = tree.get_children("")[-1]
     tree.selection_set(top)
 
-    choice = ANALYSIS_TYPES[0]
+    choice = ANALYSIS_TYPES_BEAM[0]
 
     class DummyDialog:
         def __init__(self, *a, **k):

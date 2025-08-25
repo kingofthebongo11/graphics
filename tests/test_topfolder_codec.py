@@ -29,9 +29,23 @@ def test_decode_node():
     assert decode_topfolder("uzli-node") == ("uzli", "node", None)
 
 
+def test_decode_with_prefix():
+    assert decode_topfolder("1-uzli-node") == ("uzli", "node", None)
+    assert decode_topfolder("10-pilon-element-beam") == (
+        "pilon",
+        "element",
+        "beam",
+    )
+
+
 def test_decode_invalid_format():
     with pytest.raises(ValueError):
         decode_topfolder("invalid")
+
+
+def test_decode_invalid_format_with_prefix():
+    with pytest.raises(ValueError):
+        decode_topfolder("1-invalid")
 
 
 def test_decode_invalid_entity():

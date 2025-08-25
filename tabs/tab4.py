@@ -297,7 +297,8 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         )
         if not path:
             return
-        data = [Tree(top=tree.item(i, "text")).to_dict() for i in tree.get_children()]
+        nodes = treeview_to_entity_nodes(tree)
+        data = [node.to_dict() for node in nodes]
         Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def load_tree_action() -> None:
@@ -310,13 +311,19 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         for item in tree.get_children():
             tree.delete(item)
         for item in raw:
-            t = Tree.from_dict(item)
             try:
-                decode_topfolder(t.top)
+                entity = EntityNode.from_dict(item)
+                top_text = encode_topfolder(
+                    entity.user_name, entity.entity_kind, entity.element_type
+                )
             except Exception:
                 messagebox.showerror("Ошибка", "Некорректное имя папки", parent=tab4)
                 continue
-            tree.insert("", "end", text=t.top, open=True)
+            top_id = tree.insert("", "end", text=top_text, open=True)
+            for analysis in entity.children:
+                an_id = tree.insert(top_id, "end", text=analysis.analysis_type, open=True)
+                for file in analysis.children:
+                    tree.insert(an_id, "end", text=str(file.id))
 
     def clear_all() -> None:
         for item in tree.get_children():

@@ -1,3 +1,4 @@
+import json
 import pytest
 import tkinter as tk
 from tkinter import ttk
@@ -36,6 +37,28 @@ def test_treeview_to_entity_nodes_and_cfile(tmp_path):
         )
     ]
     assert nodes == expected
+
+    # Проверка сериализации в JSON
+    data = [node.to_dict() for node in nodes]
+    json_str = json.dumps(data)
+    loaded = json.loads(json_str)
+
+    # Восстановление дерева из JSON
+    tree2 = ttk.Treeview(root)
+    for item in loaded:
+        entity = EntityNode.from_dict(item)
+        top2 = tree2.insert(
+            "",
+            "end",
+            text=encode_topfolder(
+                entity.user_name, entity.entity_kind, entity.element_type
+            ),
+        )
+        for analysis2 in entity.children:
+            an_id = tree2.insert(top2, "end", text=analysis2.analysis_type)
+            for file in analysis2.children:
+                tree2.insert(an_id, "end", text=str(file.id))
+    assert treeview_to_entity_nodes(tree2) == expected
 
     commands = walk_tree_and_build_commands(nodes, tmp_path)
     path = tmp_path / "out.cfile"

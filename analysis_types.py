@@ -20,10 +20,10 @@ class AnalysisType(str, Enum):
     )
     TIME_ELONGATION = "Время - Удлинение"
     TIME_STRESS_INTENSITY = "Время - Интенсивность напряжений"
-    TIME_PRESSURE = "Время - Давление"
-    TIME_BENDING_MOMENT_MX = "Время - Изгибающий момент Mx"
-    TIME_BENDING_MOMENT_MY = "Время - Изгибающий момент My"
-    TIME_BENDING_MOMENT_MXY = "Время - Изгибающий момент Mxy"
+    TIME_PRESSURE = "Время - Давление (п)"
+    TIME_BENDING_MOMENT_MX = "Время - Изгибающий момент Mx(п)"
+    TIME_BENDING_MOMENT_MY = "Время - Изгибающий момент My(п)"
+    TIME_BENDING_MOMENT_MXY = "Время - Изгибающий момент Mxy(п)"
 
     @classmethod
     def list(cls) -> list[str]:

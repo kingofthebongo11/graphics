@@ -87,3 +87,11 @@ def test_build_curve_commands_shell(analysis, etime):
         "genselect shell add shell 3/0",
     ]
     assert cmds[3] == f"etype {etype} ;etime {etime}"
+
+
+def test_analysis_type_codes_shell_updated():
+    codes = ANALYSIS_TYPE_CODES["shell"]
+    assert "Время - Изгибающий момент Mx(п)" in codes
+    assert "Время - Изгибающий момент My(п)" in codes
+    assert "Время - Изгибающий момент Mxy(п)" in codes
+    assert "Время - Давление (п)" in codes

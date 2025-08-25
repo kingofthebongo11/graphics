@@ -187,6 +187,18 @@ def treeview_to_entity_nodes(tree: ttk.Treeview) -> list[EntityNode]:
     return roots
 
 
+def _adjust_curves_root(path: Path) -> tuple[Path | None, str | None]:
+    """Проверить ``path`` на признак корня проекта и вернуть папку с кривыми."""
+
+    markers = ("pyproject.toml", ".git")
+    if any((path / m).exists() for m in markers):
+        curves_dir = path / "curves"
+        if curves_dir.is_dir():
+            return curves_dir, None
+        return None, f"В проекте {path} отсутствует подкаталог 'curves'"
+    return path, None
+
+
 def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
     """Создать четвёртую вкладку приложения."""
 
@@ -368,6 +380,10 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         root = Path(path)
         if not root.exists():
             messagebox.showerror("Ошибка", f"Папка {path} не найдена", parent=tab4)
+            return
+        root, err = _adjust_curves_root(root)
+        if err:
+            messagebox.showerror("Ошибка", err, parent=tab4)
             return
 
         docx_path, errors = build_curves_report(root)

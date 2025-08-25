@@ -3,28 +3,33 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 
-def scan_curves(root_dir: Path | str) -> Dict[str, Dict[str, List[str]]]:
+def scan_curves(root_dir: Path | str) -> Tuple[Dict[str, Dict[str, List[str]]], List[str]]:
     """Сканирует каталог с кривыми и собирает файлы по топ-папкам.
 
     Параметры:
         root_dir: Корневая директория, содержащая топ-папки.
 
     Возвращает:
-        Словарь вида ``{топ_папка: {тип_анализа: [пути к файлам]}}``.
+        Кортеж ``(структура, ошибки)``. ``структура`` имеет вид
+        ``{топ_папка: {тип_анализа: [пути к файлам]}}``.
     """
     root_path = Path(root_dir)
     result: Dict[str, Dict[str, List[str]]] = {}
+    errors: List[str] = []
 
     if not root_path.exists():
-        return result
+        errors.append(f"Корневая директория '{root_path}' не найдена")
+        return result, errors
 
-    for top_path in root_path.iterdir():
-        if not top_path.is_dir():
-            continue
+    top_dirs = [p for p in root_path.iterdir() if p.is_dir()]
+    if not top_dirs:
+        errors.append("Не найдено ни одной топ-папки")
+        return result, errors
 
+    for top_path in top_dirs:
         analyses: Dict[str, List[str]] = {}
         for analysis_dir in top_path.iterdir():
             if not analysis_dir.is_dir():
@@ -40,5 +45,9 @@ def scan_curves(root_dir: Path | str) -> Dict[str, Dict[str, List[str]]]:
 
         if analyses:
             result[top_path.name] = analyses
+        else:
+            errors.append(
+                f"Топ-папка '{top_path.name}' не содержит подпапок анализов"
+            )
 
-    return result
+    return result, errors

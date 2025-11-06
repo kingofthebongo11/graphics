@@ -152,6 +152,8 @@ def generate_graph(
     legend_title_combo,
     legend_title_entry,
     legend_title_var,
+    axis_auto_entries=None,
+    axis_manual_entries=None,
 ):
 
     # Очистка предыдущего графика
@@ -182,6 +184,39 @@ def generate_graph(
     title = title_processor.get_processed_title()
     xlabel = xlabel_processor.get_processed_title()
     ylabel = ylabel_processor.get_processed_title()
+
+    def _set_entry_value(entry, value: str) -> None:
+        if entry is None or not hasattr(entry, "delete"):
+            return
+        state = entry.cget("state") if hasattr(entry, "cget") else None
+        if state is not None:
+            entry.config(state="normal")
+        entry.delete(0, "end")
+        entry.insert(0, value)
+        if state is not None:
+            entry.config(state=state)
+
+    def _update_auto_limits(values, min_entry, max_entry) -> None:
+        if values:
+            _set_entry_value(min_entry, f"{min(values):.6g}")
+            _set_entry_value(max_entry, f"{max(values):.6g}")
+        else:
+            _set_entry_value(min_entry, "-")
+            _set_entry_value(max_entry, "-")
+
+    def _parse_manual_value(entry, axis_label: str, bound_label: str):
+        if entry is None or not hasattr(entry, "get"):
+            return None
+        text = entry.get().strip()
+        if not text:
+            return None
+        normalized = text.replace(",", ".")
+        try:
+            return float(normalized)
+        except ValueError as exc:
+            raise ValueError(
+                f"Некорректное значение для оси {axis_label} ({bound_label}): {text}"
+            ) from exc
 
     # Текст заголовка передается без LaTeX-команд,
     # оформление выполняется через параметры Matplotlib.
@@ -333,6 +368,16 @@ def generate_graph(
                     curve_info["range_x"] = widget.get()
                 elif widget_name == f"curve_{i}_range_y":
                     curve_info["range_y"] = widget.get()
+                elif widget_name == f"curve_{i}_slider_start":
+                    try:
+                        curve_info["slider_start"] = float(widget.get())
+                    except (TypeError, ValueError):
+                        curve_info["slider_start"] = 0.0
+                elif widget_name == f"curve_{i}_slider_end":
+                    try:
+                        curve_info["slider_end"] = float(widget.get())
+                    except (TypeError, ValueError):
+                        curve_info["slider_end"] = 100.0
 
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
@@ -374,7 +419,95 @@ def generate_graph(
         if "Y_source" in curve_info and "column" not in curve_info["Y_source"]:
             curve_info["Y_source"]["column"] = 1
         get_X_Y_data(curve_info)
+        slider_start = max(0.0, min(100.0, float(curve_info.get("slider_start", 0.0))))
+        slider_end = max(0.0, min(100.0, float(curve_info.get("slider_end", 100.0))))
+        x_values = curve_info.get("X_values", [])
+        y_values = curve_info.get("Y_values", [])
+        if not x_values or not y_values:
+            messagebox.showerror(
+                "Ошибка", f"Не удалось получить данные для кривой {i}"
+            )
+            return
+        if len(x_values) != len(y_values):
+            messagebox.showerror(
+                "Ошибка",
+                f"Количество точек X и Y для кривой {i} не совпадает",
+            )
+            return
+        if len(x_values) > 1:
+            start_idx = int(round((len(x_values) - 1) * slider_start / 100))
+            end_idx = int(round((len(x_values) - 1) * slider_end / 100))
+        else:
+            start_idx = end_idx = 0
+        if end_idx < start_idx:
+            start_idx, end_idx = end_idx, start_idx
+        start_idx = max(0, min(start_idx, len(x_values) - 1))
+        end_idx = max(start_idx, min(end_idx, len(x_values) - 1))
+        slice_obj = slice(start_idx, end_idx + 1)
+        curve_info["X_values"] = x_values[slice_obj]
+        curve_info["Y_values"] = y_values[slice_obj]
+        if not curve_info["X_values"] or not curve_info["Y_values"]:
+            messagebox.showerror(
+                "Ошибка",
+                f"После применения фильтра точек для кривой {i} не осталось данных",
+            )
+            return
         curves_info.append(curve_info)
+
+    if axis_auto_entries:
+        x_values_all = [
+            value for curve in curves_info for value in curve.get("X_values", [])
+        ]
+        y_values_all = [
+            value for curve in curves_info for value in curve.get("Y_values", [])
+        ]
+        _update_auto_limits(
+            x_values_all,
+            axis_auto_entries.get("x_min"),
+            axis_auto_entries.get("x_max"),
+        )
+        _update_auto_limits(
+            y_values_all,
+            axis_auto_entries.get("y_min"),
+            axis_auto_entries.get("y_max"),
+        )
+
+    x_min_manual = x_max_manual = y_min_manual = y_max_manual = None
+    if axis_manual_entries:
+        try:
+            x_min_manual = _parse_manual_value(
+                axis_manual_entries.get("x_min"), "X", "от"
+            )
+            x_max_manual = _parse_manual_value(
+                axis_manual_entries.get("x_max"), "X", "до"
+            )
+            y_min_manual = _parse_manual_value(
+                axis_manual_entries.get("y_min"), "Y", "от"
+            )
+            y_max_manual = _parse_manual_value(
+                axis_manual_entries.get("y_max"), "Y", "до"
+            )
+        except ValueError as exc:
+            messagebox.showerror("Ошибка", str(exc))
+            return
+        if (
+            x_min_manual is not None
+            and x_max_manual is not None
+            and x_min_manual >= x_max_manual
+        ):
+            messagebox.showerror(
+                "Ошибка", "Значение «от» должно быть меньше значения «до» для оси X."
+            )
+            return
+        if (
+            y_min_manual is not None
+            and y_max_manual is not None
+            and y_min_manual >= y_max_manual
+        ):
+            messagebox.showerror(
+                "Ошибка", "Значение «от» должно быть меньше значения «до» для оси Y."
+            )
+            return
 
     logger.debug("Передача подписей осей в create_plot: X=%r, Y=%r", xlabel, ylabel)
     try:
@@ -389,6 +522,27 @@ def generate_graph(
             legend_title=legend_title,
             title_fontstyle="normal",
         )
+        if axis_manual_entries:
+            if x_min_manual is not None or x_max_manual is not None:
+                current_xlim = ax.get_xlim()
+                ax.set_xlim(
+                    x_min_manual
+                    if x_min_manual is not None
+                    else current_xlim[0],
+                    x_max_manual
+                    if x_max_manual is not None
+                    else current_xlim[1],
+                )
+            if y_min_manual is not None or y_max_manual is not None:
+                current_ylim = ax.get_ylim()
+                ax.set_ylim(
+                    y_min_manual
+                    if y_min_manual is not None
+                    else current_ylim[0],
+                    y_max_manual
+                    if y_max_manual is not None
+                    else current_ylim[1],
+                )
     except ValueError as exc:
         if exc.__cause__ is not None and isinstance(exc.__cause__, ValueError):
             logger.error("Ошибка разметки подписи", exc_info=True)

@@ -223,20 +223,17 @@ class PlotEditor(ttk.Frame):
             from_=0,
             to=100,
             orient=tk.HORIZONTAL,
-            style="RangeUpper.Horizontal.TScale",
             variable=upper_var,
         )
-        upper_scale.place(relx=0.0, rely=0.0, relwidth=1.0)
-
         lower_scale = ttk.Scale(
             scales_frame,
             from_=0,
             to=100,
             orient=tk.HORIZONTAL,
-            style="RangeLower.Horizontal.TScale",
             variable=lower_var,
         )
-        lower_scale.place(relx=0.0, rely=0.0, relwidth=1.0)
+        upper_scale.pack(fill=tk.X)
+        lower_scale.pack(fill=tk.X, pady=(4, 0))
 
         values_frame = ttk.Frame(frame)
         values_frame.pack(side=tk.RIGHT, padx=(10, 0))

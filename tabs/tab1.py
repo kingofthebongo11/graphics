@@ -1,7 +1,7 @@
 from logging_utils import get_logger
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk, messagebox
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 from .functions_for_tab1 import update_curves, generate_graph, save_file
 from .functions_for_tab1.plotting import last_graph
 from widgets import PlotEditor, create_text
@@ -422,12 +422,148 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         width=ui_const.CURVES_FRAME_WIDTH,
         height=ui_const.CURVES_FRAME_HEIGHT,
     )
-    update_curves(curves_frame, "1", save_frame, checkbox_var, saved_data_curves)
+    axis_frame = ttk.LabelFrame(tab1, text="Настройки осей")
+    axis_frame.place(
+        x=ui_const.PREVIEW_X,
+        y=ui_const.LINE_HEIGHT + ui_const.PREVIEW_HEIGHT + ui_const.PADDING,
+        width=ui_const.AXIS_FRAME_WIDTH,
+        height=ui_const.AXIS_FRAME_HEIGHT,
+    )
+    axis_frame.linked_to_curves = False
+    for column in (2, 4):
+        axis_frame.columnconfigure(column, weight=1)
+
+    def _create_auto_entry() -> tk.Entry:
+        entry = create_text(
+            axis_frame, method="entry", height=1, state="normal", scrollbar=False
+        )
+        entry.insert(0, "-")
+        entry.config(state="readonly", width=12)
+        return entry
+
+    ttk.Label(axis_frame, text="Ось X (авто):").grid(
+        row=0, column=0, padx=5, pady=2, sticky="w"
+    )
+    ttk.Label(axis_frame, text="от").grid(row=0, column=1, padx=5, pady=2)
+    auto_x_min_entry = _create_auto_entry()
+    auto_x_min_entry.grid(row=0, column=2, padx=5, pady=2, sticky="ew")
+    ttk.Label(axis_frame, text="до").grid(row=0, column=3, padx=5, pady=2)
+    auto_x_max_entry = _create_auto_entry()
+    auto_x_max_entry.grid(row=0, column=4, padx=5, pady=2, sticky="ew")
+
+    ttk.Label(axis_frame, text="Ось X (вручную):").grid(
+        row=1, column=0, padx=5, pady=2, sticky="w"
+    )
+    ttk.Label(axis_frame, text="от").grid(row=1, column=1, padx=5, pady=2)
+    manual_x_min_entry = create_text(
+        axis_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    manual_x_min_entry.config(width=12)
+    manual_x_min_entry.grid(row=1, column=2, padx=5, pady=2, sticky="ew")
+    ttk.Label(axis_frame, text="до").grid(row=1, column=3, padx=5, pady=2)
+    manual_x_max_entry = create_text(
+        axis_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    manual_x_max_entry.config(width=12)
+    manual_x_max_entry.grid(row=1, column=4, padx=5, pady=2, sticky="ew")
+
+    ttk.Label(axis_frame, text="Ось Y (авто):").grid(
+        row=2, column=0, padx=5, pady=2, sticky="w"
+    )
+    ttk.Label(axis_frame, text="от").grid(row=2, column=1, padx=5, pady=2)
+    auto_y_min_entry = _create_auto_entry()
+    auto_y_min_entry.grid(row=2, column=2, padx=5, pady=2, sticky="ew")
+    ttk.Label(axis_frame, text="до").grid(row=2, column=3, padx=5, pady=2)
+    auto_y_max_entry = _create_auto_entry()
+    auto_y_max_entry.grid(row=2, column=4, padx=5, pady=2, sticky="ew")
+
+    ttk.Label(axis_frame, text="Ось Y (вручную):").grid(
+        row=3, column=0, padx=5, pady=2, sticky="w"
+    )
+    ttk.Label(axis_frame, text="от").grid(row=3, column=1, padx=5, pady=2)
+    manual_y_min_entry = create_text(
+        axis_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    manual_y_min_entry.config(width=12)
+    manual_y_min_entry.grid(row=3, column=2, padx=5, pady=2, sticky="ew")
+    ttk.Label(axis_frame, text="до").grid(row=3, column=3, padx=5, pady=2)
+    manual_y_max_entry = create_text(
+        axis_frame, method="entry", height=1, state="normal", scrollbar=False
+    )
+    manual_y_max_entry.config(width=12)
+    manual_y_max_entry.grid(row=3, column=4, padx=5, pady=2, sticky="ew")
+
+    ttk.Separator(axis_frame, orient=tk.HORIZONTAL).grid(
+        row=4, column=0, columnspan=5, sticky="ew", pady=(8, 4)
+    )
+
+    annotation_frame = ttk.Frame(axis_frame)
+    annotation_frame.grid(row=5, column=0, columnspan=5, sticky="ew")
+    annotation_frame.columnconfigure(2, weight=1)
+
+    annotation_mode_var = tk.BooleanVar(value=False)
+    annotation_type_var = tk.StringVar(value="(X,Y)")
+
+    annotation_mode_check = ttk.Checkbutton(
+        annotation_frame, text="Режим отметок", variable=annotation_mode_var
+    )
+    annotation_mode_check.grid(row=0, column=0, padx=5, pady=2, sticky="w")
+    ttk.Label(annotation_frame, text="Подпись:").grid(
+        row=0, column=1, padx=5, pady=2, sticky="w"
+    )
+    annotation_type_combo = ttk.Combobox(
+        annotation_frame,
+        values=["X", "Y", "(X,Y)", "Свой текст"],
+        state="readonly",
+        textvariable=annotation_type_var,
+        width=12,
+    )
+    annotation_type_combo.grid(row=0, column=2, padx=5, pady=2, sticky="w")
+
+    ttk.Label(annotation_frame, text="Текст:").grid(
+        row=1, column=0, padx=5, pady=2, sticky="w"
+    )
+    annotation_text_entry = create_text(
+        annotation_frame, method="entry", height=1, state="disabled", scrollbar=False
+    )
+    annotation_text_entry.grid(
+        row=1, column=1, columnspan=2, padx=5, pady=2, sticky="ew"
+    )
+    clear_annotations_button = ttk.Button(
+        annotation_frame, text="Очистить отметки"
+    )
+    clear_annotations_button.grid(row=1, column=3, padx=5, pady=2, sticky="e")
+
+    def update_annotation_entry_state(_event=None) -> None:
+        if annotation_type_var.get() == "Свой текст":
+            annotation_text_entry.config(state="normal")
+        else:
+            annotation_text_entry.delete(0, tk.END)
+            annotation_text_entry.config(state="disabled")
+
+    annotation_type_combo.bind("<<ComboboxSelected>>", update_annotation_entry_state)
+    update_annotation_entry_state()
+
+    axis_auto_entries: Dict[str, tk.Entry] = {
+        "x_min": auto_x_min_entry,
+        "x_max": auto_x_max_entry,
+        "y_min": auto_y_min_entry,
+        "y_max": auto_y_max_entry,
+    }
+    axis_manual_entries: Dict[str, tk.Entry] = {
+        "x_min": manual_x_min_entry,
+        "x_max": manual_x_max_entry,
+        "y_min": manual_y_min_entry,
+        "y_max": manual_y_max_entry,
+    }
+
+    update_curves(curves_frame, "1", axis_frame, save_frame, checkbox_var, saved_data_curves)
     combo_curves.bind(
         "<<ComboboxSelected>>",
         lambda e: update_curves(
             curves_frame,
             combo_curves.get(),
+            axis_frame,
             save_frame,
             checkbox_var,
             saved_data_curves,
@@ -485,6 +621,65 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     info_button.place(x=ui_const.PREVIEW_X, y=0)
     fig, ax, canvas = create_plot_canvas(preview_frame)
 
+    annotations: list = []
+
+    def _redraw_canvas() -> None:
+        if hasattr(canvas, "draw_idle"):
+            canvas.draw_idle()
+        else:
+            canvas.draw()
+
+    def clear_annotations() -> None:
+        while annotations:
+            point, label = annotations.pop()
+            try:
+                point.remove()
+            except ValueError:
+                pass
+            try:
+                label.remove()
+            except ValueError:
+                pass
+        _redraw_canvas()
+
+    def _format_annotation_text(x_value: float, y_value: float) -> str:
+        mode = annotation_type_var.get()
+        if mode == "X":
+            return f"{x_value:.3g}"
+        if mode == "Y":
+            return f"{y_value:.3g}"
+        if mode == "(X,Y)":
+            return f"({x_value:.3g}, {y_value:.3g})"
+        return annotation_text_entry.get().strip()
+
+    def on_canvas_click(event) -> None:
+        if not annotation_mode_var.get():
+            return
+        if event.inaxes != ax or event.xdata is None or event.ydata is None:
+            return
+        if hasattr(event, "button") and event.button != 1:
+            return
+        text = _format_annotation_text(event.xdata, event.ydata)
+        if annotation_type_var.get() == "Свой текст" and not text:
+            messagebox.showwarning(
+                "Предупреждение", "Введите текст подписи для отметки."
+            )
+            return
+        point = ax.scatter([event.xdata], [event.ydata], color="red", zorder=5)
+        label = ax.annotate(
+            text,
+            (event.xdata, event.ydata),
+            textcoords="offset points",
+            xytext=(5, 5),
+            color="red",
+            fontsize=9,
+        )
+        annotations.append((point, label))
+        _redraw_canvas()
+
+    canvas.mpl_connect("button_press_event", on_canvas_click)
+    clear_annotations_button.config(command=clear_annotations)
+
     editor_visible = {"shown": False}
     plot_editor = PlotEditor(tab1, ax, canvas)
     plot_editor.place(
@@ -495,8 +690,18 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     )
     plot_editor.place_forget()
 
+    def reset_auto_entries() -> None:
+        for entry in axis_auto_entries.values():
+            state = entry.cget("state")
+            entry.config(state="normal")
+            entry.delete(0, tk.END)
+            entry.insert(0, "-")
+            entry.config(state=state)
+
     def build_graph() -> None:
         logger.info("Построение графика")
+        clear_annotations()
+        reset_auto_entries()
         try:
             generate_graph(
                 ax,
@@ -517,6 +722,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 legend_title_combo,
                 legend_title_entry,
                 legend_title_var,
+                axis_auto_entries,
+                axis_manual_entries,
             )
             plot_editor.refresh()
             if not editor_visible["shown"]:
@@ -576,6 +783,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         update_curves(
             curves_frame,
             combo_curves.get(),
+            axis_frame,
             save_frame,
             checkbox_var,
             saved_data_curves,

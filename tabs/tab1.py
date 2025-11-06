@@ -709,7 +709,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     clear_annotations_button.config(command=clear_annotations)
 
     editor_visible = {"shown": False}
-    plot_editor = PlotEditor(tab1, ax, canvas)
+    plot_editor = PlotEditor(tab1, ax, canvas, saved_data_curves)
     plot_editor.place(
         x=ui_const.EDITOR_X,
         y=ui_const.EDITOR_Y,

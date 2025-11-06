@@ -247,6 +247,13 @@ def generate_graph(
     # Очистка предыдущего графика
     ax.clear()
     language = combo_language.get() or "Русский"
+    saved_data_list = getattr(curves_frame, "saved_data", [])
+
+    def _coerce_percentage(value, default):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
     title_processor = TitleProcessor(
         combo_title,
         entry_title=entry_title_custom,
@@ -465,20 +472,23 @@ def generate_graph(
                     curve_info["range_x"] = widget.get()
                 elif widget_name == f"curve_{i}_range_y":
                     curve_info["range_y"] = widget.get()
-                elif widget_name == f"curve_{i}_slider_start":
-                    try:
-                        curve_info["slider_start"] = float(widget.get())
-                    except (TypeError, ValueError):
-                        curve_info["slider_start"] = 0.0
-                elif widget_name == f"curve_{i}_slider_end":
-                    try:
-                        curve_info["slider_end"] = float(widget.get())
-                    except (TypeError, ValueError):
-                        curve_info["slider_end"] = 100.0
 
                 # Проверяем наличие легенды, если отмечен чекбокс
                 if legend_checkbox.get() and widget_name == f"curve_{i}_legend":
                     curve_info["curve_legend"] = widget.get()
+        saved_item = saved_data_list[i - 1] if len(saved_data_list) >= i else None
+        slider_start_raw = (
+            saved_item.get("slider_start") if saved_item is not None else None
+        )
+        slider_end_raw = (
+            saved_item.get("slider_end") if saved_item is not None else None
+        )
+        curve_info["slider_start"] = _coerce_percentage(slider_start_raw, 0.0)
+        curve_info["slider_end"] = _coerce_percentage(slider_end_raw, 100.0)
+        if saved_item is not None:
+            saved_item.setdefault("slider_start", curve_info["slider_start"])
+            saved_item.setdefault("slider_end", curve_info["slider_end"])
+
         if legend_checkbox.get() and not curve_info.get("curve_legend", "").strip():
             messagebox.showwarning(
                 "Предупреждение", f"Введите подпись легенды для кривой {i}"
@@ -518,6 +528,11 @@ def generate_graph(
         get_X_Y_data(curve_info)
         slider_start = max(0.0, min(100.0, float(curve_info.get("slider_start", 0.0))))
         slider_end = max(0.0, min(100.0, float(curve_info.get("slider_end", 100.0))))
+        curve_info["slider_start"] = slider_start
+        curve_info["slider_end"] = slider_end
+        if saved_item is not None:
+            saved_item["slider_start"] = slider_start
+            saved_item["slider_end"] = slider_end
         x_values = curve_info.get("X_values", [])
         y_values = curve_info.get("Y_values", [])
         if not x_values or not y_values:
@@ -531,6 +546,8 @@ def generate_graph(
                 f"Количество точек X и Y для кривой {i} не совпадает",
             )
             return
+        curve_info["_full_X_values"] = x_values
+        curve_info["_full_Y_values"] = y_values
         if len(x_values) > 1:
             start_idx = int(round((len(x_values) - 1) * slider_start / 100))
             end_idx = int(round((len(x_values) - 1) * slider_end / 100))
@@ -620,6 +637,20 @@ def generate_graph(
             legend_title=legend_title,
             title_fontstyle="normal",
         )
+        for idx, (line, info) in enumerate(zip(ax.lines, curves_info), start=1):
+            full_x_values = list(info.get("_full_X_values", info.get("X_values", [])))
+            full_y_values = list(info.get("_full_Y_values", info.get("Y_values", [])))
+            setattr(line, "_full_x", full_x_values)
+            setattr(line, "_full_y", full_y_values)
+            slider_start_val = float(info.get("slider_start", 0.0))
+            slider_end_val = float(info.get("slider_end", 100.0))
+            setattr(line, "_slider_start", slider_start_val)
+            setattr(line, "_slider_end", slider_end_val)
+            if len(saved_data_list) >= idx:
+                saved_data_list[idx - 1]["slider_start"] = slider_start_val
+                saved_data_list[idx - 1]["slider_end"] = slider_end_val
+            info.pop("_full_X_values", None)
+            info.pop("_full_Y_values", None)
         if axis_manual_entries:
             if x_min_manual is not None or x_max_manual is not None:
                 current_xlim = ax.get_xlim()

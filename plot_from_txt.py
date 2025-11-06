@@ -151,8 +151,14 @@ def plot_from_txt_files(txt_files: list[str], analysis_type: str) -> str:
     analysis_dir = Path(txt_files[0]).parent
     output_path = str(analysis_dir.with_suffix(".png"))
 
-    _, entity_kind, _ = decode_topfolder(analysis_dir.parent.name)
-    legend_key = "№ Элементов" if entity_kind == "element" else "№ Узлов"
+    legend_key = "№ Узлов"
+    try:
+        _, entity_kind, _ = decode_topfolder(analysis_dir.parent.name)
+    except ValueError:
+        entity_kind = "node"
+    else:
+        if entity_kind == "element":
+            legend_key = "№ Элементов"
     legend_title = LEGEND_TITLE_TRANSLATIONS[legend_key]["Русский"]
 
     create_plot(

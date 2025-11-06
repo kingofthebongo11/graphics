@@ -720,6 +720,86 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
             lambda e: saved_data[i - 1].update({"legend": legend_entry.get()}),
         )
 
+    saved_data[i - 1].setdefault("slider_start", 0.0)
+    saved_data[i - 1].setdefault("slider_end", 100.0)
+
+    slider_start_label = ttk.Label(input_frame, text="От, %:")
+    slider_start_label.place(
+        x=ui_const.SLIDER_LABEL_X,
+        y=ui_const.SLIDER_START_Y + dy * (i - 1),
+    )
+    slider_start_var = tk.DoubleVar(value=float(saved_data[i - 1]["slider_start"]))
+    slider_start_value_var = tk.StringVar(
+        value=f"{slider_start_var.get():.0f}%"
+    )
+    slider_start_value_label = ttk.Label(
+        input_frame, textvariable=slider_start_value_var
+    )
+    slider_start_value_label.place(
+        x=ui_const.SLIDER_VALUE_LABEL_X,
+        y=ui_const.SLIDER_START_Y + dy * (i - 1),
+    )
+    slider_start = ttk.Scale(
+        input_frame,
+        from_=0,
+        to=100,
+        orient=tk.HORIZONTAL,
+        length=ui_const.SLIDER_WIDTH,
+        variable=slider_start_var,
+    )
+    slider_start.place(
+        x=ui_const.SLIDER_X,
+        y=ui_const.SLIDER_START_Y + dy * (i - 1),
+    )
+    slider_start._name = f"curve_{i}_slider_start"
+
+    slider_end_label = ttk.Label(input_frame, text="До, %:")
+    slider_end_label.place(
+        x=ui_const.SLIDER_LABEL_X,
+        y=ui_const.SLIDER_END_Y + dy * (i - 1),
+    )
+    slider_end_var = tk.DoubleVar(value=float(saved_data[i - 1]["slider_end"]))
+    slider_end_value_var = tk.StringVar(value=f"{slider_end_var.get():.0f}%")
+    slider_end_value_label = ttk.Label(
+        input_frame, textvariable=slider_end_value_var
+    )
+    slider_end_value_label.place(
+        x=ui_const.SLIDER_VALUE_LABEL_X,
+        y=ui_const.SLIDER_END_Y + dy * (i - 1),
+    )
+    slider_end = ttk.Scale(
+        input_frame,
+        from_=0,
+        to=100,
+        orient=tk.HORIZONTAL,
+        length=ui_const.SLIDER_WIDTH,
+        variable=slider_end_var,
+    )
+    slider_end.place(
+        x=ui_const.SLIDER_X,
+        y=ui_const.SLIDER_END_Y + dy * (i - 1),
+    )
+    slider_end._name = f"curve_{i}_slider_end"
+
+    def on_start_slider_change(value: str) -> None:
+        val = float(value)
+        if val > slider_end_var.get():
+            slider_end_var.set(val)
+        slider_start_value_var.set(f"{val:.0f}%")
+        saved_data[i - 1]["slider_start"] = val
+        saved_data[i - 1]["slider_end"] = slider_end_var.get()
+
+    def on_end_slider_change(value: str) -> None:
+        val = float(value)
+        if val < slider_start_var.get():
+            slider_start_var.set(val)
+        slider_end_value_var.set(f"{val:.0f}%")
+        saved_data[i - 1]["slider_end"] = val
+        saved_data[i - 1]["slider_start"] = slider_start_var.get()
+
+    slider_start.configure(command=on_start_slider_change)
+    slider_end.configure(command=on_end_slider_change)
+
     toggle_excel_options()
     on_combo_change_curve_type(
         input_frame,
@@ -752,7 +832,7 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
     return None
 
 
-def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
+def update_curves(frame, num_curves, axis_frame, next_frame, checkbox_var, saved_data):
     """Обновляет кривые в соответствии с выбранным количеством и состоянием чекбокса."""
     # Очищаем старые виджеты
     for widget in frame.winfo_children():
@@ -773,16 +853,30 @@ def update_curves(frame, num_curves, next_frame, checkbox_var, saved_data):
 
     # Восстанавливаем данные, если они есть
     for i in range(len(saved_data), num_curves_int):
-        saved_data.append({'curve_type': "", 'path': "", 'legend': "", 'curve_typeX': "", 'curve_typeY': "",
-                           'curve_typeX_type': "", 'curve_typeY_type': "", 'horizontal': False,
-                           'use_offset': False, 'offset_horizontal': 0, 'offset_vertical': 0,
-                           'use_ranges': False, 'range_x': '', 'range_y': '',
-                           'X_source': {}, 'Y_source': {}})
+        saved_data.append({
+            'curve_type': "",
+            'path': "",
+            'legend': "",
+            'curve_typeX': "",
+            'curve_typeY': "",
+            'curve_typeX_type': "",
+            'curve_typeY_type': "",
+            'horizontal': False,
+            'use_offset': False,
+            'offset_horizontal': 0,
+            'offset_vertical': 0,
+            'use_ranges': False,
+            'range_x': '',
+            'range_y': '',
+            'slider_start': 0.0,
+            'slider_end': 100.0,
+            'X_source': {},
+            'Y_source': {},
+        })
 
     for i in range(1, num_curves_int + 1):
         create_curve_box(frame, i, checkbox_var, saved_data)
 
-    next_frame.place(
-        x=ui_const.PADDING,
-        y=frame.winfo_y() + frame_height + ui_const.PADDING,
-    )  # Обновляем координаты следующего фрейма
+    axis_y = frame.winfo_y() + frame_height + ui_const.PADDING
+    axis_frame.place_configure(y=axis_y)
+    next_frame.place_configure(y=axis_y + ui_const.AXIS_FRAME_HEIGHT + ui_const.PADDING)

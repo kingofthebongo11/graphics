@@ -424,11 +424,12 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     )
     axis_frame = ttk.LabelFrame(tab1, text="Настройки осей")
     axis_frame.place(
-        x=ui_const.PADDING,
-        y=ui_const.CURVES_FRAME_Y + ui_const.CURVE_HEIGHT + ui_const.PADDING,
+        x=ui_const.PREVIEW_X,
+        y=ui_const.LINE_HEIGHT + ui_const.PREVIEW_HEIGHT + ui_const.PADDING,
         width=ui_const.AXIS_FRAME_WIDTH,
         height=ui_const.AXIS_FRAME_HEIGHT,
     )
+    axis_frame.linked_to_curves = False
     for column in (2, 4):
         axis_frame.columnconfigure(column, weight=1)
 

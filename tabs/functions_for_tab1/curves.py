@@ -878,5 +878,11 @@ def update_curves(frame, num_curves, axis_frame, next_frame, checkbox_var, saved
         create_curve_box(frame, i, checkbox_var, saved_data)
 
     axis_y = frame.winfo_y() + frame_height + ui_const.PADDING
-    axis_frame.place_configure(y=axis_y)
-    next_frame.place_configure(y=axis_y + ui_const.AXIS_FRAME_HEIGHT + ui_const.PADDING)
+
+    if axis_frame is not None and getattr(axis_frame, "linked_to_curves", True):
+        axis_frame.place_configure(y=axis_y)
+        next_y = axis_y + ui_const.AXIS_FRAME_HEIGHT + ui_const.PADDING
+    else:
+        next_y = axis_y
+
+    next_frame.place_configure(y=next_y)

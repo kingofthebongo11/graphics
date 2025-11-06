@@ -2,7 +2,12 @@ from logging_utils import get_logger
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk, messagebox
 from typing import Dict, List, Tuple
-from .functions_for_tab1 import update_curves, generate_graph, save_file
+from .functions_for_tab1 import (
+    update_curves,
+    generate_graph,
+    save_file,
+    apply_axis_limits,
+)
 from .functions_for_tab1.plotting import last_graph
 from widgets import PlotEditor, create_text
 from tabs.function_for_all_tabs import create_plot_canvas
@@ -565,6 +570,15 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         "y_min": manual_y_min_entry,
         "y_max": manual_y_max_entry,
     }
+
+    axis_apply_button = ttk.Button(
+        axis_frame,
+        text="Применить",
+        command=lambda: apply_axis_limits(ax, canvas, axis_manual_entries),
+    )
+    axis_apply_button.grid(
+        row=6, column=0, columnspan=5, padx=5, pady=(4, 0), sticky="e"
+    )
 
     update_curves(curves_frame, "1", axis_frame, save_frame, checkbox_var, saved_data_curves)
     combo_curves.bind(

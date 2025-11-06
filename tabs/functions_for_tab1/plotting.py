@@ -26,6 +26,94 @@ logger = logging.getLogger(__name__)
 last_graph = {}
 
 
+def _parse_manual_axis_value(entry, axis_label: str, bound_label: str):
+    """Преобразовать текст из поля ручного ввода оси в число."""
+
+    if entry is None or not hasattr(entry, "get"):
+        return None
+    if not getattr(entry, "user_modified", False):
+        return None
+    text = entry.get().strip()
+    if not text:
+        setattr(entry, "user_modified", False)
+        return None
+    normalized = text.replace(",", ".")
+    try:
+        return float(normalized)
+    except ValueError as exc:  # pragma: no cover - защита от пользовательского ввода
+        raise ValueError(
+            f"Некорректное значение для оси {axis_label} ({bound_label}): {text}"
+        ) from exc
+
+
+def apply_axis_limits(ax, canvas, axis_manual_entries=None):
+    """Применить ручные пределы осей к уже построенному графику."""
+
+    if axis_manual_entries is None:
+        return False
+    if not hasattr(ax, "has_data") or not ax.has_data():
+        messagebox.showwarning("Предупреждение", "Сначала постройте график")
+        return False
+    try:
+        x_min_manual = _parse_manual_axis_value(
+            axis_manual_entries.get("x_min"), "X", "от"
+        )
+        x_max_manual = _parse_manual_axis_value(
+            axis_manual_entries.get("x_max"), "X", "до"
+        )
+        y_min_manual = _parse_manual_axis_value(
+            axis_manual_entries.get("y_min"), "Y", "от"
+        )
+        y_max_manual = _parse_manual_axis_value(
+            axis_manual_entries.get("y_max"), "Y", "до"
+        )
+    except ValueError as exc:
+        messagebox.showerror("Ошибка", str(exc))
+        return False
+
+    if (
+        x_min_manual is not None
+        and x_max_manual is not None
+        and x_min_manual >= x_max_manual
+    ):
+        messagebox.showerror(
+            "Ошибка", "Значение «от» должно быть меньше значения «до» для оси X."
+        )
+        return False
+    if (
+        y_min_manual is not None
+        and y_max_manual is not None
+        and y_min_manual >= y_max_manual
+    ):
+        messagebox.showerror(
+            "Ошибка", "Значение «от» должно быть меньше значения «до» для оси Y."
+        )
+        return False
+
+    limits_changed = False
+    if x_min_manual is not None or x_max_manual is not None:
+        current_xlim = ax.get_xlim()
+        ax.set_xlim(
+            x_min_manual if x_min_manual is not None else current_xlim[0],
+            x_max_manual if x_max_manual is not None else current_xlim[1],
+        )
+        limits_changed = True
+    if y_min_manual is not None or y_max_manual is not None:
+        current_ylim = ax.get_ylim()
+        ax.set_ylim(
+            y_min_manual if y_min_manual is not None else current_ylim[0],
+            y_max_manual if y_max_manual is not None else current_ylim[1],
+        )
+        limits_changed = True
+
+    if limits_changed:
+        if hasattr(canvas, "draw_idle"):
+            canvas.draw_idle()
+        else:
+            canvas.draw()
+    return limits_changed
+
+
 class TitleProcessor:
     def __init__(
         self,
@@ -226,23 +314,6 @@ def generate_graph(
             if value:
                 _set_entry_value(manual_entry, value)
                 setattr(manual_entry, "user_modified", False)
-
-    def _parse_manual_value(entry, axis_label: str, bound_label: str):
-        if entry is None or not hasattr(entry, "get"):
-            return None
-        if not getattr(entry, "user_modified", False):
-            return None
-        text = entry.get().strip()
-        if not text:
-            setattr(entry, "user_modified", False)
-            return None
-        normalized = text.replace(",", ".")
-        try:
-            return float(normalized)
-        except ValueError as exc:
-            raise ValueError(
-                f"Некорректное значение для оси {axis_label} ({bound_label}): {text}"
-            ) from exc
 
     # Текст заголовка передается без LaTeX-команд,
     # оформление выполняется через параметры Matplotlib.
@@ -502,16 +573,16 @@ def generate_graph(
     x_min_manual = x_max_manual = y_min_manual = y_max_manual = None
     if axis_manual_entries:
         try:
-            x_min_manual = _parse_manual_value(
+            x_min_manual = _parse_manual_axis_value(
                 axis_manual_entries.get("x_min"), "X", "от"
             )
-            x_max_manual = _parse_manual_value(
+            x_max_manual = _parse_manual_axis_value(
                 axis_manual_entries.get("x_max"), "X", "до"
             )
-            y_min_manual = _parse_manual_value(
+            y_min_manual = _parse_manual_axis_value(
                 axis_manual_entries.get("y_min"), "Y", "от"
             )
-            y_max_manual = _parse_manual_value(
+            y_max_manual = _parse_manual_axis_value(
                 axis_manual_entries.get("y_max"), "Y", "до"
             )
         except ValueError as exc:

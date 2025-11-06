@@ -507,12 +507,21 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     manual_y_max_entry = _create_manual_entry()
     manual_y_max_entry.grid(row=3, column=4, padx=5, pady=2, sticky="ew")
 
+    axis_apply_button = ttk.Button(
+        axis_frame,
+        text="Применить",
+        command=lambda: apply_axis_limits(ax, canvas, axis_manual_entries),
+    )
+    axis_apply_button.grid(
+        row=4, column=0, columnspan=5, padx=5, pady=(4, 8), sticky="e"
+    )
+
     ttk.Separator(axis_frame, orient=tk.HORIZONTAL).grid(
-        row=4, column=0, columnspan=5, sticky="ew", pady=(8, 4)
+        row=5, column=0, columnspan=5, sticky="ew", pady=(4, 4)
     )
 
     annotation_frame = ttk.Frame(axis_frame)
-    annotation_frame.grid(row=5, column=0, columnspan=5, sticky="ew")
+    annotation_frame.grid(row=6, column=0, columnspan=5, sticky="ew")
     annotation_frame.columnconfigure(2, weight=1)
 
     annotation_mode_var = tk.BooleanVar(value=False)
@@ -571,14 +580,10 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         "y_max": manual_y_max_entry,
     }
 
-    axis_apply_button = ttk.Button(
-        axis_frame,
-        text="Применить",
-        command=lambda: apply_axis_limits(ax, canvas, axis_manual_entries),
-    )
-    axis_apply_button.grid(
-        row=6, column=0, columnspan=5, padx=5, pady=(4, 0), sticky="e"
-    )
+    def reset_manual_entries() -> None:
+        for entry in axis_manual_entries.values():
+            entry.delete(0, tk.END)
+            entry.user_modified = False
 
     update_curves(curves_frame, "1", axis_frame, save_frame, checkbox_var, saved_data_curves)
     combo_curves.bind(
@@ -724,7 +729,13 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     def build_graph() -> None:
         logger.info("Построение графика")
         clear_annotations()
+        reset_manual_entries()
         reset_auto_entries()
+        if hasattr(ax, "set_xlim") and hasattr(ax, "set_ylim"):
+            ax.set_xlim(auto=True)
+            ax.set_ylim(auto=True)
+        if hasattr(ax, "set_autoscale_on"):
+            ax.set_autoscale_on(True)
         try:
             generate_graph(
                 ax,

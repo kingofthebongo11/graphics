@@ -65,6 +65,10 @@ class PlotEditor(ttk.Frame):
         self._rows: List[_RowWidgets] = []
         self._range_controls: List[_RangeWidgets] = []
         self._range_lock = False
+        self._cached_height = 0
+
+        self._line_styles = ["-", "--", "-.", ":"]
+        self._style_box_width = max(len(style) for style in self._line_styles) + 2
 
         self._init_range_styles()
 
@@ -133,6 +137,23 @@ class PlotEditor(ttk.Frame):
             self._build_range_controls(lines)
 
         self.apply_selected_palette()
+        self._update_size_hint()
+
+    # ------------------------------------------------------------------
+    def _update_size_hint(self) -> None:
+        """Запоминает требуемую высоту редактора после перестройки."""
+
+        self.update_idletasks()
+        self._cached_height = max(self.winfo_reqheight(), 1)
+
+    @property
+    def required_height(self) -> int:
+        """Возвращает актуальную высоту, необходимую для отображения всех элементов."""
+
+        if self._cached_height:
+            return self._cached_height
+        self.update_idletasks()
+        return max(self.winfo_reqheight(), 1)
 
     # ------------------------------------------------------------------
     def _append_row(self, line, index: int) -> None:
@@ -148,7 +169,11 @@ class PlotEditor(ttk.Frame):
             "<Button-1>", lambda _e, ln=line, lbl=colour_lbl: self._choose_colour(ln, lbl)
         )
 
-        style_box = ttk.Combobox(row_frame, values=["-", "--", "-.", ":"], width=5)
+        style_box = ttk.Combobox(
+            row_frame,
+            values=self._line_styles,
+            width=self._style_box_width,
+        )
         style_box.set(line.get_linestyle())
         style_box.pack(side=tk.LEFT, padx=5)
         style_box.bind(

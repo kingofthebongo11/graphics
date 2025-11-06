@@ -425,7 +425,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     axis_frame = ttk.LabelFrame(tab1, text="Настройки осей")
     axis_frame.place(
         x=ui_const.PREVIEW_X,
-        y=ui_const.LINE_HEIGHT + ui_const.PREVIEW_HEIGHT + ui_const.PADDING,
+        y=ui_const.AXIS_FRAME_Y,
         width=ui_const.AXIS_FRAME_WIDTH,
         height=ui_const.AXIS_FRAME_HEIGHT,
     )
@@ -439,6 +439,27 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         )
         entry.insert(0, "-")
         entry.config(state="readonly", width=12)
+        return entry
+
+    def _mark_manual_modified(entry: tk.Entry) -> None:
+        entry.user_modified = True
+
+    def _handle_manual_focus_out(entry: tk.Entry) -> None:
+        if not entry.get().strip():
+            entry.user_modified = False
+
+    def _create_manual_entry() -> tk.Entry:
+        entry = create_text(
+            axis_frame, method="entry", height=1, state="normal", scrollbar=False
+        )
+        entry.config(width=12)
+        entry.user_modified = False
+
+        entry.bind("<KeyRelease>", lambda _event, e=entry: _mark_manual_modified(e))
+        entry.bind("<<Paste>>", lambda _event, e=entry: _mark_manual_modified(e))
+        entry.bind("<<Cut>>", lambda _event, e=entry: _mark_manual_modified(e))
+        entry.bind("<FocusOut>", lambda _event, e=entry: _handle_manual_focus_out(e))
+
         return entry
 
     ttk.Label(axis_frame, text="Ось X (авто):").grid(
@@ -455,16 +476,10 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         row=1, column=0, padx=5, pady=2, sticky="w"
     )
     ttk.Label(axis_frame, text="от").grid(row=1, column=1, padx=5, pady=2)
-    manual_x_min_entry = create_text(
-        axis_frame, method="entry", height=1, state="normal", scrollbar=False
-    )
-    manual_x_min_entry.config(width=12)
+    manual_x_min_entry = _create_manual_entry()
     manual_x_min_entry.grid(row=1, column=2, padx=5, pady=2, sticky="ew")
     ttk.Label(axis_frame, text="до").grid(row=1, column=3, padx=5, pady=2)
-    manual_x_max_entry = create_text(
-        axis_frame, method="entry", height=1, state="normal", scrollbar=False
-    )
-    manual_x_max_entry.config(width=12)
+    manual_x_max_entry = _create_manual_entry()
     manual_x_max_entry.grid(row=1, column=4, padx=5, pady=2, sticky="ew")
 
     ttk.Label(axis_frame, text="Ось Y (авто):").grid(
@@ -481,16 +496,10 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         row=3, column=0, padx=5, pady=2, sticky="w"
     )
     ttk.Label(axis_frame, text="от").grid(row=3, column=1, padx=5, pady=2)
-    manual_y_min_entry = create_text(
-        axis_frame, method="entry", height=1, state="normal", scrollbar=False
-    )
-    manual_y_min_entry.config(width=12)
+    manual_y_min_entry = _create_manual_entry()
     manual_y_min_entry.grid(row=3, column=2, padx=5, pady=2, sticky="ew")
     ttk.Label(axis_frame, text="до").grid(row=3, column=3, padx=5, pady=2)
-    manual_y_max_entry = create_text(
-        axis_frame, method="entry", height=1, state="normal", scrollbar=False
-    )
-    manual_y_max_entry.config(width=12)
+    manual_y_max_entry = _create_manual_entry()
     manual_y_max_entry.grid(row=3, column=4, padx=5, pady=2, sticky="ew")
 
     ttk.Separator(axis_frame, orient=tk.HORIZONTAL).grid(

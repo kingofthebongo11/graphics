@@ -714,7 +714,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         x=ui_const.EDITOR_X,
         y=ui_const.EDITOR_Y,
         width=ui_const.PREVIEW_WIDTH,
-        height=ui_const.EDITOR_HEIGHT,
+        height=plot_editor.required_height,
     )
     plot_editor.place_forget()
 
@@ -760,14 +760,17 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 axis_manual_entries,
             )
             plot_editor.refresh()
+            editor_height = plot_editor.required_height
             if not editor_visible["shown"]:
                 plot_editor.place(
                     x=ui_const.EDITOR_X,
                     y=ui_const.EDITOR_Y,
                     width=ui_const.PREVIEW_WIDTH,
-                    height=ui_const.EDITOR_HEIGHT,
+                    height=editor_height,
                 )
                 editor_visible["shown"] = True
+            elif editor_height:
+                plot_editor.place_configure(height=editor_height)
             logger.info("График построен успешно")
         except ValueError as exc:
             logger.error("Ошибка построения графика", exc_info=True)

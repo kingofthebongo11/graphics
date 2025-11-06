@@ -204,11 +204,37 @@ def generate_graph(
             _set_entry_value(min_entry, "-")
             _set_entry_value(max_entry, "-")
 
+    def _sync_manual_with_auto(auto_entries, manual_entries) -> None:
+        if not auto_entries or not manual_entries:
+            return
+        for key in ("x_min", "x_max", "y_min", "y_max"):
+            manual_entry = manual_entries.get(key) if manual_entries else None
+            if manual_entry is None or not hasattr(manual_entry, "get"):
+                continue
+            if manual_entry.get().strip() == "":
+                setattr(manual_entry, "user_modified", False)
+            if getattr(manual_entry, "user_modified", False):
+                continue
+            auto_entry = auto_entries.get(key) if auto_entries else None
+            if auto_entry is None or not hasattr(auto_entry, "get"):
+                continue
+            value = auto_entry.get().strip()
+            if value == "-":
+                _set_entry_value(manual_entry, "")
+                setattr(manual_entry, "user_modified", False)
+                continue
+            if value:
+                _set_entry_value(manual_entry, value)
+                setattr(manual_entry, "user_modified", False)
+
     def _parse_manual_value(entry, axis_label: str, bound_label: str):
         if entry is None or not hasattr(entry, "get"):
             return None
+        if not getattr(entry, "user_modified", False):
+            return None
         text = entry.get().strip()
         if not text:
+            setattr(entry, "user_modified", False)
             return None
         normalized = text.replace(",", ".")
         try:
@@ -471,6 +497,7 @@ def generate_graph(
             axis_auto_entries.get("y_min"),
             axis_auto_entries.get("y_max"),
         )
+        _sync_manual_with_auto(axis_auto_entries, axis_manual_entries)
 
     x_min_manual = x_max_manual = y_min_manual = y_max_manual = None
     if axis_manual_entries:

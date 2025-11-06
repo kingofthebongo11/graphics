@@ -3,7 +3,13 @@
 Импортируется без немедленной загрузки тяжёлых зависимостей (например, PyQt),
 поэтому реальные функции подтягиваются лениво при первом обращении."""
 
-__all__ = ["update_curves", "generate_graph", "save_file", "last_graph"]
+__all__ = [
+    "update_curves",
+    "generate_graph",
+    "save_file",
+    "last_graph",
+    "apply_axis_limits",
+]
 
 
 def update_curves(*args, **kwargs):  # pragma: no cover - простая обёртка
@@ -28,3 +34,9 @@ def last_graph(*args, **kwargs):  # pragma: no cover - простая обёрт
     from .plotting import last_graph as _last_graph
 
     return _last_graph(*args, **kwargs)
+
+
+def apply_axis_limits(*args, **kwargs):  # pragma: no cover - простая обёртка
+    from .plotting import apply_axis_limits as _apply_axis_limits
+
+    return _apply_axis_limits(*args, **kwargs)

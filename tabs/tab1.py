@@ -2,7 +2,7 @@ import math
 
 from logging_utils import get_logger
 import tkinter as tk  # Alias for Tk functionality
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, colorchooser
 from typing import Dict, List, Tuple
 from .functions_for_tab1 import (
     update_curves,
@@ -12,6 +12,7 @@ from .functions_for_tab1 import (
 )
 from .functions_for_tab1.plotting import last_graph
 from widgets import PlotEditor, create_text
+from color_palettes import PALETTES
 from tabs.function_for_all_tabs import create_plot_canvas
 from tabs.function_for_all_tabs.plotting import LABEL_SIZE
 from .constants import (
@@ -640,7 +641,14 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     annotation_snap_var = tk.StringVar(value="нет")
     annotation_marker_shape_var = tk.StringVar(value="Круг")
     annotation_marker_size_var = tk.StringVar(value="40")
-    annotation_color_var = tk.StringVar(value="Красный")
+
+    default_palette = next(iter(PALETTES), "")
+    default_color = "#ff0000"
+    if default_palette:
+        palette_colors = PALETTES.get(default_palette, [])
+        if palette_colors:
+            default_color = palette_colors[0]
+    annotation_color_var = tk.StringVar(value=default_color)
 
     annotation_mode_check = ttk.Checkbutton(
         annotation_frame, text="Режим отметок", variable=annotation_mode_var
@@ -654,7 +662,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         values=["X", "Y", "(X,Y)", "Свой текст"],
         state="readonly",
         textvariable=annotation_type_var,
-        width=12,
+        width=18,
     )
     annotation_type_combo.grid(row=0, column=2, padx=5, pady=2, sticky="w")
 
@@ -666,7 +674,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         values=["нет"],
         state="readonly",
         textvariable=annotation_snap_var,
-        width=12,
+        width=14,
     )
     annotation_snap_combo.grid(row=0, column=4, padx=5, pady=2, sticky="w")
 
@@ -676,15 +684,6 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         "Ромб": "D",
         "Крестик": "x",
     }
-    marker_color_options = {
-        "Красный": "red",
-        "Синий": "blue",
-        "Зеленый": "green",
-        "Оранжевый": "orange",
-        "Фиолетовый": "purple",
-        "Черный": "black",
-    }
-
     ttk.Label(annotation_frame, text="Форма:").grid(
         row=2, column=0, padx=5, pady=2, sticky="w"
     )
@@ -708,17 +707,71 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         width=6,
     )
     annotation_size_spinbox.grid(row=2, column=3, padx=5, pady=2, sticky="w")
-    ttk.Label(annotation_frame, text="Цвет:").grid(
-        row=2, column=4, padx=5, pady=2, sticky="w"
+    color_panel = ttk.Frame(annotation_frame)
+    color_panel.grid(row=2, column=4, columnspan=3, padx=5, pady=2, sticky="w")
+    ttk.Label(color_panel, text="Цвет:").grid(row=0, column=0, padx=(0, 6), pady=0, sticky="w")
+
+    annotation_color_preview = tk.Label(
+        color_panel,
+        bg=annotation_color_var.get(),
+        width=6,
+        relief="groove",
+        borderwidth=1,
+        cursor="hand2",
     )
-    annotation_color_combo = ttk.Combobox(
-        annotation_frame,
-        values=list(marker_color_options.keys()),
+    annotation_color_preview.grid(row=0, column=1, padx=(0, 6), pady=0, sticky="w")
+
+    palette_label = ttk.Label(color_panel, text="Палитра:")
+    annotation_palette_var = tk.StringVar(value=default_palette)
+    annotation_palette_combo = ttk.Combobox(
+        color_panel,
+        values=list(PALETTES.keys()),
         state="readonly",
-        textvariable=annotation_color_var,
-        width=12,
+        textvariable=annotation_palette_var,
+        width=14,
     )
-    annotation_color_combo.grid(row=2, column=5, padx=5, pady=2, sticky="w")
+
+    palette_colors_frame = ttk.Frame(color_panel)
+
+    def _set_annotation_color(color: str) -> None:
+        annotation_color_var.set(color)
+        annotation_color_preview.config(bg=color)
+
+    def _choose_custom_annotation_color(_event=None) -> None:
+        initial = annotation_color_var.get()
+        color_code = colorchooser.askcolor(color=initial)[1]
+        if color_code:
+            _set_annotation_color(color_code)
+
+    def _refresh_palette_colors(_event=None) -> None:
+        for child in palette_colors_frame.winfo_children():
+            child.destroy()
+        palette_name = annotation_palette_var.get()
+        colors = PALETTES.get(palette_name, [])
+        for color in colors:
+            swatch = tk.Label(
+                palette_colors_frame,
+                bg=color,
+                width=2,
+                relief="groove",
+                borderwidth=1,
+                cursor="hand2",
+            )
+            swatch.pack(side=tk.LEFT, padx=(0, 4))
+            swatch.bind("<Button-1>", lambda _e, c=color: _set_annotation_color(c))
+
+    annotation_color_preview.bind("<Button-1>", _choose_custom_annotation_color)
+
+    if PALETTES:
+        palette_label.grid(row=1, column=0, padx=(0, 6), pady=(6, 0), sticky="w")
+        annotation_palette_combo.grid(
+            row=1, column=1, padx=(0, 6), pady=(6, 0), sticky="w"
+        )
+        palette_colors_frame.grid(
+            row=2, column=0, columnspan=2, pady=(6, 0), sticky="w"
+        )
+        annotation_palette_combo.bind("<<ComboboxSelected>>", _refresh_palette_colors)
+        _refresh_palette_colors()
 
     ttk.Label(annotation_frame, text="Текст:").grid(
         row=1, column=0, padx=5, pady=2, sticky="w"
@@ -911,7 +964,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         except (tk.TclError, ValueError):
             size_value = 40.0
         size_value = max(size_value, 1.0)
-        color = marker_color_options.get(annotation_color_var.get(), "red")
+        color_value = annotation_color_var.get().strip()
+        color = color_value if color_value else "#ff0000"
         return marker, size_value, color
 
     def _format_annotation_text(x_value: float, y_value: float) -> str:

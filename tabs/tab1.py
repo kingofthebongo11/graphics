@@ -736,6 +736,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             ax.set_ylim(auto=True)
         if hasattr(ax, "set_autoscale_on"):
             ax.set_autoscale_on(True)
+        plot_editor.reset_axes_lock()
         try:
             generate_graph(
                 ax,

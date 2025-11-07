@@ -362,6 +362,9 @@ class PlotEditor(ttk.Frame):
 
     # ------------------------------------------------------------------
     def _on_fix_axes_toggle(self) -> None:
+        self._apply_axes_fix_state()
+
+    def _apply_axes_fix_state(self) -> None:
         if self.fix_axes_var.get():
             self._fixed_limits = (self.ax.get_xlim(), self.ax.get_ylim())
             self._apply_fixed_limits()
@@ -370,14 +373,24 @@ class PlotEditor(ttk.Frame):
             self._autoscale_axes()
         self._redraw_canvas()
 
+    def reset_axes_lock(self) -> None:
+        """Сбрасывает фиксацию осей и возвращает автоматическое масштабирование."""
+
+        self.fix_axes_var.set(False)
+        self._apply_axes_fix_state()
+
     def _apply_fixed_limits(self) -> None:
         if self._fixed_limits is None:
             return
+        if hasattr(self.ax, "set_autoscale_on"):
+            self.ax.set_autoscale_on(False)
         xlim, ylim = self._fixed_limits
         self.ax.set_xlim(xlim)
         self.ax.set_ylim(ylim)
 
     def _autoscale_axes(self) -> None:
+        if hasattr(self.ax, "set_autoscale_on"):
+            self.ax.set_autoscale_on(True)
         if hasattr(self.ax, "relim") and hasattr(self.ax, "autoscale_view"):
             self.ax.relim()
             self.ax.autoscale_view()
@@ -388,6 +401,7 @@ class PlotEditor(ttk.Frame):
                 self._fixed_limits = (self.ax.get_xlim(), self.ax.get_ylim())
             self._apply_fixed_limits()
         else:
+            self._fixed_limits = None
             self._autoscale_axes()
 
     def _redraw_canvas(self) -> None:

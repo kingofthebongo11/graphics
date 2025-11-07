@@ -191,9 +191,14 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     scroll_canvas = tk.Canvas(scroll_container, highlightthickness=0)
     scroll_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-    scrollbar = ttk.Scrollbar(scroll_container, orient=tk.VERTICAL, command=scroll_canvas.yview)
+    scrollbar = ttk.Scrollbar(
+        scroll_container, orient=tk.VERTICAL, command=scroll_canvas.yview
+    )
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
     scroll_canvas.configure(yscrollcommand=scrollbar.set)
+
+    scrollbar_visible = {"value": True}
+    scroll_needed = {"value": False}
 
     content_frame = ttk.Frame(scroll_canvas)
     content_window = scroll_canvas.create_window((0, 0), window=content_frame, anchor="nw")
@@ -212,11 +217,39 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         required_width = max_width + ui_const.PADDING
         required_height = max_height + ui_const.PADDING
         canvas_width = scroll_canvas.winfo_width()
+        canvas_height = scroll_canvas.winfo_height()
+
+        if canvas_width <= 1:
+            canvas_width = scroll_canvas.winfo_reqwidth()
+        if canvas_height <= 1:
+            canvas_height = scroll_canvas.winfo_reqheight()
 
         content_width = max(canvas_width, required_width)
-        content_frame.configure(width=content_width, height=required_height)
-        scroll_canvas.itemconfigure(content_window, width=content_width, height=required_height)
-        scroll_canvas.configure(scrollregion=(0, 0, content_width, required_height))
+        content_height = max(required_height, 0)
+
+        needs_scroll = content_height > canvas_height
+        scroll_needed["value"] = needs_scroll
+
+        if needs_scroll:
+            if not scrollbar_visible["value"]:
+                scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+                scrollbar_visible["value"] = True
+            scroll_canvas.configure(yscrollcommand=scrollbar.set)
+        else:
+            if scrollbar_visible["value"]:
+                scrollbar.pack_forget()
+                scrollbar_visible["value"] = False
+            scroll_canvas.configure(yscrollcommand=None)
+            scroll_canvas.yview_moveto(0)
+
+        scroll_canvas.itemconfigure(
+            content_window, width=content_width, height=content_height
+        )
+        content_frame.configure(width=content_width, height=content_height)
+        scrollregion_height = content_height if needs_scroll else canvas_height
+        scroll_canvas.configure(
+            scrollregion=(0, 0, content_width, max(scrollregion_height, 0))
+        )
 
     def _schedule_refresh(_event=None) -> None:
         scroll_canvas.after_idle(_refresh_scrollregion)
@@ -225,12 +258,21 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     scroll_canvas.bind("<Configure>", _schedule_refresh)
 
     def _on_mousewheel(event) -> None:
+        if not scroll_needed["value"]:
+            return
+
         if event.delta:
             scroll_canvas.yview_scroll(int(-event.delta / 120), "units")
         elif event.num == 4:
             scroll_canvas.yview_scroll(-1, "units")
         elif event.num == 5:
             scroll_canvas.yview_scroll(1, "units")
+
+        first, last = scroll_canvas.yview()
+        if first < 0:
+            scroll_canvas.yview_moveto(0)
+        elif last > 1:
+            scroll_canvas.yview_moveto(max(0, 1 - (last - first)))
 
     def _bind_mousewheel(_event) -> None:
         scroll_canvas.bind_all("<MouseWheel>", _on_mousewheel)

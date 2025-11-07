@@ -203,6 +203,10 @@ def create_tab1(notebook: ttk.Notebook) -> None:
 
     scrollbar_visible = {"value": True}
     scroll_needed = {"value": False}
+    layout_state = {
+        "editor_y": ui_const.EDITOR_Y,
+        "update_editor": lambda: None,
+    }
 
     content_frame = ttk.Frame(scroll_canvas)
     content_window = scroll_canvas.create_window((0, 0), window=content_frame, anchor="nw")
@@ -260,6 +264,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
 
     def _trigger_scroll_check() -> None:
         """Планирует проверку необходимости прокрутки."""
+        layout_state["update_editor"]()
         _schedule_refresh()
 
     content_frame.bind("<Configure>", _schedule_refresh)
@@ -1144,9 +1149,35 @@ def create_tab1(notebook: ttk.Notebook) -> None:
 
     editor_visible = {"shown": False}
     plot_editor = PlotEditor(content_frame, ax, canvas, saved_data_curves)
+
+    def _recalculate_editor_position() -> None:
+        axis_frame.update_idletasks()
+        save_frame.update_idletasks()
+        axis_height = max(
+            axis_frame.winfo_height(),
+            axis_frame.winfo_reqheight(),
+            ui_const.AXIS_FRAME_HEIGHT,
+        )
+        axis_frame.place_configure(height=axis_height)
+        axis_bottom = axis_frame.winfo_y() + axis_height
+        save_bottom = save_frame.winfo_y() + save_frame.winfo_height()
+        target_y = max(axis_bottom, save_bottom) + ui_const.PADDING
+        layout_state["editor_y"] = target_y
+        if editor_visible["shown"]:
+            editor_height = plot_editor.required_height
+            plot_editor.place_configure(
+                x=ui_const.EDITOR_X,
+                y=target_y,
+                width=ui_const.PREVIEW_WIDTH,
+                height=editor_height,
+            )
+
+    layout_state["update_editor"] = _recalculate_editor_position
+    _recalculate_editor_position()
+
     plot_editor.place(
         x=ui_const.EDITOR_X,
-        y=ui_const.EDITOR_Y,
+        y=layout_state["editor_y"],
         width=ui_const.PREVIEW_WIDTH,
         height=plot_editor.required_height,
     )
@@ -1155,6 +1186,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     def _refresh_editor_state() -> None:
         plot_editor.refresh()
         _update_annotation_snap_options()
+        layout_state["update_editor"]()
 
     def reset_auto_entries() -> None:
         for entry in axis_auto_entries.values():
@@ -1201,17 +1233,23 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             )
             _refresh_editor_state()
             plot_editor.reset_ranges()
+            layout_state["update_editor"]()
             editor_height = plot_editor.required_height
             if not editor_visible["shown"]:
                 plot_editor.place(
                     x=ui_const.EDITOR_X,
-                    y=ui_const.EDITOR_Y,
+                    y=layout_state["editor_y"],
                     width=ui_const.PREVIEW_WIDTH,
                     height=editor_height,
                 )
                 editor_visible["shown"] = True
             elif editor_height:
-                plot_editor.place_configure(height=editor_height)
+                plot_editor.place_configure(
+                    x=ui_const.EDITOR_X,
+                    y=layout_state["editor_y"],
+                    width=ui_const.PREVIEW_WIDTH,
+                    height=editor_height,
+                )
             logger.info("График построен успешно")
         except ValueError as exc:
             logger.error("Ошибка построения графика", exc_info=True)

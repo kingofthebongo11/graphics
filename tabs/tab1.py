@@ -585,6 +585,12 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             entry.delete(0, tk.END)
             entry.user_modified = False
 
+    def reset_saved_ranges() -> None:
+        for curve_state in saved_data_curves:
+            if isinstance(curve_state, dict):
+                curve_state["slider_start"] = 0.0
+                curve_state["slider_end"] = 100.0
+
     update_curves(curves_frame, "1", axis_frame, save_frame, checkbox_var, saved_data_curves)
     combo_curves.bind(
         "<<ComboboxSelected>>",
@@ -731,6 +737,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         clear_annotations()
         reset_manual_entries()
         reset_auto_entries()
+        reset_saved_ranges()
         if hasattr(ax, "set_xlim") and hasattr(ax, "set_ylim"):
             ax.set_xlim(auto=True)
             ax.set_ylim(auto=True)
@@ -761,6 +768,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 axis_manual_entries,
             )
             plot_editor.refresh()
+            plot_editor.reset_ranges()
             editor_height = plot_editor.required_height
             if not editor_visible["shown"]:
                 plot_editor.place(

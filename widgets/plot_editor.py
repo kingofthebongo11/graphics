@@ -373,6 +373,12 @@ class PlotEditor(ttk.Frame):
             self._autoscale_axes()
         self._redraw_canvas()
 
+    def reset_ranges(self) -> None:
+        """Возвращает все ползунки диапазона к значениям 0–100%."""
+
+        for controls in self._range_controls:
+            self._apply_range(controls, 0.0, 100.0)
+
     def reset_axes_lock(self) -> None:
         """Сбрасывает фиксацию осей и возвращает автоматическое масштабирование."""
 

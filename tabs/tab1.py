@@ -845,6 +845,34 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             click_x, click_y = transform.transform((x_value, y_value))
         except (TypeError, ValueError):
             return None
+        if not (math.isfinite(click_x) and math.isfinite(click_y)):
+            return None
+
+        use_scaled_distance = False
+        x_scale = y_scale = None
+        try:
+            x_min, x_max = axes.get_xlim()
+            y_min, y_max = axes.get_ylim()
+            bbox = axes.get_window_extent()
+        except (TypeError, ValueError):
+            bbox = None
+        else:
+            if bbox is not None:
+                width = bbox.width
+                height = bbox.height
+                if width > 0 and height > 0:
+                    x_range = x_max - x_min
+                    y_range = y_max - y_min
+                    if (
+                        math.isfinite(x_range)
+                        and x_range != 0
+                        and math.isfinite(y_range)
+                        and y_range != 0
+                    ):
+                        x_scale = abs(width / x_range)
+                        y_scale = abs(height / y_range)
+                        if math.isfinite(x_scale) and math.isfinite(y_scale):
+                            use_scaled_distance = True
 
         nearest_point: Tuple[float, float] | None = None
         min_distance: float | None = None
@@ -859,13 +887,19 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             if not (math.isfinite(x_val) and math.isfinite(y_val)):
                 continue
 
-            try:
-                point_x, point_y = transform.transform((x_val, y_val))
-            except (TypeError, ValueError):
-                continue
+            if use_scaled_distance:
+                dx = (x_val - x_value) * x_scale
+                dy = (y_val - y_value) * y_scale
+            else:
+                try:
+                    point_x, point_y = transform.transform((x_val, y_val))
+                except (TypeError, ValueError):
+                    continue
+                if not (math.isfinite(point_x) and math.isfinite(point_y)):
+                    continue
+                dx = point_x - click_x
+                dy = point_y - click_y
 
-            dx = point_x - click_x
-            dy = point_y - click_y
             distance = dx * dx + dy * dy
 
             if min_distance is None or distance < min_distance:

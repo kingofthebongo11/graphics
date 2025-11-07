@@ -254,6 +254,10 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     def _schedule_refresh(_event=None) -> None:
         scroll_canvas.after_idle(_refresh_scrollregion)
 
+    def _trigger_scroll_check() -> None:
+        """Планирует проверку необходимости прокрутки."""
+        _schedule_refresh()
+
     content_frame.bind("<Configure>", _schedule_refresh)
     scroll_canvas.bind("<Configure>", _schedule_refresh)
 
@@ -696,17 +700,20 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 curve_state["slider_end"] = 100.0
 
     update_curves(curves_frame, "1", axis_frame, save_frame, checkbox_var, saved_data_curves)
-    combo_curves.bind(
-        "<<ComboboxSelected>>",
-        lambda e: update_curves(
+    _trigger_scroll_check()
+
+    def _on_curve_count_change(_event=None) -> None:
+        update_curves(
             curves_frame,
             combo_curves.get(),
             axis_frame,
             save_frame,
             checkbox_var,
             saved_data_curves,
-        ),
-    )
+        )
+        _trigger_scroll_check()
+
+    combo_curves.bind("<<ComboboxSelected>>", _on_curve_count_change)
 
     # Фрейм для предпросмотра графика
     preview_frame = ttk.Frame(content_frame)
@@ -894,6 +901,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 "Ошибка",
                 f"Не удалось построить график:\n{exc}\nПроверьте введённые данные и попробуйте снова.",
             )
+        finally:
+            _trigger_scroll_check()
 
     # Кнопка построения графика
     btn_generate_graph = ttk.Button(content_frame, text="Построить график", command=build_graph)
@@ -939,6 +948,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             saved_data_curves,
         )
         toggle_legend_title_visibility()
+        _trigger_scroll_check()
 
     checkbox = ttk.Checkbutton(
         input_frame,

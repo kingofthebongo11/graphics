@@ -22,7 +22,8 @@ def test_unique_names_duplicate():
 
 
 def test_validate_entity_kind():
-    assert validate_entity({"entity_kind": "node"}) == {"entity_kind": "node"}
+    assert validate_entity({"entity_kind": "nodal"}) == {"entity_kind": "nodal"}
+    assert validate_entity({"entity_kind": "none"}) == {"entity_kind": "none"}
     with pytest.raises(ValidationError):
         validate_entity({"entity_kind": "element"})
     assert validate_entity({"entity_kind": "element", "element_type": "shell"}) == {

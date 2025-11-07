@@ -155,7 +155,7 @@ def plot_from_txt_files(txt_files: list[str], analysis_type: str) -> str:
     try:
         _, entity_kind, _ = decode_topfolder(analysis_dir.parent.name)
     except ValueError:
-        entity_kind = "node"
+        entity_kind = "nodal"
     else:
         if entity_kind == "element":
             legend_key = "№ Элементов"

@@ -27,10 +27,10 @@ def test_walk_tree_and_build_commands(tmp_path):
     analysis = AnalysisType.TIME_AXIAL_FORCE.value
     entity = EntityNode(
         user_name="user",
-        entity_kind="node",
+        entity_kind="nodal",
         children=[AnalysisNode(analysis, children=[FileNode(1)])],
     )
-    numbered = f"1-{encode_topfolder('user', 'node')}"
+    numbered = f"1-{encode_topfolder('user', 'nodal')}"
     folder_map = {(0, 0): f"1-{analysis}"}
     commands = walk_tree_and_build_commands(
         [entity],
@@ -49,3 +49,13 @@ def test_walk_tree_and_build_commands(tmp_path):
         "xyplot 1 donemenu",
         "deletewin 1",
     ]
+
+
+def test_walk_tree_and_build_commands_skips_none(tmp_path):
+    entity = EntityNode(
+        user_name="global",
+        entity_kind="none",
+        children=[AnalysisNode("static", children=[FileNode(1)])],
+    )
+    commands = walk_tree_and_build_commands([entity], base_project_dir=tmp_path)
+    assert commands == []

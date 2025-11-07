@@ -35,7 +35,7 @@ SELECT_TEMPLATES: Dict[Tuple[str, str | None], List[str]] = {
         "genselect solid add solid {element_id}/0",
         "etype {etype} ;etime {etime}",
     ],
-    ("node", None): [
+    ("nodal", None): [
         "genselect clear all",
         "genselect node add node {element_id}",
     ],
@@ -70,14 +70,14 @@ def build_curve_commands(
         raise ValueError("analysis_type must be non-empty")
     if element_id <= 0:
         raise ValueError("element_id must be positive")
-    if entity_kind not in {"element", "node"}:
+    if entity_kind not in {"element", "nodal"}:
         raise ValueError("unknown entity_kind")
     if entity_kind == "element":
         if element_type not in {"beam", "shell", "solid"}:
             raise ValueError("invalid element_type for element")
     else:
         if element_type is not None:
-            raise ValueError("element_type must be None for node")
+            raise ValueError("element_type must be None for nodal")
 
     key = (entity_kind, element_type)
     try:

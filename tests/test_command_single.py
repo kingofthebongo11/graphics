@@ -26,20 +26,20 @@ def test_build_curve_commands_element():
     ]
 
 
-def test_build_curve_commands_node():
+def test_build_curve_commands_nodal():
     analysis = AnalysisType.TIME_AXIAL_FORCE.value
     cmds = build_curve_commands(
         base_project_dir="C:\\proj",
-        top_folder_name="uzli-node",
+        top_folder_name="uzli-nodal",
         analysis_type=analysis,
-        entity_kind="node",
+        entity_kind="nodal",
         element_type=None,
         element_id=15,
     )
     assert cmds == [
         "genselect clear all",
         "genselect node add node 15",
-        f'xyplot 1 savefile curve_file "C:\\proj\\curves\\uzli-node\\{analysis}\\15.txt" 1 all',
+        f'xyplot 1 savefile curve_file "C:\\proj\\curves\\uzli-nodal\\{analysis}\\15.txt" 1 all',
         "xyplot 1 donemenu",
         "deletewin 1",
     ]
@@ -49,15 +49,15 @@ def test_build_curve_commands_custom_dirname():
     analysis = AnalysisType.TIME_AXIAL_FORCE.value
     cmds = build_curve_commands(
         base_project_dir="C:\\proj",
-        top_folder_name="uzli-node",
+        top_folder_name="uzli-nodal",
         analysis_type=analysis,
-        entity_kind="node",
+        entity_kind="nodal",
         element_type=None,
         element_id=15,
         analysis_dirname="1-custom",
     )
     assert cmds[2] == (
-        'xyplot 1 savefile curve_file "C:\\proj\\curves\\uzli-node\\1-custom\\15.txt" 1 all'
+        'xyplot 1 savefile curve_file "C:\\proj\\curves\\uzli-nodal\\1-custom\\15.txt" 1 all'
     )
 
 
@@ -68,16 +68,16 @@ def test_build_curve_commands_custom_dirname():
         {"analysis_type": "unsupported"},
         {"entity_kind": "unknown"},
         {"entity_kind": "element", "element_type": "foo"},
-        {"entity_kind": "node", "element_type": "beam"},
+        {"entity_kind": "nodal", "element_type": "beam"},
         {"element_id": 0},
     ],
 )
 def test_build_curve_commands_invalid(kwargs):
     base_args = dict(
         base_project_dir="C:\\proj",
-        top_folder_name="p-node",
+        top_folder_name="p-nodal",
         analysis_type=AnalysisType.TIME_AXIAL_FORCE.value,
-        entity_kind="node",
+        entity_kind="nodal",
         element_type=None,
         element_id=1,
     )

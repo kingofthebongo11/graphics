@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Optional, Tuple
 
 # Allowed kinds of entities and element types.
-ENTITY_KINDS = {"element", "node"}
+ENTITY_KINDS = {"element", "nodal", "none"}
 ELEMENT_TYPES = {"beam", "shell", "solid", "spring", "mass", "rigid"}
 
 # Characters that must not appear in user name.
@@ -45,9 +45,12 @@ def encode_topfolder(user_name: str, entity_kind: str, element_type: Optional[st
             raise ValueError("Недопустимый тип элемента.")
         return f"{user_name}-{entity_kind}-{element_type}"
 
-    if element_type is not None:
-        raise ValueError("Тип элемента можно указывать только для 'element'.")
-    return f"{user_name}-{entity_kind}"
+    if entity_kind in {"nodal", "none"}:
+        if element_type is not None:
+            raise ValueError("Тип элемента можно указывать только для 'element'.")
+        return f"{user_name}-{entity_kind}"
+
+    raise ValueError("Недопустимый тип сущности.")
 
 
 def decode_topfolder(folder_name: str) -> Tuple[str, str, Optional[str]]:

@@ -25,7 +25,7 @@ def test_add_rename_remove_top_nodes(monkeypatch):
 
     start = len(tree.get_children())
 
-    add_params = {"name": "top", "kind": "node", "elem": None}
+    add_params = {"name": "top", "kind": "nodal", "elem": None}
     rename_params = {"name": "new", "kind": "element", "elem": "beam"}
 
     def _make_dialog(params):

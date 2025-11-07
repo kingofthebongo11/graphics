@@ -10,7 +10,6 @@
 
 from __future__ import annotations
 
-import copy
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -18,6 +17,7 @@ import tkinter as tk
 from tkinter import ttk, colorchooser
 
 from color_palettes import PALETTES
+from .range_line import RangeLine
 
 
 @dataclass
@@ -36,10 +36,7 @@ class _RangeWidgets:
     """Набор виджетов панели диапазона для одной кривой."""
 
     frame: ttk.Frame
-    upper_scale: ttk.Scale
-    lower_scale: ttk.Scale
-    upper_var: tk.DoubleVar
-    lower_var: tk.DoubleVar
+    slider: RangeLine
     upper_value: tk.StringVar
     lower_value: tk.StringVar
     upper_label: ttk.Label
@@ -64,13 +61,10 @@ class PlotEditor(ttk.Frame):
         self.saved_data = saved_data if saved_data is not None else []
         self._rows: List[_RowWidgets] = []
         self._range_controls: List[_RangeWidgets] = []
-        self._range_lock = False
         self._cached_height = 0
 
         self._line_styles = ["-", "--", "-.", ":"]
         self._style_box_width = max(len(style) for style in self._line_styles) + 2
-
-        self._init_range_styles()
 
         self.palette_combo = ttk.Combobox(
             self, values=list(PALETTES.keys()), state="readonly"
@@ -88,28 +82,6 @@ class PlotEditor(ttk.Frame):
         self.range_container = ttk.Frame(self)
 
     # ------------------------------------------------------------------
-    def _init_range_styles(self) -> None:
-        """Создает стили для верхнего и нижнего ползунков."""
-
-        style = ttk.Style()
-        base_layout = style.layout("Horizontal.TScale")
-
-        def _make_layout(slider_side: str) -> list:
-            layout_copy = copy.deepcopy(base_layout)
-
-            def _patch(children: list) -> None:
-                for element, options in children:
-                    if element == "Scale.slider":
-                        options["side"] = slider_side
-                    if "children" in options:
-                        _patch(options["children"])
-
-            _patch(layout_copy)
-            return layout_copy
-
-        style.layout("RangeUpper.Horizontal.TScale", _make_layout("top"))
-        style.layout("RangeLower.Horizontal.TScale", _make_layout("bottom"))
-
     # ------------------------------------------------------------------
     def refresh(self) -> None:
         """Перестраивает панели на основе текущих линий осей."""
@@ -213,27 +185,16 @@ class PlotEditor(ttk.Frame):
         scales_frame = ttk.Frame(slider_holder)
         scales_frame.pack(fill=tk.X)
 
-        end_val, start_val = self._initial_range_values(line, index)
+        start_val, end_val = self._initial_range_values(line, index)
 
-        upper_var = tk.DoubleVar(value=end_val)
-        lower_var = tk.DoubleVar(value=start_val)
-
-        upper_scale = ttk.Scale(
+        slider = RangeLine(
             scales_frame,
             from_=0,
             to=100,
-            orient=tk.HORIZONTAL,
-            variable=upper_var,
+            start=start_val,
+            end=end_val,
         )
-        lower_scale = ttk.Scale(
-            scales_frame,
-            from_=0,
-            to=100,
-            orient=tk.HORIZONTAL,
-            variable=lower_var,
-        )
-        upper_scale.pack(fill=tk.X)
-        lower_scale.pack(fill=tk.X, pady=(4, 0))
+        slider.pack(fill=tk.X, expand=True)
 
         values_frame = ttk.Frame(frame)
         values_frame.pack(side=tk.RIGHT, padx=(10, 0))
@@ -247,10 +208,7 @@ class PlotEditor(ttk.Frame):
 
         controls = _RangeWidgets(
             frame,
-            upper_scale,
-            lower_scale,
-            upper_var,
-            lower_var,
+            slider,
             upper_value,
             lower_value,
             upper_label,
@@ -260,15 +218,13 @@ class PlotEditor(ttk.Frame):
         )
         self._range_controls.append(controls)
 
-        self._update_range_labels(controls)
-        self._apply_range(controls)
+        slider.command = (
+            lambda lower, upper, ctrl=controls: self._on_range_change(
+                ctrl, lower, upper
+            )
+        )
 
-        upper_scale.configure(
-            command=lambda value, ctrl=controls: self._on_upper_change(ctrl, value)
-        )
-        lower_scale.configure(
-            command=lambda value, ctrl=controls: self._on_lower_change(ctrl, value)
-        )
+        self._apply_range(controls)
 
     # ------------------------------------------------------------------
     def _coerce_percentage(self, value, default: float) -> float:
@@ -291,40 +247,37 @@ class PlotEditor(ttk.Frame):
         end = max(0.0, min(100.0, float(end)))
         if end < start:
             start, end = end, start
-        return end, start
+        return start, end
 
-    def _update_range_labels(self, controls: _RangeWidgets) -> None:
-        controls.upper_value.set(f"До: {controls.upper_var.get():.0f}%")
-        controls.lower_value.set(f"От: {controls.lower_var.get():.0f}%")
+    def _update_range_labels(
+        self,
+        controls: _RangeWidgets,
+        lower: Optional[float] = None,
+        upper: Optional[float] = None,
+    ) -> None:
+        if lower is None or upper is None:
+            lower, upper = controls.slider.get()
+        controls.upper_value.set(f"До: {upper:.0f}%")
+        controls.lower_value.set(f"От: {lower:.0f}%")
 
-    def _on_upper_change(self, controls: _RangeWidgets, value: str) -> None:
-        if self._range_lock:
-            return
-        self._range_lock = True
-        val = max(0.0, min(100.0, float(value)))
-        controls.upper_var.set(val)
-        if val < controls.lower_var.get():
-            controls.lower_var.set(val)
-        self._apply_range(controls)
-        self._range_lock = False
+    def _on_range_change(
+        self, controls: _RangeWidgets, lower: float, upper: float
+    ) -> None:
+        self._apply_range(controls, lower, upper)
 
-    def _on_lower_change(self, controls: _RangeWidgets, value: str) -> None:
-        if self._range_lock:
-            return
-        self._range_lock = True
-        val = max(0.0, min(100.0, float(value)))
-        controls.lower_var.set(val)
-        if val > controls.upper_var.get():
-            controls.upper_var.set(val)
-        self._apply_range(controls)
-        self._range_lock = False
-
-    def _apply_range(self, controls: _RangeWidgets) -> None:
-        self._update_range_labels(controls)
-        start = controls.lower_var.get()
-        end = controls.upper_var.get()
-        self._update_saved_data(controls.index, start, end)
-        self._update_line_range(controls.line, start, end)
+    def _apply_range(
+        self,
+        controls: _RangeWidgets,
+        lower: Optional[float] = None,
+        upper: Optional[float] = None,
+    ) -> None:
+        if lower is None or upper is None:
+            lower, upper = controls.slider.get()
+        else:
+            controls.slider.set(lower=lower, upper=upper, notify=False)
+        self._update_range_labels(controls, lower, upper)
+        self._update_saved_data(controls.index, lower, upper)
+        self._update_line_range(controls.line, lower, upper)
 
     def _update_saved_data(self, index: int, start: float, end: float) -> None:
         if len(self.saved_data) >= index:

@@ -43,6 +43,31 @@ class AnalysisType(str, Enum):
     TIME_NODE_ACCELERATION_Y = "Время - Ускорение по Y"
     TIME_NODE_ACCELERATION_Z = "Время - Ускорение по Z"
     TIME_NODE_ACCELERATION_TOTAL = "Время - Результирующее ускорение (модуль)"
+    TIME_SOLID_STRESS_X = "Время - Напряжение по X"
+    TIME_SOLID_STRESS_Y = "Время - Напряжение по Y"
+    TIME_SOLID_STRESS_Z = "Время - Напряжение по Z"
+    TIME_SOLID_SHEAR_STRESS_XY = "Время - Напряжение по XY (сдвиг)"
+    TIME_SOLID_SHEAR_STRESS_YZ = "Время - Напряжение по YZ (сдвиг)"
+    TIME_SOLID_SHEAR_STRESS_ZX = "Время - Напряжение по ZX (сдвиг)"
+    TIME_SOLID_EQUIVALENT_PLASTIC_STRAIN = (
+        "Время - Эквивалентная пластическая деформация"
+    )
+    TIME_SOLID_EQUIVALENT_STRESS = "Время - Эквивалентное напряжение (по Мизесу)"
+    TIME_SOLID_MAX_DEVIATORIC_PRINCIPAL_STRESS = (
+        "Время - Максимальное главное девиаторное напряжение"
+    )
+    TIME_SOLID_SECOND_DEVIATORIC_PRINCIPAL_STRESS = (
+        "Время - Второе главное девиаторное напряжение"
+    )
+    TIME_SOLID_MIN_DEVIATORIC_PRINCIPAL_STRESS = (
+        "Время - Минимальное главное девиаторное напряжение"
+    )
+    TIME_SOLID_MAX_SHEAR_STRESS_TRESCA = (
+        "Время - Наибольшее касательное напряжение (Треска)"
+    )
+    TIME_SOLID_MAX_PRINCIPAL_STRESS = "Время - Максимальное главное напряжение (σ₁)"
+    TIME_SOLID_SECOND_PRINCIPAL_STRESS = "Время - Второе главное напряжение (σ₂)"
+    TIME_SOLID_MIN_PRINCIPAL_STRESS = "Время - Минимальное главное напряжение (σ₃)"
 
     @classmethod
     def list(cls) -> list[str]:
@@ -82,6 +107,33 @@ ANALYSIS_TYPES_SHELL: list[str] = [
     AnalysisType.TIME_BENDING_MOMENT_MXY.value,
 ]
 
+ANALYSIS_TYPES_SOLID: list[str] = [
+    AnalysisType.TIME_SOLID_STRESS_X.value,
+    AnalysisType.TIME_SOLID_STRESS_Y.value,
+    AnalysisType.TIME_SOLID_STRESS_Z.value,
+    AnalysisType.TIME_SOLID_SHEAR_STRESS_XY.value,
+    AnalysisType.TIME_SOLID_SHEAR_STRESS_YZ.value,
+    AnalysisType.TIME_SOLID_SHEAR_STRESS_ZX.value,
+    AnalysisType.TIME_SOLID_EQUIVALENT_PLASTIC_STRAIN.value,
+    AnalysisType.TIME_PRESSURE.value,
+    AnalysisType.TIME_SOLID_EQUIVALENT_STRESS.value,
+    AnalysisType.TIME_SOLID_MAX_DEVIATORIC_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_SECOND_DEVIATORIC_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_MIN_DEVIATORIC_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_MAX_SHEAR_STRESS_TRESCA.value,
+    AnalysisType.TIME_SOLID_MAX_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_SECOND_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_MIN_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_X.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_Y.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_Z.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_TOTAL.value,
+    AnalysisType.TIME_NODE_VELOCITY_X.value,
+    AnalysisType.TIME_NODE_VELOCITY_Y.value,
+    AnalysisType.TIME_NODE_VELOCITY_Z.value,
+    AnalysisType.TIME_NODE_VELOCITY_TOTAL.value,
+]
+
 ANALYSIS_TYPES_GLOBAL: list[str] = [
     AnalysisType.TIME_GLOBAL_KINETIC_ENERGY.value,
     AnalysisType.TIME_GLOBAL_POTENTIAL_ENERGY.value,
@@ -111,7 +163,7 @@ ANALYSIS_TYPES_NODAL: list[str] = [
 ANALYSIS_TYPES_BY_ENTITY: dict[tuple[str, str | None], list[str]] = {
     ("element", "beam"): ANALYSIS_TYPES_BEAM,
     ("element", "shell"): ANALYSIS_TYPES_SHELL,
-    ("element", "solid"): [],
+    ("element", "solid"): ANALYSIS_TYPES_SOLID,
     ("nodal", None): ANALYSIS_TYPES_NODAL,
     ("none", None): ANALYSIS_TYPES_GLOBAL,
 }
@@ -146,6 +198,32 @@ ANALYSIS_TYPE_CODES: dict[tuple[str, str | None], dict[str, int]] = {
         AnalysisType.TIME_BENDING_MOMENT_MY.value: 27,
         AnalysisType.TIME_BENDING_MOMENT_MXY.value: 28,
     },
+    ("element", "solid"): {
+        AnalysisType.TIME_SOLID_STRESS_X.value: 1,
+        AnalysisType.TIME_SOLID_STRESS_Y.value: 2,
+        AnalysisType.TIME_SOLID_STRESS_Z.value: 3,
+        AnalysisType.TIME_SOLID_SHEAR_STRESS_XY.value: 4,
+        AnalysisType.TIME_SOLID_SHEAR_STRESS_YZ.value: 5,
+        AnalysisType.TIME_SOLID_SHEAR_STRESS_ZX.value: 6,
+        AnalysisType.TIME_SOLID_EQUIVALENT_PLASTIC_STRAIN.value: 7,
+        AnalysisType.TIME_PRESSURE.value: 8,
+        AnalysisType.TIME_SOLID_EQUIVALENT_STRESS.value: 9,
+        AnalysisType.TIME_SOLID_MAX_DEVIATORIC_PRINCIPAL_STRESS.value: 10,
+        AnalysisType.TIME_SOLID_SECOND_DEVIATORIC_PRINCIPAL_STRESS.value: 11,
+        AnalysisType.TIME_SOLID_MIN_DEVIATORIC_PRINCIPAL_STRESS.value: 12,
+        AnalysisType.TIME_SOLID_MAX_SHEAR_STRESS_TRESCA.value: 13,
+        AnalysisType.TIME_SOLID_MAX_PRINCIPAL_STRESS.value: 14,
+        AnalysisType.TIME_SOLID_SECOND_PRINCIPAL_STRESS.value: 15,
+        AnalysisType.TIME_SOLID_MIN_PRINCIPAL_STRESS.value: 16,
+        AnalysisType.TIME_NODE_DISPLACEMENT_X.value: 17,
+        AnalysisType.TIME_NODE_DISPLACEMENT_Y.value: 18,
+        AnalysisType.TIME_NODE_DISPLACEMENT_Z.value: 19,
+        AnalysisType.TIME_NODE_DISPLACEMENT_TOTAL.value: 20,
+        AnalysisType.TIME_NODE_VELOCITY_X.value: 21,
+        AnalysisType.TIME_NODE_VELOCITY_Y.value: 22,
+        AnalysisType.TIME_NODE_VELOCITY_Z.value: 23,
+        AnalysisType.TIME_NODE_VELOCITY_TOTAL.value: 24,
+    },
     ("nodal", None): {
         AnalysisType.TIME_NODE_COORDINATE_X.value: 1,
         AnalysisType.TIME_NODE_COORDINATE_Y.value: 2,
@@ -176,6 +254,7 @@ __all__ = [
     "ANALYSIS_TYPES",
     "ANALYSIS_TYPES_BEAM",
     "ANALYSIS_TYPES_SHELL",
+    "ANALYSIS_TYPES_SOLID",
     "ANALYSIS_TYPES_GLOBAL",
     "ANALYSIS_TYPES_NODAL",
     "ANALYSIS_TYPES_BY_ENTITY",

@@ -1152,24 +1152,25 @@ def create_tab1(notebook: ttk.Notebook) -> None:
 
     def _recalculate_editor_position() -> None:
         axis_frame.update_idletasks()
-        save_frame.update_idletasks()
+        annotation_frame.update_idletasks()
         axis_height = max(
             axis_frame.winfo_height(),
             axis_frame.winfo_reqheight(),
             ui_const.AXIS_FRAME_HEIGHT,
         )
         axis_frame.place_configure(height=axis_height)
-        axis_bottom = axis_frame.winfo_y() + axis_height
-        save_bottom = save_frame.winfo_y() + save_frame.winfo_height()
-        target_y = max(axis_bottom, save_bottom) + ui_const.PADDING
+        annotation_bottom = (
+            axis_frame.winfo_y()
+            + annotation_frame.winfo_y()
+            + annotation_frame.winfo_height()
+        )
+        target_y = annotation_bottom + ui_const.PADDING
         layout_state["editor_y"] = target_y
         if editor_visible["shown"]:
-            editor_height = plot_editor.required_height
             plot_editor.place_configure(
                 x=ui_const.EDITOR_X,
                 y=target_y,
                 width=ui_const.PREVIEW_WIDTH,
-                height=editor_height,
             )
 
     layout_state["update_editor"] = _recalculate_editor_position

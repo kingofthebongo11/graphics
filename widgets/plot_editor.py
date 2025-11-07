@@ -62,6 +62,10 @@ class PlotEditor(ttk.Frame):
         self._rows: List[_RowWidgets] = []
         self._range_controls: List[_RangeWidgets] = []
         self._cached_height = 0
+        self._fixed_limits: Optional[
+            tuple[tuple[float, float], tuple[float, float]]
+        ] = None
+        self.fix_axes_var = tk.BooleanVar(value=False)
 
         self._line_styles = ["-", "--", "-.", ":"]
         self._style_box_width = max(len(style) for style in self._line_styles) + 2
@@ -166,8 +170,19 @@ class PlotEditor(ttk.Frame):
 
     # ------------------------------------------------------------------
     def _build_range_controls(self, lines: List) -> None:
-        header = ttk.Label(self.range_container, text="Диапазон точек, %")
-        header.pack(anchor="w", padx=5)
+        header_frame = ttk.Frame(self.range_container)
+        header_frame.pack(fill=tk.X, padx=5)
+
+        header = ttk.Label(header_frame, text="Диапазон точек, %")
+        header.pack(side=tk.LEFT)
+
+        fix_axes = ttk.Checkbutton(
+            header_frame,
+            text="Фиксировать оси",
+            variable=self.fix_axes_var,
+            command=self._on_fix_axes_toggle,
+        )
+        fix_axes.pack(side=tk.RIGHT)
 
         for idx, line in enumerate(lines, start=1):
             self._append_range_row(line, idx)
@@ -308,13 +323,8 @@ class PlotEditor(ttk.Frame):
             line.set_data(new_x, new_y)
         setattr(line, "_slider_start", start)
         setattr(line, "_slider_end", end)
-        if hasattr(self.ax, "relim") and hasattr(self.ax, "autoscale_view"):
-            self.ax.relim()
-            self.ax.autoscale_view()
-        if hasattr(self.canvas, "draw_idle"):
-            self.canvas.draw_idle()
-        else:
-            self.canvas.draw()
+        self._update_axes_limits()
+        self._redraw_canvas()
 
     # ------------------------------------------------------------------
     def _refresh_legend(self) -> None:
@@ -322,7 +332,7 @@ class PlotEditor(ttk.Frame):
         if legend:
             title = legend.get_title().get_text()
             self.ax.legend(title=title)
-        self.canvas.draw()
+        self._redraw_canvas()
 
     def apply_palette(self, palette_name: str) -> None:
         colors = PALETTES.get(palette_name, [])
@@ -348,6 +358,39 @@ class PlotEditor(ttk.Frame):
 
     def _update_width(self, line, width: float) -> None:
         line.set_linewidth(width)
+        self._redraw_canvas()
+
+    # ------------------------------------------------------------------
+    def _on_fix_axes_toggle(self) -> None:
+        if self.fix_axes_var.get():
+            self._fixed_limits = (self.ax.get_xlim(), self.ax.get_ylim())
+            self._apply_fixed_limits()
+        else:
+            self._fixed_limits = None
+            self._autoscale_axes()
+        self._redraw_canvas()
+
+    def _apply_fixed_limits(self) -> None:
+        if self._fixed_limits is None:
+            return
+        xlim, ylim = self._fixed_limits
+        self.ax.set_xlim(xlim)
+        self.ax.set_ylim(ylim)
+
+    def _autoscale_axes(self) -> None:
+        if hasattr(self.ax, "relim") and hasattr(self.ax, "autoscale_view"):
+            self.ax.relim()
+            self.ax.autoscale_view()
+
+    def _update_axes_limits(self) -> None:
+        if self.fix_axes_var.get():
+            if self._fixed_limits is None:
+                self._fixed_limits = (self.ax.get_xlim(), self.ax.get_ylim())
+            self._apply_fixed_limits()
+        else:
+            self._autoscale_axes()
+
+    def _redraw_canvas(self) -> None:
         if hasattr(self.canvas, "draw_idle"):
             self.canvas.draw_idle()
         else:

@@ -1,9 +1,12 @@
+import json
 import math
+from copy import deepcopy
 
 from logging_utils import get_logger
 import tkinter as tk  # Alias for Tk functionality
-from tkinter import ttk, messagebox, colorchooser
-from typing import Dict, List, Tuple
+from tkinter import ttk, messagebox, colorchooser, filedialog
+from typing import Dict, List, Optional, Tuple
+from matplotlib import colors as mcolors
 from .functions_for_tab1 import (
     update_curves,
     generate_graph,
@@ -900,6 +903,118 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     annotations: List[Tuple] = []
     undone_annotations: List[Tuple] = []
 
+    def _create_annotation_artist(
+        x_value: float,
+        y_value: float,
+        text: str,
+        marker: str,
+        marker_size: float,
+        marker_color: str,
+    ) -> Tuple:
+        point = ax.scatter(
+            [x_value],
+            [y_value],
+            color=marker_color,
+            s=marker_size,
+            marker=marker,
+            zorder=5,
+        )
+        setattr(point, "_marker_style", marker)
+        setattr(point, "_marker_size", marker_size)
+        setattr(point, "_marker_color", marker_color)
+        label = ax.annotate(
+            text,
+            (x_value, y_value),
+            textcoords="offset points",
+            xytext=(5, 5),
+            color=marker_color,
+            fontsize=LABEL_SIZE,
+            fontstyle="normal",
+            fontweight="normal",
+        )
+        annotations.append((point, label))
+        _update_annotation_buttons_state()
+        _redraw_canvas()
+        return point, label
+
+    def _serialize_annotations() -> List[dict]:
+        serialized: List[dict] = []
+        for point, label in annotations:
+            try:
+                offsets = point.get_offsets()
+            except AttributeError:
+                continue
+            if offsets is None or len(offsets) == 0:
+                continue
+            x_value, y_value = offsets[0]
+            try:
+                x_float = float(x_value)
+                y_float = float(y_value)
+            except (TypeError, ValueError):
+                continue
+            marker = getattr(point, "_marker_style", "o")
+            size_attr = getattr(point, "_marker_size", None)
+            if size_attr is None:
+                sizes = point.get_sizes()
+                if sizes is not None and len(sizes) > 0:
+                    marker_size = float(sizes[0])
+                else:
+                    marker_size = 40.0
+            else:
+                marker_size = float(size_attr)
+            color_value = getattr(point, "_marker_color", "") or label.get_color()
+            if not color_value:
+                facecolors = getattr(point, "get_facecolors", lambda: [])()
+                edgecolors = getattr(point, "get_edgecolors", lambda: [])()
+                color_source = None
+                if facecolors is not None and len(facecolors) > 0:
+                    color_source = facecolors[0]
+                elif edgecolors is not None and len(edgecolors) > 0:
+                    color_source = edgecolors[0]
+                if color_source is not None and len(color_source) >= 3:
+                    try:
+                        color_value = mcolors.to_hex(color_source, keep_alpha=len(color_source) == 4)
+                    except ValueError:
+                        color_value = label.get_color()
+                else:
+                    color_value = label.get_color()
+            serialized.append(
+                {
+                    "x": x_float,
+                    "y": y_float,
+                    "text": label.get_text(),
+                    "marker": marker,
+                    "size": marker_size,
+                    "color": color_value,
+                }
+            )
+        return serialized
+
+    def _restore_annotations(serialized: List[dict]) -> None:
+        clear_annotations()
+        undone_annotations.clear()
+        for item in serialized:
+            try:
+                x_value = float(item.get("x"))
+                y_value = float(item.get("y"))
+            except (TypeError, ValueError):
+                continue
+            text = item.get("text", "")
+            marker = item.get("marker", "o") or "o"
+            try:
+                marker_size = float(item.get("size", 40.0))
+            except (TypeError, ValueError):
+                marker_size = 40.0
+            color_value = item.get("color") or "#ff0000"
+            _create_annotation_artist(
+                x_value,
+                y_value,
+                text,
+                marker,
+                marker_size,
+                color_value,
+            )
+
     def _redraw_canvas() -> None:
         if hasattr(canvas, "draw_idle"):
             canvas.draw_idle()
@@ -1118,27 +1233,14 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             _remove_annotation_artists(undone_annotations)
             undone_annotations.clear()
         marker, marker_size, marker_color = _get_marker_properties()
-        point = ax.scatter(
-            [x_value],
-            [y_value],
-            color=marker_color,
-            s=marker_size,
-            marker=marker,
-            zorder=5,
-        )
-        label = ax.annotate(
+        _create_annotation_artist(
+            x_value,
+            y_value,
             text,
-            (x_value, y_value),
-            textcoords="offset points",
-            xytext=(5, 5),
-            color=marker_color,
-            fontsize=LABEL_SIZE,
-            fontstyle="normal",
-            fontweight="normal",
+            marker,
+            marker_size,
+            marker_color,
         )
-        annotations.append((point, label))
-        _update_annotation_buttons_state()
-        _redraw_canvas()
 
     canvas.mpl_connect("button_press_event", on_canvas_click)
     _update_annotation_snap_options()
@@ -1197,18 +1299,21 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             entry.insert(0, "-")
             entry.config(state=state)
 
-    def build_graph() -> None:
+    def _perform_plot(reset_entries: bool, reset_ranges: bool) -> Tuple[bool, Optional[str]]:
         logger.info("Построение графика")
         clear_annotations()
-        reset_manual_entries()
-        reset_auto_entries()
-        reset_saved_ranges()
+        if reset_entries:
+            reset_manual_entries()
+            reset_auto_entries()
+            reset_saved_ranges()
         if hasattr(ax, "set_xlim") and hasattr(ax, "set_ylim"):
             ax.set_xlim(auto=True)
             ax.set_ylim(auto=True)
         if hasattr(ax, "set_autoscale_on"):
             ax.set_autoscale_on(True)
         plot_editor.reset_axes_lock()
+        success = True
+        error_message: Optional[str] = None
         try:
             generate_graph(
                 ax,
@@ -1233,7 +1338,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 axis_manual_entries,
             )
             _refresh_editor_state()
-            plot_editor.reset_ranges()
+            if reset_ranges:
+                plot_editor.reset_ranges()
             layout_state["update_editor"]()
             editor_height = plot_editor.required_height
             if not editor_visible["shown"]:
@@ -1256,6 +1362,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             logger.error("Ошибка построения графика", exc_info=True)
             _refresh_editor_state()
             messagebox.showerror("Ошибка", f"Не удалось построить график:\n{exc}")
+            success = False
+            error_message = str(exc)
         except Exception as exc:
             logger.exception("Ошибка при построении графика")
             _refresh_editor_state()
@@ -1263,8 +1371,511 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 "Ошибка",
                 f"Не удалось построить график:\n{exc}\nПроверьте введённые данные и попробуйте снова.",
             )
+            success = False
+            error_message = str(exc)
         finally:
             _trigger_scroll_check()
+        return success, error_message
+
+    def build_graph() -> None:
+        _perform_plot(reset_entries=True, reset_ranges=True)
+
+    def _collect_project_state() -> dict:
+        language = combo_language.get() or "Русский"
+
+        def _entry_text(entry: Optional[tk.Entry]) -> str:
+            if entry is None or not hasattr(entry, "get"):
+                return ""
+            return entry.get()
+
+        axis_manual_state: Dict[str, Dict[str, object]] = {}
+        for key, entry in axis_manual_entries.items():
+            if entry is None:
+                continue
+            axis_manual_state[key] = {
+                "value": entry.get(),
+                "user_modified": bool(getattr(entry, "user_modified", False)),
+            }
+
+        axis_auto_state: Dict[str, str] = {}
+        for key, entry in axis_auto_entries.items():
+            if entry is None:
+                continue
+            axis_auto_state[key] = entry.get()
+
+        legend_enabled = bool(checkbox_var.get())
+        legend_value = legend_title_var.get()
+        legend_custom_visible = bool(
+            legend_title_entry.winfo_ismapped()
+            if hasattr(legend_title_entry, "winfo_ismapped")
+            else False
+        )
+        legend_key: Optional[str] = None
+        if legend_custom_visible:
+            legend_key = "Другое"
+        elif legend_value:
+            for key, translations in LEGEND_TITLE_TRANSLATIONS.items():
+                if translations.get(language, key) == legend_value:
+                    legend_key = key
+                    break
+
+        line_styles: List[Dict[str, object]] = []
+        for line in getattr(ax, "lines", []):
+            colour = line.get_color()
+            colour_hex = None
+            try:
+                colour_hex = mcolors.to_hex(colour)
+            except ValueError:
+                try:
+                    colour_hex = mcolors.to_hex(mcolors.to_rgba(colour))
+                except ValueError:
+                    colour_hex = str(colour)
+            line_styles.append(
+                {
+                    "color": colour_hex,
+                    "style": line.get_linestyle(),
+                    "width": float(line.get_linewidth()),
+                }
+            )
+
+        axes_limits: Optional[Dict[str, List[float]]] = None
+        if hasattr(ax, "has_data") and ax.has_data():
+            try:
+                x_lim = list(map(float, ax.get_xlim()))
+                y_lim = list(map(float, ax.get_ylim()))
+            except (TypeError, ValueError):
+                axes_limits = None
+            else:
+                axes_limits = {"x": x_lim, "y": y_lim}
+
+        fixed_limits: Optional[Dict[str, List[float]]] = None
+        if getattr(plot_editor, "_fixed_limits", None):
+            try:
+                x_fix, y_fix = plot_editor._fixed_limits
+                fixed_limits = {
+                    "x": [float(x_fix[0]), float(x_fix[1])],
+                    "y": [float(y_fix[0]), float(y_fix[1])],
+                }
+            except (TypeError, ValueError, IndexError):
+                fixed_limits = None
+
+        state = {
+            "language": language,
+            "title": {
+                "selection": combo_title.get(),
+                "custom": entry_title_custom.get(),
+                "custom_visible": bool(
+                    entry_title_custom.winfo_ismapped()
+                    if hasattr(entry_title_custom, "winfo_ismapped")
+                    else False
+                ),
+            },
+            "axes": {
+                "x": {
+                    "selection": combo_titleX.get(),
+                    "custom": _entry_text(path_entry_titleX),
+                    "unit_selection": combo_titleX_size.get(),
+                    "unit_custom": _entry_text(combo_titleX_size_entry),
+                },
+                "y": {
+                    "selection": combo_titleY.get(),
+                    "custom": _entry_text(path_entry_titleY),
+                    "unit_selection": combo_titleY_size.get(),
+                    "unit_custom": _entry_text(combo_titleY_size_entry),
+                },
+                "auto": axis_auto_state,
+                "manual": axis_manual_state,
+            },
+            "legend": {
+                "enabled": legend_enabled,
+                "selected_key": legend_key,
+                "display_value": legend_value,
+                "custom_text": legend_title_entry.get(),
+                "custom_visible": legend_custom_visible,
+            },
+            "curves": deepcopy(saved_data_curves),
+            "num_curves": combo_curves.get(),
+            "annotations": _serialize_annotations(),
+            "annotation_settings": {
+                "mode": bool(annotation_mode_var.get()),
+                "type": annotation_type_var.get(),
+                "snap": annotation_snap_var.get(),
+                "marker_shape": annotation_marker_shape_var.get(),
+                "marker_size": annotation_marker_size_var.get(),
+                "color": annotation_color_var.get(),
+                "palette": annotation_palette_var.get(),
+                "text": annotation_text_entry.get(),
+            },
+            "plot": {
+                "palette": plot_editor.palette_combo.get(),
+                "line_styles": line_styles,
+                "fix_axes": bool(plot_editor.fix_axes_var.get()),
+                "fixed_limits": fixed_limits,
+                "axes_limits": axes_limits,
+                "editor_visible": bool(editor_visible["shown"]),
+                "has_graph": bool(getattr(ax, "lines", [])),
+            },
+            "save": {
+                "name": entry_save.get(),
+                "format": combo_format.get(),
+            },
+        }
+        return state
+
+    def _apply_project_state(state: dict) -> Tuple[bool, Optional[str]]:
+        try:
+            language = state.get("language") or "Русский"
+            combo_language.set(language)
+            on_language_change()
+
+            title_state = state.get("title", {})
+            combo_title.set(title_state.get("selection", combo_title.get()))
+            on_title_combo_change(combo_title, entry_title_custom, title_var)
+            entry_title_custom.delete(0, tk.END)
+            entry_title_custom.insert(0, title_state.get("custom", ""))
+
+            axes_state = state.get("axes", {})
+            x_state = axes_state.get("x", {})
+            combo_titleX.set(x_state.get("selection", combo_titleX.get()))
+            on_combo_changeX_Y_labels(
+                combo_titleX,
+                path_entry_titleX,
+                label_titleX_size,
+                combo_titleX_size,
+                combo_titleX_size_entry,
+            )
+            path_entry_titleX.delete(0, tk.END)
+            path_entry_titleX.insert(0, x_state.get("custom", ""))
+            unit_selection_x = x_state.get("unit_selection", "")
+            combo_titleX_size.set(unit_selection_x)
+            on_unit_change(combo_titleX_size, combo_titleX_size_entry)
+            combo_titleX_size_entry.delete(0, tk.END)
+            combo_titleX_size_entry.insert(0, x_state.get("unit_custom", ""))
+
+            y_state = axes_state.get("y", {})
+            combo_titleY.set(y_state.get("selection", combo_titleY.get()))
+            on_combo_changeX_Y_labels(
+                combo_titleY,
+                path_entry_titleY,
+                label_titleY_size,
+                combo_titleY_size,
+                combo_titleY_size_entry,
+            )
+            path_entry_titleY.delete(0, tk.END)
+            path_entry_titleY.insert(0, y_state.get("custom", ""))
+            unit_selection_y = y_state.get("unit_selection", "")
+            combo_titleY_size.set(unit_selection_y)
+            on_unit_change(combo_titleY_size, combo_titleY_size_entry)
+            combo_titleY_size_entry.delete(0, tk.END)
+            combo_titleY_size_entry.insert(0, y_state.get("unit_custom", ""))
+
+            auto_state = axes_state.get("auto", {})
+            for key, entry in axis_auto_entries.items():
+                if entry is None:
+                    continue
+                state_attr = entry.cget("state") if hasattr(entry, "cget") else None
+                if state_attr is not None:
+                    entry.config(state="normal")
+                entry.delete(0, tk.END)
+                value = auto_state.get(key, "")
+                if value is not None:
+                    entry.insert(0, str(value))
+                if state_attr is not None:
+                    entry.config(state=state_attr)
+
+            manual_state = axes_state.get("manual", {})
+            for key, entry in axis_manual_entries.items():
+                if entry is None:
+                    continue
+                info = manual_state.get(key, {})
+                entry.delete(0, tk.END)
+                value = info.get("value", "")
+                if value is not None:
+                    entry.insert(0, str(value))
+                entry.user_modified = bool(info.get("user_modified", False))
+
+            legend_state = state.get("legend", {})
+            checkbox_var.set(bool(legend_state.get("enabled", False)))
+            toggle_legend_title_visibility()
+            legend_custom_text = legend_state.get("custom_text", "")
+            legend_key = legend_state.get("selected_key")
+            legend_display = legend_state.get("display_value", "")
+            custom_visible = bool(legend_state.get("custom_visible", False))
+            language_now = combo_language.get() or "Русский"
+            other_label = LEGEND_TITLE_TRANSLATIONS["Другое"].get(language_now, "Другое")
+            if checkbox_var.get():
+                if custom_visible:
+                    legend_title_combo.set(other_label)
+                    legend_title_var.set(other_label)
+                    on_legend_title_change(
+                        legend_title_combo,
+                        legend_title_entry,
+                        legend_title_var,
+                        language_now,
+                    )
+                    legend_title_entry.delete(0, tk.END)
+                    legend_title_entry.insert(0, legend_custom_text)
+                else:
+                    if legend_key and legend_key in LEGEND_TITLE_TRANSLATIONS:
+                        translated = LEGEND_TITLE_TRANSLATIONS[legend_key].get(
+                            language_now, legend_key
+                        )
+                    else:
+                        translated = legend_display
+                    if translated:
+                        legend_title_combo.set(translated)
+                        legend_title_var.set(translated)
+                    legend_title_entry.place_forget()
+                    legend_title_entry.delete(0, tk.END)
+                    legend_title_entry.insert(0, legend_custom_text)
+            else:
+                legend_title_entry.place_forget()
+                legend_title_entry.delete(0, tk.END)
+                legend_title_entry.insert(0, legend_custom_text)
+                legend_title_var.set("")
+
+            curves_data = state.get("curves", [])
+            saved_data_curves.clear()
+            if isinstance(curves_data, list) and curves_data:
+                for item in curves_data:
+                    saved_data_curves.append(deepcopy(item) if isinstance(item, dict) else {})
+            else:
+                saved_data_curves.append({})
+
+            saved_count = state.get("num_curves")
+            if isinstance(saved_count, str):
+                try:
+                    count_int = int(saved_count)
+                except ValueError:
+                    count_int = len(saved_data_curves) or 1
+            elif isinstance(saved_count, int):
+                count_int = saved_count
+            else:
+                count_int = len(saved_data_curves) or 1
+            count_int = max(1, min(count_int, len(curve_options)))
+            curve_value = str(count_int)
+            combo_curves.set(curve_value)
+            combo_curves.current(count_int - 1)
+            update_curves(
+                curves_frame,
+                curve_value,
+                axis_frame,
+                save_frame,
+                checkbox_var,
+                saved_data_curves,
+            )
+
+            save_state = state.get("save", {})
+            entry_save.delete(0, tk.END)
+            entry_save.insert(0, str(save_state.get("name", "")))
+            format_value = str(save_state.get("format", ""))
+            if format_value:
+                combo_format.set(format_value)
+
+            annotation_state = state.get("annotation_settings", {})
+            annotation_mode_var.set(bool(annotation_state.get("mode", False)))
+            annotation_type_var.set(annotation_state.get("type", annotation_type_var.get()))
+            annotation_marker_shape_var.set(
+                annotation_state.get("marker_shape", annotation_marker_shape_var.get())
+            )
+            annotation_marker_size_var.set(
+                str(annotation_state.get("marker_size", annotation_marker_size_var.get()))
+            )
+            color_value = annotation_state.get("color", annotation_color_var.get())
+            annotation_color_var.set(color_value)
+            annotation_color_preview.config(bg=color_value)
+            palette_value = annotation_state.get("palette")
+            if palette_value and palette_value in PALETTES:
+                annotation_palette_var.set(palette_value)
+            elif annotation_palette_var.get() not in PALETTES:
+                annotation_palette_var.set(next(iter(PALETTES), ""))
+            _refresh_palette_colors()
+            if annotation_type_var.get() == "Свой текст":
+                annotation_text_entry.config(state="normal")
+                annotation_text_entry.delete(0, tk.END)
+                annotation_text_entry.insert(
+                    0, annotation_state.get("text", annotation_text_entry.get())
+                )
+            else:
+                annotation_text_entry.delete(0, tk.END)
+                annotation_text_entry.config(state="disabled")
+
+            plot_state = state.get("plot", {})
+            palette_selection = plot_state.get("palette")
+            if palette_selection and palette_selection in plot_editor.palette_combo["values"]:
+                plot_editor.palette_combo.set(palette_selection)
+
+            success, error_message = _perform_plot(
+                reset_entries=False, reset_ranges=False
+            )
+
+            if not success:
+                return success, error_message
+
+            # Повторно применяем значения осей после построения
+            for key, entry in axis_auto_entries.items():
+                if entry is None:
+                    continue
+                state_attr = entry.cget("state") if hasattr(entry, "cget") else None
+                if state_attr is not None:
+                    entry.config(state="normal")
+                entry.delete(0, tk.END)
+                value = auto_state.get(key, "")
+                if value is not None:
+                    entry.insert(0, str(value))
+                if state_attr is not None:
+                    entry.config(state=state_attr)
+
+            for key, entry in axis_manual_entries.items():
+                if entry is None:
+                    continue
+                info = manual_state.get(key, {})
+                entry.delete(0, tk.END)
+                value = info.get("value", "")
+                if value is not None:
+                    entry.insert(0, str(value))
+                entry.user_modified = bool(info.get("user_modified", False))
+            apply_axis_limits(ax, canvas, axis_manual_entries)
+
+            line_styles = plot_state.get("line_styles", [])
+            for line, style_info in zip(getattr(ax, "lines", []), line_styles):
+                color = style_info.get("color")
+                if color:
+                    try:
+                        line.set_color(color)
+                    except ValueError:
+                        try:
+                            line.set_color(mcolors.to_rgba(color))
+                        except ValueError:
+                            pass
+                linestyle = style_info.get("style")
+                if linestyle:
+                    line.set_linestyle(linestyle)
+                width = style_info.get("width")
+                if width is not None:
+                    try:
+                        line.set_linewidth(float(width))
+                    except (TypeError, ValueError):
+                        pass
+
+            for row, style_info in zip(getattr(plot_editor, "_rows", []), line_styles):
+                color = style_info.get("color")
+                if color:
+                    row.colour.config(bg=color)
+                linestyle = style_info.get("style")
+                if linestyle:
+                    row.style.set(linestyle)
+                width = style_info.get("width")
+                if width is not None:
+                    try:
+                        row.width.set(float(width))
+                    except (TypeError, ValueError):
+                        pass
+
+            axes_limits = plot_state.get("axes_limits") or {}
+            x_limits = axes_limits.get("x")
+            y_limits = axes_limits.get("y")
+            try:
+                if x_limits:
+                    ax.set_xlim(float(x_limits[0]), float(x_limits[1]))
+                if y_limits:
+                    ax.set_ylim(float(y_limits[0]), float(y_limits[1]))
+            except (TypeError, ValueError, IndexError):
+                pass
+
+            fixed_limits = plot_state.get("fixed_limits")
+            if fixed_limits and "x" in fixed_limits and "y" in fixed_limits:
+                try:
+                    plot_editor._fixed_limits = (
+                        tuple(map(float, fixed_limits["x"])),
+                        tuple(map(float, fixed_limits["y"])),
+                    )
+                except (TypeError, ValueError):
+                    plot_editor._fixed_limits = None
+            else:
+                plot_editor._fixed_limits = None
+            plot_editor.fix_axes_var.set(bool(plot_state.get("fix_axes", False)))
+            plot_editor._apply_axes_fix_state()
+
+            _update_annotation_snap_options()
+            saved_snap = annotation_state.get("snap", annotation_snap_var.get())
+            snap_options = annotation_snap_combo["values"]
+            if saved_snap in snap_options:
+                annotation_snap_var.set(saved_snap)
+            elif snap_options:
+                annotation_snap_var.set(snap_options[0])
+
+            _restore_annotations(state.get("annotations", []))
+            update_annotation_entry_state()
+
+            editor_should_show = plot_state.get("editor_visible", True)
+            if not editor_should_show:
+                plot_editor.place_forget()
+                editor_visible["shown"] = False
+            else:
+                editor_visible["shown"] = True
+
+            _redraw_canvas()
+            plot_editor._refresh_legend()
+            plot_editor._redraw_canvas()
+            _trigger_scroll_check()
+            return True, None
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Ошибка восстановления проекта")
+            raise ValueError(f"Некорректный файл проекта: {exc}") from exc
+
+    def save_project() -> None:
+        path = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON", "*.json"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+        data = _collect_project_state()
+        try:
+            with open(path, "w", encoding="utf-8") as fh:
+                json.dump(data, fh, ensure_ascii=False, indent=2)
+            messagebox.showinfo("Успех", f"Проект сохранён: {path}")
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Ошибка сохранения проекта")
+            messagebox.showerror(
+                "Ошибка сохранения",
+                f"{exc}\nНе удалось сохранить проект.",
+            )
+
+    def load_project() -> None:
+        path = filedialog.askopenfilename(
+            filetypes=[("JSON", "*.json"), ("All files", "*.*")]
+        )
+        if not path:
+            return
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Ошибка чтения проекта")
+            messagebox.showerror(
+                "Ошибка загрузки",
+                f"{exc}\nНе удалось прочитать файл проекта.",
+            )
+            return
+        try:
+            success, error_message = _apply_project_state(data)
+        except ValueError as exc:
+            messagebox.showerror("Ошибка загрузки", str(exc))
+            return
+        if success:
+            messagebox.showinfo("Успех", f"Проект загружен: {path}")
+        else:
+            details = (
+                f"\n{error_message}"
+                if error_message
+                else ""
+            )
+            messagebox.showwarning(
+                "Загрузка завершена",
+                "Данные формы восстановлены, но построить график не удалось." + details,
+            )
 
     # Кнопка построения графика
     btn_generate_graph = ttk.Button(content_frame, text="Построить график", command=build_graph)
@@ -1298,6 +1909,22 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         command=lambda: save_file(entry_save, combo_format, last_graph),
     )
     save_button.place(x=ui_const.SAVE_BUTTON_X, y=ui_const.LINE_HEIGHT)
+
+    project_buttons = ttk.Frame(save_frame)
+    project_buttons.place(
+        x=ui_const.PADDING,
+        y=ui_const.LINE_HEIGHT * 2 + 10,
+    )
+    ttk.Button(
+        project_buttons,
+        text="Сохранить проект",
+        command=save_project,
+    ).pack(side=tk.LEFT, padx=(0, 10))
+    ttk.Button(
+        project_buttons,
+        text="Загрузить проект",
+        command=load_project,
+    ).pack(side=tk.LEFT)
 
     # Чекбокс легенды
     def on_legend_checkbox_toggle() -> None:

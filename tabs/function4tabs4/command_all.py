@@ -35,6 +35,8 @@ def walk_tree_and_build_commands(
         names = list(top_folder_names)
 
     for section_index, (node, top_folder_name) in enumerate(zip(nodes, names)):
+        if node.entity_kind == "none":
+            continue
         for analysis_index, analysis in enumerate(node.children):
             dirname = None
             if analysis_folder_names is not None:

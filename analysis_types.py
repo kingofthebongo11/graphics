@@ -67,7 +67,7 @@ ANALYSIS_TYPES_SHELL: list[str] = [
 ANALYSIS_TYPES_BY_ELEMENT: dict[str | None, list[str]] = {
     "beam": ANALYSIS_TYPES_BEAM,
     "shell": ANALYSIS_TYPES_SHELL,
-    "node": [],
+    "nodal": [],
 }
 
 # Соответствие названия анализа номеру команды etime для разных типов элементов.

@@ -22,8 +22,10 @@ def ensure_unique_names(items: Iterable, key: str = "name"):
 def validate_entity(data: dict):
     """Проверяет корректность описания сущности."""
     kind = data.get("entity_kind")
-    if kind not in {"element", "node"}:
-        raise ValidationError("entity_kind может быть только 'element' или 'node'")
+    if kind not in {"element", "nodal", "none"}:
+        raise ValidationError(
+            "entity_kind может быть только 'element', 'nodal' или 'none'"
+        )
     if kind == "element" and not data.get("element_type"):
         raise ValidationError("Для 'element' необходимо указать element_type")
     return data

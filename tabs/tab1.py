@@ -184,7 +184,52 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     tab1 = ttk.Frame(notebook)
     notebook.add(tab1, text="Создание изображения графика")
 
-    input_frame = ttk.Frame(tab1)
+    # Контейнер с прокруткой для всей вкладки
+    scroll_container = ttk.Frame(tab1)
+    scroll_container.pack(fill=tk.BOTH, expand=True)
+
+    scroll_canvas = tk.Canvas(scroll_container, highlightthickness=0)
+    scroll_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    scrollbar = ttk.Scrollbar(scroll_container, orient=tk.VERTICAL, command=scroll_canvas.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    scroll_canvas.configure(yscrollcommand=scrollbar.set)
+
+    content_frame = ttk.Frame(scroll_canvas)
+    content_window = scroll_canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
+    def _update_scrollregion(_event=None) -> None:
+        scroll_canvas.configure(scrollregion=scroll_canvas.bbox("all"))
+
+    def _update_canvas_width(event) -> None:
+        scroll_canvas.itemconfigure(content_window, width=event.width)
+
+    content_frame.bind("<Configure>", _update_scrollregion)
+    scroll_canvas.bind("<Configure>", _update_canvas_width)
+
+    def _on_mousewheel(event) -> None:
+        if event.delta:
+            scroll_canvas.yview_scroll(int(-event.delta / 120), "units")
+        elif event.num == 4:
+            scroll_canvas.yview_scroll(-1, "units")
+        elif event.num == 5:
+            scroll_canvas.yview_scroll(1, "units")
+
+    def _bind_mousewheel(_event) -> None:
+        scroll_canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        scroll_canvas.bind_all("<Button-4>", _on_mousewheel)
+        scroll_canvas.bind_all("<Button-5>", _on_mousewheel)
+
+    def _unbind_mousewheel(_event) -> None:
+        scroll_canvas.unbind_all("<MouseWheel>")
+        scroll_canvas.unbind_all("<Button-4>")
+        scroll_canvas.unbind_all("<Button-5>")
+
+    scroll_canvas.bind("<Enter>", _bind_mousewheel)
+    scroll_canvas.bind("<Leave>", _unbind_mousewheel)
+    tab1.bind("<Destroy>", lambda _event: _unbind_mousewheel(None))
+
+    input_frame = ttk.Frame(content_frame)
     input_frame.place(
         x=ui_const.PADDING,
         y=ui_const.PADDING,
@@ -376,7 +421,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     combo_language.bind("<<ComboboxSelected>>", on_language_change)
     on_language_change()
     # Фрейм для сохранения файла
-    save_frame = ttk.Frame(tab1)
+    save_frame = ttk.Frame(content_frame)
     save_frame.place(
         x=ui_const.PADDING,
         y=ui_const.SAVE_FRAME_Y,
@@ -420,14 +465,14 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     combo_curves.current(0)  # select '1'
 
     # Фрейм для полей ввода кривых
-    curves_frame = ttk.Frame(tab1)
+    curves_frame = ttk.Frame(content_frame)
     curves_frame.place(
         x=ui_const.PADDING,
         y=ui_const.CURVES_FRAME_Y,
         width=ui_const.CURVES_FRAME_WIDTH,
         height=ui_const.CURVES_FRAME_HEIGHT,
     )
-    axis_frame = ttk.LabelFrame(tab1, text="Настройки осей")
+    axis_frame = ttk.LabelFrame(content_frame, text="Настройки осей")
     axis_frame.place(
         x=ui_const.PREVIEW_X,
         y=ui_const.AXIS_FRAME_Y,
@@ -605,7 +650,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     )
 
     # Фрейм для предпросмотра графика
-    preview_frame = ttk.Frame(tab1)
+    preview_frame = ttk.Frame(content_frame)
     preview_frame.place(
         x=ui_const.PREVIEW_X,
         y=ui_const.LINE_HEIGHT,
@@ -651,7 +696,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         win.attributes("-topmost", True)
         win.deiconify()
 
-    info_button = ttk.Button(tab1, text="Как использовать", command=show_usage)
+    info_button = ttk.Button(content_frame, text="Как использовать", command=show_usage)
     info_button.place(x=ui_const.PREVIEW_X, y=0)
     fig, ax, canvas = create_plot_canvas(preview_frame)
 
@@ -715,7 +760,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     clear_annotations_button.config(command=clear_annotations)
 
     editor_visible = {"shown": False}
-    plot_editor = PlotEditor(tab1, ax, canvas, saved_data_curves)
+    plot_editor = PlotEditor(content_frame, ax, canvas, saved_data_curves)
     plot_editor.place(
         x=ui_const.EDITOR_X,
         y=ui_const.EDITOR_Y,
@@ -792,7 +837,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             )
 
     # Кнопка построения графика
-    btn_generate_graph = ttk.Button(tab1, text="Построить график", command=build_graph)
+    btn_generate_graph = ttk.Button(content_frame, text="Построить график", command=build_graph)
     btn_generate_graph.place(x=ui_const.BUTTON_BUILD_X, y=ui_const.BUTTON_BUILD_Y)
 
     # Элементы для сохранения файла

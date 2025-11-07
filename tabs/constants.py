@@ -4,8 +4,6 @@
 from collections.abc import Sequence
 import re
 
-from analysis_types import ANALYSIS_TYPES
-
 
 def sort_options(
     options: Sequence[str],
@@ -30,27 +28,6 @@ def sort_options(
     )
     last = [other_label] if other_label in options else []
     return first + middle + last
-
-
-def _extend_unique(base: Sequence[str], extra: Sequence[str]) -> list[str]:
-    """Возвращает объединённый список без дубликатов, сохраняя порядок."""
-
-    seen = set(base)
-    result: list[str] = list(base)
-    for item in extra:
-        if item not in seen:
-            result.append(item)
-            seen.add(item)
-    return result
-
-
-def _split_analysis_title(title: str) -> tuple[str, str] | None:
-    """Разделяет название типа анализа на части по разделителю ``" - "``."""
-
-    if " - " not in title:
-        return None
-    left, right = title.split(" - ", 1)
-    return left.strip(), right.strip()
 
 
 def sort_unit_pairs(
@@ -156,26 +133,6 @@ PLATE_MOMENT_UNIT_PAIRS = sort_unit_pairs([
 ])
 
 
-VELOCITY_UNIT_PAIRS = sort_unit_pairs([
-    ("Нет", "None"),
-    ("мм/с", "mm/s"),
-    ("см/с", "cm/s"),
-    ("м/с", "m/s"),
-    ("км/ч", "km/h"),
-    ("Другое", "Other"),
-])
-
-
-ACCELERATION_UNIT_PAIRS = sort_unit_pairs([
-    ("Нет", "None"),
-    ("мм/с²", "mm/s²"),
-    ("см/с²", "cm/s²"),
-    ("м/с²", "m/s²"),
-    ("g", "g"),
-    ("Другое", "Other"),
-])
-
-
 FREQUENCY_UNIT_PAIRS = sort_unit_pairs([
     ("Нет", "None"),
     ("Гц", "Hz"),
@@ -232,19 +189,6 @@ UNITS_PAIRS = {
     "Изгибающий момент Mx(п)": PLATE_MOMENT_UNIT_PAIRS,
     "Изгибающий момент My(п)": PLATE_MOMENT_UNIT_PAIRS,
     "Изгибающий момент Mxy(п)": PLATE_MOMENT_UNIT_PAIRS,
-    "Координата X": LENGTH_UNIT_PAIRS,
-    "Координата Y": LENGTH_UNIT_PAIRS,
-    "Координата Z": LENGTH_UNIT_PAIRS,
-    "Суммарная координата (модуль)": LENGTH_UNIT_PAIRS,
-    "Результирующее перемещение (модуль)": LENGTH_UNIT_PAIRS,
-    "Скорость по X": VELOCITY_UNIT_PAIRS,
-    "Скорость по Y": VELOCITY_UNIT_PAIRS,
-    "Скорость по Z": VELOCITY_UNIT_PAIRS,
-    "Результирующая скорость (модуль)": VELOCITY_UNIT_PAIRS,
-    "Ускорение по X": ACCELERATION_UNIT_PAIRS,
-    "Ускорение по Y": ACCELERATION_UNIT_PAIRS,
-    "Ускорение по Z": ACCELERATION_UNIT_PAIRS,
-    "Результирующее ускорение (модуль)": ACCELERATION_UNIT_PAIRS,
     "Частота": FREQUENCY_UNIT_PAIRS,
     "Частота 1": FREQUENCY_UNIT_PAIRS,
     "Частота 2": FREQUENCY_UNIT_PAIRS,
@@ -254,9 +198,6 @@ UNITS_PAIRS = {
     "Полная энергия": ENERGY_UNIT_PAIRS,
     "Другое": [],
 }
-
-for analysis_title in ANALYSIS_TYPES:
-    UNITS_PAIRS.setdefault(analysis_title, [])
 
 UNITS_MAPPING = {
     quantity: [ru for ru, _ in pairs]
@@ -298,19 +239,6 @@ DEFAULT_UNITS = {
     "Касательное напряжение ZY": "Па",
     "Касательное напряжение ZX": "Па",
     "Касательное напряжение XZ": "Па",
-    "Координата X": "м",
-    "Координата Y": "м",
-    "Координата Z": "м",
-    "Суммарная координата (модуль)": "м",
-    "Результирующее перемещение (модуль)": "м",
-    "Скорость по X": "м/с",
-    "Скорость по Y": "м/с",
-    "Скорость по Z": "м/с",
-    "Результирующая скорость (модуль)": "м/с",
-    "Ускорение по X": "м/с²",
-    "Ускорение по Y": "м/с²",
-    "Ускорение по Z": "м/с²",
-    "Результирующее ускорение (модуль)": "м/с²",
     "Крутящий момент Mx": "Н·м",
     "Изгибающий момент Mx": "Н·м",
     "Изгибающий момент Ms (My)": "Н·м",
@@ -329,71 +257,56 @@ DEFAULT_UNITS = {
     "Полная энергия": "Дж",
 }
 
-_BASE_PHYSICAL_QUANTITIES = [
-    "Нет",
-    "Время",
-    "Деформация",
-    "Изгибающий момент Mx",
-    "Изгибающий момент Ms (My)",
-    "Изгибающий момент My",
-    "Изгибающий момент Mt (Mz)",
-    "Изгибающий момент Mz",
-    "Изгибающий момент Mx(п)",
-    "Изгибающий момент My(п)",
-    "Изгибающий момент Mxy(п)",
-    "Интенсивность пластических деформаций",
-    "Интенсивность напряжений",
-    "Касательное напряжение XY",
-    "Касательное напряжение XZ",
-    "Касательное напряжение YX",
-    "Касательное напряжение YZ",
-    "Касательное напряжение ZX",
-    "Касательное напряжение ZY",
-    "Крутящий момент Mx",
-    "Масса",
-    "Давление",
-    "Напряжение",
-    "Нормальное напряжение X",
-    "Нормальное напряжение Y",
-    "Нормальное напряжение Z",
-    "Перемещение по X",
-    "Перемещение по Y",
-    "Перемещение по Z",
-    "Пластическая деформация",
-    "Поперечная сила",
-    "Поперечная сила по Y",
-    "Поперечная сила по Z",
-    "Продольная сила",
-    "Сила",
-    "Удлинение",
-    "Удлинение по X",
-    "Удлинение по Y",
-    "Удлинение по Z",
-    "Координата X",
-    "Координата Y",
-    "Координата Z",
-    "Суммарная координата (модуль)",
-    "Результирующее перемещение (модуль)",
-    "Скорость по X",
-    "Скорость по Y",
-    "Скорость по Z",
-    "Результирующая скорость (модуль)",
-    "Ускорение по X",
-    "Ускорение по Y",
-    "Ускорение по Z",
-    "Результирующее ускорение (модуль)",
-    "Частота",
-    "Частота 1",
-    "Частота 2",
-    "Частота 3",
-    "Кинетическая энергия",
-    "Потенциальная энергия",
-    "Полная энергия",
-    "Другое",
-]
-
 PHYSICAL_QUANTITIES = sort_options(
-    _extend_unique(_BASE_PHYSICAL_QUANTITIES, ANALYSIS_TYPES)
+    [
+        "Нет",
+        "Время",
+        "Деформация",
+        "Изгибающий момент Mx",
+        "Изгибающий момент Ms (My)",
+        "Изгибающий момент My",
+        "Изгибающий момент Mt (Mz)",
+        "Изгибающий момент Mz",
+        "Изгибающий момент Mx(п)",
+        "Изгибающий момент My(п)",
+        "Изгибающий момент Mxy(п)",
+        "Интенсивность пластических деформаций",
+        "Интенсивность напряжений",
+        "Касательное напряжение XY",
+        "Касательное напряжение XZ",
+        "Касательное напряжение YX",
+        "Касательное напряжение YZ",
+        "Касательное напряжение ZX",
+        "Касательное напряжение ZY",
+        "Крутящий момент Mx",
+        "Масса",
+        "Давление",
+        "Напряжение",
+        "Нормальное напряжение X",
+        "Нормальное напряжение Y",
+        "Нормальное напряжение Z",
+        "Перемещение по X",
+        "Перемещение по Y",
+        "Перемещение по Z",
+        "Пластическая деформация",
+        "Поперечная сила",
+        "Поперечная сила по Y",
+        "Поперечная сила по Z",
+        "Продольная сила",
+        "Сила",
+        "Удлинение",
+        "Удлинение по X",
+        "Удлинение по Y",
+        "Удлинение по Z",
+        "Частота",
+        "Частота 1",
+        "Частота 2",
+        "Частота 3",
+        "Кинетическая энергия",
+        "Потенциальная энергия",
+        "Полная энергия",
+        "Другое",
+    ]
 )
 
 PHYSICAL_QUANTITIES_TRANSLATION = {
@@ -436,19 +349,6 @@ PHYSICAL_QUANTITIES_TRANSLATION = {
     "Удлинение по X": "Elongation X",
     "Удлинение по Y": "Elongation Y",
     "Удлинение по Z": "Elongation Z",
-    "Координата X": "Coordinate X",
-    "Координата Y": "Coordinate Y",
-    "Координата Z": "Coordinate Z",
-    "Суммарная координата (модуль)": "Resultant coordinate (magnitude)",
-    "Результирующее перемещение (модуль)": "Resultant displacement (magnitude)",
-    "Скорость по X": "Velocity X",
-    "Скорость по Y": "Velocity Y",
-    "Скорость по Z": "Velocity Z",
-    "Результирующая скорость (модуль)": "Resultant velocity (magnitude)",
-    "Ускорение по X": "Acceleration X",
-    "Ускорение по Y": "Acceleration Y",
-    "Ускорение по Z": "Acceleration Z",
-    "Результирующее ускорение (модуль)": "Resultant acceleration (magnitude)",
     "Частота": "Frequency",
     "Частота 1": "Frequency 1",
     "Частота 2": "Frequency 2",
@@ -458,23 +358,6 @@ PHYSICAL_QUANTITIES_TRANSLATION = {
     "Полная энергия": "Total energy",
     "Другое": "Other",
 }
-
-
-def _ensure_analysis_translations() -> None:
-    for analysis_title in ANALYSIS_TYPES:
-        if analysis_title in PHYSICAL_QUANTITIES_TRANSLATION:
-            continue
-        parts = _split_analysis_title(analysis_title)
-        if parts is None:
-            PHYSICAL_QUANTITIES_TRANSLATION[analysis_title] = analysis_title
-            continue
-        left, right = parts
-        left_en = PHYSICAL_QUANTITIES_TRANSLATION.get(left, left)
-        right_en = PHYSICAL_QUANTITIES_TRANSLATION.get(right, right)
-        PHYSICAL_QUANTITIES_TRANSLATION[analysis_title] = f"{left_en} - {right_en}"
-
-
-_ensure_analysis_translations()
 
 PHYSICAL_QUANTITIES_EN = sort_options(
     list(PHYSICAL_QUANTITIES_TRANSLATION.values()),
@@ -529,19 +412,6 @@ DEFAULT_UNITS_EN = {
     "Shear stress ZY": "Pa",
     "Shear stress ZX": "Pa",
     "Shear stress XZ": "Pa",
-    "Coordinate X": "m",
-    "Coordinate Y": "m",
-    "Coordinate Z": "m",
-    "Resultant coordinate (magnitude)": "m",
-    "Resultant displacement (magnitude)": "m",
-    "Velocity X": "m/s",
-    "Velocity Y": "m/s",
-    "Velocity Z": "m/s",
-    "Resultant velocity (magnitude)": "m/s",
-    "Acceleration X": "m/s²",
-    "Acceleration Y": "m/s²",
-    "Acceleration Z": "m/s²",
-    "Resultant acceleration (magnitude)": "m/s²",
     "Torque Mx": "N·m",
     "Bending moment Mx": "N·m",
     "Bending moment Ms (My)": "N·m",
@@ -732,85 +602,7 @@ TITLE_TRANSLATIONS = {
         "Русский": r"Частота $\mathit{f}_{\mathit{3}}$",
         "Английский": r"Frequency $\mathit{f}_{\mathit{3}}$",
     },
-    "Координата X": {
-        "Русский": r"Координата $\mathit{x}$",
-        "Английский": r"Coordinate $\mathit{x}$",
-    },
-    "Координата Y": {
-        "Русский": r"Координата $\mathit{y}$",
-        "Английский": r"Coordinate $\mathit{y}$",
-    },
-    "Координата Z": {
-        "Русский": r"Координата $\mathit{z}$",
-        "Английский": r"Coordinate $\mathit{z}$",
-    },
-    "Суммарная координата (модуль)": {
-        "Русский": r"Суммарная координата $\left| \mathit{r} \right|$",
-        "Английский": r"Resultant coordinate $\left| \mathit{r} \right|$",
-    },
-    "Результирующее перемещение (модуль)": {
-        "Русский": r"Результирующее перемещение $\left| \mathit{u} \right|$",
-        "Английский": r"Resultant displacement $\left| \mathit{u} \right|$",
-    },
-    "Скорость по X": {
-        "Русский": r"Скорость $\mathit{v}_{\mathit{x}}$",
-        "Английский": r"Velocity $\mathit{v}_{\mathit{x}}$",
-    },
-    "Скорость по Y": {
-        "Русский": r"Скорость $\mathit{v}_{\mathit{y}}$",
-        "Английский": r"Velocity $\mathit{v}_{\mathit{y}}$",
-    },
-    "Скорость по Z": {
-        "Русский": r"Скорость $\mathit{v}_{\mathit{z}}$",
-        "Английский": r"Velocity $\mathit{v}_{\mathit{z}}$",
-    },
-    "Результирующая скорость (модуль)": {
-        "Русский": r"Результирующая скорость $\left| \mathit{v} \right|$",
-        "Английский": r"Resultant velocity $\left| \mathit{v} \right|$",
-    },
-    "Ускорение по X": {
-        "Русский": r"Ускорение $\mathit{a}_{\mathit{x}}$",
-        "Английский": r"Acceleration $\mathit{a}_{\mathit{x}}$",
-    },
-    "Ускорение по Y": {
-        "Русский": r"Ускорение $\mathit{a}_{\mathit{y}}$",
-        "Английский": r"Acceleration $\mathit{a}_{\mathit{y}}$",
-    },
-    "Ускорение по Z": {
-        "Русский": r"Ускорение $\mathit{a}_{\mathit{z}}$",
-        "Английский": r"Acceleration $\mathit{a}_{\mathit{z}}$",
-    },
-    "Результирующее ускорение (модуль)": {
-        "Русский": r"Результирующее ускорение $\left| \mathit{a} \right|$",
-        "Английский": r"Resultant acceleration $\left| \mathit{a} \right|$",
-    },
 }
-
-
-def _ensure_analysis_title_translations() -> None:
-    for analysis_title in ANALYSIS_TYPES:
-        if analysis_title in TITLE_TRANSLATIONS:
-            continue
-        parts = _split_analysis_title(analysis_title)
-        if parts is None:
-            translation = PHYSICAL_QUANTITIES_TRANSLATION.get(
-                analysis_title, analysis_title
-            )
-            TITLE_TRANSLATIONS[analysis_title] = {
-                "Русский": analysis_title,
-                "Английский": translation,
-            }
-            continue
-        left, right = parts
-        left_map = TITLE_TRANSLATIONS.get(left, {"Русский": left, "Английский": left})
-        right_map = TITLE_TRANSLATIONS.get(right, {"Русский": right, "Английский": right})
-        TITLE_TRANSLATIONS[analysis_title] = {
-            lang: f"{left_map.get(lang, left)} — {right_map.get(lang, right)}"
-            for lang in ("Русский", "Английский")
-        }
-
-
-_ensure_analysis_title_translations()
 
 # Символы для заголовков (копия словаря для осей)
 TITLES_SYMBOLS = {key: value.copy() for key, value in TITLE_TRANSLATIONS.items()}

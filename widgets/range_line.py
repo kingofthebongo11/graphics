@@ -10,13 +10,15 @@ class RangeLine(ttk.Frame):
         self.to = float(to)
         self.command = command  # callback(lower, upper)
 
-        self._w = width
+        self._width = width
         self._h = height
         self._pad = 10
         self._bar_h = 4
         self._r = 7
 
-        self.canvas = tk.Canvas(self, width=self._w, height=self._h, highlightthickness=0, bd=0)
+        self.canvas = tk.Canvas(
+            self, width=self._width, height=self._h, highlightthickness=0, bd=0
+        )
         self.canvas.pack(fill=tk.X, expand=True)
 
         self.lower = float(start)
@@ -52,7 +54,7 @@ class RangeLine(ttk.Frame):
     def _draw_static(self):
         y = self._h // 2
         x0 = self._pad
-        x1 = self._w - self._pad
+        x1 = self._width - self._pad
         self._ids["track"] = self.canvas.create_line(x0, y, x1, y, width=self._bar_h, capstyle="round")
         self._ids["range"] = self.canvas.create_line(x0, y, x1, y, width=self._bar_h, capstyle="round")
         self._ids["lower"] = self.canvas.create_oval(0, 0, 0, 0, outline="", fill="")
@@ -76,12 +78,12 @@ class RangeLine(ttk.Frame):
         self.canvas.coords(hid, x - r, y - r, x + r, y + r)
 
     def _val2x(self, v):
-        x0, x1 = self._pad, self._w - self._pad
+        x0, x1 = self._pad, self._width - self._pad
         t = 0 if self.to == self.from_ else (v - self.from_) / (self.to - self.from_)
         return x0 + t * (x1 - x0)
 
     def _x2val(self, x):
-        x0, x1 = self._pad, self._w - self._pad
+        x0, x1 = self._pad, self._width - self._pad
         t = (x - x0) / (x1 - x0)
         v = self.from_ + t * (self.to - self.from_)
         return max(self.from_, min(self.to, v))

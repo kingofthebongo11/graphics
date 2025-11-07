@@ -4,7 +4,17 @@ from tkinter import ttk
 
 
 class RangeLine(ttk.Frame):
-    def __init__(self, master, from_=0, to=100, start=20, end=80, width=240, height=28, command=None):
+    def __init__(
+        self,
+        master,
+        from_=0,
+        to=100,
+        start=20,
+        end=80,
+        width=360,
+        height=28,
+        command=None,
+    ):
         super().__init__(master)
         self.from_ = float(from_)
         self.to = float(to)

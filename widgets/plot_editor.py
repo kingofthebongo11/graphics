@@ -41,6 +41,10 @@ class _RangeWidgets:
     lower_value: tk.StringVar
     upper_label: ttk.Label
     lower_label: ttk.Label
+    manual_lower: tk.StringVar
+    manual_upper: tk.StringVar
+    manual_lower_entry: ttk.Entry
+    manual_upper_entry: ttk.Entry
     line: object
     index: int
 
@@ -208,6 +212,7 @@ class PlotEditor(ttk.Frame):
             to=100,
             start=start_val,
             end=end_val,
+            width=360,
         )
         slider.pack(fill=tk.X, expand=True)
 
@@ -221,6 +226,24 @@ class PlotEditor(ttk.Frame):
         upper_label.pack(anchor="e")
         lower_label.pack(anchor="e")
 
+        manual_frame = ttk.Frame(values_frame)
+        manual_frame.pack(anchor="e", pady=(6, 0))
+
+        manual_lower = tk.StringVar()
+        manual_upper = tk.StringVar()
+
+        lower_caption = ttk.Label(manual_frame, text="X от:")
+        lower_caption.grid(row=0, column=0, sticky="e", padx=(0, 4))
+        manual_lower_entry = ttk.Entry(manual_frame, width=12, textvariable=manual_lower)
+        manual_lower_entry.grid(row=0, column=1, sticky="ew")
+
+        upper_caption = ttk.Label(manual_frame, text="X до:")
+        upper_caption.grid(row=1, column=0, sticky="e", padx=(0, 4), pady=(4, 0))
+        manual_upper_entry = ttk.Entry(manual_frame, width=12, textvariable=manual_upper)
+        manual_upper_entry.grid(row=1, column=1, sticky="ew", pady=(4, 0))
+
+        manual_frame.columnconfigure(1, weight=1)
+
         controls = _RangeWidgets(
             frame,
             slider,
@@ -228,6 +251,10 @@ class PlotEditor(ttk.Frame):
             lower_value,
             upper_label,
             lower_label,
+            manual_lower,
+            manual_upper,
+            manual_lower_entry,
+            manual_upper_entry,
             line,
             index,
         )
@@ -237,6 +264,23 @@ class PlotEditor(ttk.Frame):
             lambda lower, upper, ctrl=controls: self._on_range_change(
                 ctrl, lower, upper
             )
+        )
+
+        manual_lower_entry.bind(
+            "<FocusOut>",
+            lambda _e, ctrl=controls: self._on_manual_range_change(ctrl),
+        )
+        manual_lower_entry.bind(
+            "<Return>",
+            lambda _e, ctrl=controls: self._on_manual_range_change(ctrl),
+        )
+        manual_upper_entry.bind(
+            "<FocusOut>",
+            lambda _e, ctrl=controls: self._on_manual_range_change(ctrl),
+        )
+        manual_upper_entry.bind(
+            "<Return>",
+            lambda _e, ctrl=controls: self._on_manual_range_change(ctrl),
         )
 
         self._apply_range(controls)
@@ -293,6 +337,7 @@ class PlotEditor(ttk.Frame):
         self._update_range_labels(controls, lower, upper)
         self._update_saved_data(controls.index, lower, upper)
         self._update_line_range(controls.line, lower, upper)
+        self._update_manual_inputs(controls)
 
     def _update_saved_data(self, index: int, start: float, end: float) -> None:
         if len(self.saved_data) >= index:
@@ -325,6 +370,65 @@ class PlotEditor(ttk.Frame):
         setattr(line, "_slider_end", end)
         self._update_axes_limits()
         self._redraw_canvas()
+
+    def _update_manual_inputs(self, controls: _RangeWidgets) -> None:
+        x_data = list(controls.line.get_xdata())
+        if not x_data:
+            controls.manual_lower.set("")
+            controls.manual_upper.set("")
+            return
+        controls.manual_lower.set(self._format_x_value(x_data[0]))
+        controls.manual_upper.set(self._format_x_value(x_data[-1]))
+
+    def _format_x_value(self, value: float) -> str:
+        return f"{value:.6g}"
+
+    def _on_manual_range_change(self, controls: _RangeWidgets) -> None:
+        text_lower = controls.manual_lower.get().strip()
+        text_upper = controls.manual_upper.get().strip()
+        try:
+            lower_val = float(text_lower)
+            upper_val = float(text_upper)
+        except ValueError:
+            self._update_manual_inputs(controls)
+            return
+        if lower_val > upper_val:
+            lower_val, upper_val = upper_val, lower_val
+        percentages = self._manual_values_to_percentages(controls, lower_val, upper_val)
+        if percentages is None:
+            self._update_manual_inputs(controls)
+            return
+        lower_percent, upper_percent = percentages
+        self._apply_range(controls, lower_percent, upper_percent)
+
+    def _manual_values_to_percentages(
+        self, controls: _RangeWidgets, lower_val: float, upper_val: float
+    ) -> Optional[tuple[float, float]]:
+        full_x = getattr(controls.line, "_full_x", None)
+        if not full_x:
+            full_x = list(controls.line.get_xdata())
+        if not full_x:
+            return None
+        if len(full_x) == 1:
+            return 0.0, 100.0
+        max_index = len(full_x) - 1
+        start_idx = 0
+        for idx, value in enumerate(full_x):
+            if value >= lower_val:
+                start_idx = idx
+                break
+        else:
+            start_idx = max_index
+        end_idx = max_index
+        for idx in range(max_index, -1, -1):
+            if full_x[idx] <= upper_val:
+                end_idx = idx
+                break
+        if end_idx < start_idx:
+            end_idx = start_idx
+        lower_percent = start_idx * 100.0 / max_index
+        upper_percent = end_idx * 100.0 / max_index
+        return lower_percent, upper_percent
 
     # ------------------------------------------------------------------
     def _refresh_legend(self) -> None:

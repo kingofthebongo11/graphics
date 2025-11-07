@@ -5,7 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable, List, Mapping, Sequence, Tuple
 
-from .command_single import build_command, build_curve_commands
+from .command_single import (
+    build_command,
+    build_curve_commands,
+    build_global_curve_commands,
+)
 from .tree_schema import Tree
 from topfolder_codec import encode_topfolder
 from tree_schema import EntityNode
@@ -35,12 +39,21 @@ def walk_tree_and_build_commands(
         names = list(top_folder_names)
 
     for section_index, (node, top_folder_name) in enumerate(zip(nodes, names)):
-        if node.entity_kind == "none":
-            continue
         for analysis_index, analysis in enumerate(node.children):
             dirname = None
             if analysis_folder_names is not None:
                 dirname = analysis_folder_names.get((section_index, analysis_index))
+            if node.entity_kind == "none":
+                commands.extend(
+                    build_global_curve_commands(
+                        str(base_dir),
+                        top_folder_name,
+                        analysis.analysis_type,
+                        curves_dirname,
+                        dirname,
+                    )
+                )
+                continue
             for file_node in analysis.children:
                 commands.extend(
                     build_curve_commands(

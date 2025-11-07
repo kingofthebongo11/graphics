@@ -19,7 +19,7 @@ from tree_schema import AnalysisNode, EntityNode, FileNode
 from ui import constants as ui_const
 from widgets import create_text, select_path
 from curves_pipeline import build_curves_report
-from analysis_types import ANALYSIS_TYPES_BY_ELEMENT
+from analysis_types import ANALYSIS_TYPES_BY_ENTITY
 
 
 class AnalysisTypeDialog(simpledialog.Dialog):
@@ -283,12 +283,12 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         parent = tree.parent(item)
 
         try:
-            _, _, element_type = decode_topfolder(tree.item(item, "text"))
+            _, entity_kind, element_type = decode_topfolder(tree.item(item, "text"))
         except Exception:
-            element_type = None
+            entity_kind, element_type = "element", None
 
         if parent == "":
-            values = ANALYSIS_TYPES_BY_ELEMENT.get(element_type, [])
+            values = ANALYSIS_TYPES_BY_ENTITY.get((entity_kind, element_type), [])
             dlg = AnalysisTypeDialog(
                 tab4, title="Выбор типа анализа", values=values
             )
@@ -298,6 +298,17 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             return
 
         if tree.parent(parent) == "":
+            try:
+                _, parent_kind, _ = decode_topfolder(tree.item(parent, "text"))
+            except Exception:
+                parent_kind = "element"
+            if parent_kind == "none":
+                messagebox.showinfo(
+                    "Добавление узлов",
+                    "Для глобальных анализов не требуются номера узлов/элементов.",
+                    parent=tab4,
+                )
+                return
             number = simpledialog.askstring(
                 "Номер элемента", "Введите номер", parent=tab4
             )

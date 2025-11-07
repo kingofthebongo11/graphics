@@ -833,6 +833,19 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         if len(x_data) != len(y_data):
             return None
 
+        axes = getattr(line, "axes", None)
+        if axes is None:
+            return None
+
+        transform = getattr(axes, "transData", None)
+        if transform is None:
+            return None
+
+        try:
+            click_x, click_y = transform.transform((x_value, y_value))
+        except (TypeError, ValueError):
+            return None
+
         nearest_point: Tuple[float, float] | None = None
         min_distance: float | None = None
 
@@ -846,8 +859,13 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             if not (math.isfinite(x_val) and math.isfinite(y_val)):
                 continue
 
-            dx = x_val - x_value
-            dy = y_val - y_value
+            try:
+                point_x, point_y = transform.transform((x_val, y_val))
+            except (TypeError, ValueError):
+                continue
+
+            dx = point_x - click_x
+            dy = point_y - click_y
             distance = dx * dx + dy * dy
 
             if min_distance is None or distance < min_distance:

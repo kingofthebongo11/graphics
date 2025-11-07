@@ -13,6 +13,7 @@ from .functions_for_tab1 import (
 from .functions_for_tab1.plotting import last_graph
 from widgets import PlotEditor, create_text
 from tabs.function_for_all_tabs import create_plot_canvas
+from tabs.function_for_all_tabs.plotting import LABEL_SIZE
 from .constants import (
     DEFAULT_UNITS,
     PHYSICAL_QUANTITIES,
@@ -637,6 +638,9 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     annotation_mode_var = tk.BooleanVar(value=False)
     annotation_type_var = tk.StringVar(value="(X,Y)")
     annotation_snap_var = tk.StringVar(value="нет")
+    annotation_marker_shape_var = tk.StringVar(value="Круг")
+    annotation_marker_size_var = tk.StringVar(value="40")
+    annotation_color_var = tk.StringVar(value="Красный")
 
     annotation_mode_check = ttk.Checkbutton(
         annotation_frame, text="Режим отметок", variable=annotation_mode_var
@@ -666,6 +670,56 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     )
     annotation_snap_combo.grid(row=0, column=4, padx=5, pady=2, sticky="w")
 
+    marker_shape_options = {
+        "Круг": "o",
+        "Квадрат": "s",
+        "Ромб": "D",
+        "Крестик": "x",
+    }
+    marker_color_options = {
+        "Красный": "red",
+        "Синий": "blue",
+        "Зеленый": "green",
+        "Оранжевый": "orange",
+        "Фиолетовый": "purple",
+        "Черный": "black",
+    }
+
+    ttk.Label(annotation_frame, text="Форма:").grid(
+        row=2, column=0, padx=5, pady=2, sticky="w"
+    )
+    annotation_shape_combo = ttk.Combobox(
+        annotation_frame,
+        values=list(marker_shape_options.keys()),
+        state="readonly",
+        textvariable=annotation_marker_shape_var,
+        width=12,
+    )
+    annotation_shape_combo.grid(row=2, column=1, padx=5, pady=2, sticky="w")
+    ttk.Label(annotation_frame, text="Размер:").grid(
+        row=2, column=2, padx=5, pady=2, sticky="w"
+    )
+    annotation_size_spinbox = ttk.Spinbox(
+        annotation_frame,
+        from_=5,
+        to=200,
+        increment=5,
+        textvariable=annotation_marker_size_var,
+        width=6,
+    )
+    annotation_size_spinbox.grid(row=2, column=3, padx=5, pady=2, sticky="w")
+    ttk.Label(annotation_frame, text="Цвет:").grid(
+        row=2, column=4, padx=5, pady=2, sticky="w"
+    )
+    annotation_color_combo = ttk.Combobox(
+        annotation_frame,
+        values=list(marker_color_options.keys()),
+        state="readonly",
+        textvariable=annotation_color_var,
+        width=12,
+    )
+    annotation_color_combo.grid(row=2, column=5, padx=5, pady=2, sticky="w")
+
     ttk.Label(annotation_frame, text="Текст:").grid(
         row=1, column=0, padx=5, pady=2, sticky="w"
     )
@@ -673,12 +727,16 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         annotation_frame, method="entry", height=1, state="disabled", scrollbar=False
     )
     annotation_text_entry.grid(
-        row=1, column=1, columnspan=2, padx=5, pady=2, sticky="ew"
+        row=1, column=1, columnspan=3, padx=5, pady=2, sticky="ew"
     )
+    undo_annotation_button = ttk.Button(annotation_frame, text="←", width=3)
+    undo_annotation_button.grid(row=1, column=4, padx=2, pady=2, sticky="e")
+    redo_annotation_button = ttk.Button(annotation_frame, text="→", width=3)
+    redo_annotation_button.grid(row=1, column=5, padx=2, pady=2, sticky="w")
     clear_annotations_button = ttk.Button(
         annotation_frame, text="Очистить отметки"
     )
-    clear_annotations_button.grid(row=1, column=4, padx=5, pady=2, sticky="e")
+    clear_annotations_button.grid(row=1, column=6, padx=5, pady=2, sticky="e")
 
     def update_annotation_entry_state(_event=None) -> None:
         if annotation_type_var.get() == "Свой текст":
@@ -781,7 +839,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     info_button.place(x=ui_const.PREVIEW_X, y=0)
     fig, ax, canvas = create_plot_canvas(preview_frame)
 
-    annotations: list = []
+    annotations: List[Tuple] = []
+    undone_annotations: List[Tuple] = []
 
     def _redraw_canvas() -> None:
         if hasattr(canvas, "draw_idle"):
@@ -789,9 +848,8 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         else:
             canvas.draw()
 
-    def clear_annotations() -> None:
-        while annotations:
-            point, label = annotations.pop()
+    def _remove_annotation_artists(items: List[Tuple]) -> None:
+        for point, label in items:
             try:
                 point.remove()
             except ValueError:
@@ -800,7 +858,61 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 label.remove()
             except ValueError:
                 pass
+
+    def _update_annotation_buttons_state() -> None:
+        has_annotations = bool(annotations)
+        has_undone = bool(undone_annotations)
+        undo_annotation_button.config(
+            state="normal" if has_annotations else "disabled"
+        )
+        redo_annotation_button.config(
+            state="normal" if has_undone else "disabled"
+        )
+        clear_annotations_button.config(
+            state="normal" if has_annotations or has_undone else "disabled"
+        )
+
+    def clear_annotations() -> None:
+        if annotations:
+            _remove_annotation_artists(annotations)
+            annotations.clear()
+        if undone_annotations:
+            _remove_annotation_artists(undone_annotations)
+            undone_annotations.clear()
+        _update_annotation_buttons_state()
         _redraw_canvas()
+
+    def undo_last_annotation() -> None:
+        if not annotations:
+            return
+        point, label = annotations.pop()
+        point.set_visible(False)
+        label.set_visible(False)
+        undone_annotations.append((point, label))
+        _update_annotation_buttons_state()
+        _redraw_canvas()
+
+    def redo_last_annotation() -> None:
+        if not undone_annotations:
+            return
+        point, label = undone_annotations.pop()
+        point.set_visible(True)
+        label.set_visible(True)
+        annotations.append((point, label))
+        _update_annotation_buttons_state()
+        _redraw_canvas()
+
+    def _get_marker_properties() -> Tuple[str, float, str]:
+        marker = marker_shape_options.get(
+            annotation_marker_shape_var.get(), "o"
+        )
+        try:
+            size_value = float(annotation_marker_size_var.get())
+        except (tk.TclError, ValueError):
+            size_value = 40.0
+        size_value = max(size_value, 1.0)
+        color = marker_color_options.get(annotation_color_var.get(), "red")
+        return marker, size_value, color
 
     def _format_annotation_text(x_value: float, y_value: float) -> str:
         mode = annotation_type_var.get()
@@ -943,21 +1055,38 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 "Предупреждение", "Введите текст подписи для отметки."
             )
             return
-        point = ax.scatter([x_value], [y_value], color="red", zorder=5)
+        if undone_annotations:
+            _remove_annotation_artists(undone_annotations)
+            undone_annotations.clear()
+        marker, marker_size, marker_color = _get_marker_properties()
+        point = ax.scatter(
+            [x_value],
+            [y_value],
+            color=marker_color,
+            s=marker_size,
+            marker=marker,
+            zorder=5,
+        )
         label = ax.annotate(
             text,
             (x_value, y_value),
             textcoords="offset points",
             xytext=(5, 5),
-            color="red",
-            fontsize=9,
+            color=marker_color,
+            fontsize=LABEL_SIZE,
+            fontstyle="normal",
+            fontweight="normal",
         )
         annotations.append((point, label))
+        _update_annotation_buttons_state()
         _redraw_canvas()
 
     canvas.mpl_connect("button_press_event", on_canvas_click)
     _update_annotation_snap_options()
+    undo_annotation_button.config(command=undo_last_annotation)
+    redo_annotation_button.config(command=redo_last_annotation)
     clear_annotations_button.config(command=clear_annotations)
+    _update_annotation_buttons_state()
 
     editor_visible = {"shown": False}
     plot_editor = PlotEditor(content_frame, ax, canvas, saved_data_curves)

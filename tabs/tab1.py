@@ -1,3 +1,5 @@
+import math
+
 from logging_utils import get_logger
 import tkinter as tk  # Alias for Tk functionality
 from tkinter import ttk, messagebox
@@ -634,6 +636,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
 
     annotation_mode_var = tk.BooleanVar(value=False)
     annotation_type_var = tk.StringVar(value="(X,Y)")
+    annotation_snap_var = tk.StringVar(value="нет")
 
     annotation_mode_check = ttk.Checkbutton(
         annotation_frame, text="Режим отметок", variable=annotation_mode_var
@@ -651,6 +654,18 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     )
     annotation_type_combo.grid(row=0, column=2, padx=5, pady=2, sticky="w")
 
+    ttk.Label(annotation_frame, text="Привязка:").grid(
+        row=0, column=3, padx=5, pady=2, sticky="w"
+    )
+    annotation_snap_combo = ttk.Combobox(
+        annotation_frame,
+        values=["нет"],
+        state="readonly",
+        textvariable=annotation_snap_var,
+        width=12,
+    )
+    annotation_snap_combo.grid(row=0, column=4, padx=5, pady=2, sticky="w")
+
     ttk.Label(annotation_frame, text="Текст:").grid(
         row=1, column=0, padx=5, pady=2, sticky="w"
     )
@@ -663,7 +678,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     clear_annotations_button = ttk.Button(
         annotation_frame, text="Очистить отметки"
     )
-    clear_annotations_button.grid(row=1, column=3, padx=5, pady=2, sticky="e")
+    clear_annotations_button.grid(row=1, column=4, padx=5, pady=2, sticky="e")
 
     def update_annotation_entry_state(_event=None) -> None:
         if annotation_type_var.get() == "Свой текст":
@@ -797,6 +812,71 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             return f"({x_value:.3g}, {y_value:.3g})"
         return annotation_text_entry.get().strip()
 
+    def _get_selected_line_index() -> int | None:
+        value = annotation_snap_var.get().strip().lower()
+        if value == "нет":
+            return None
+        original = annotation_snap_var.get().strip()
+        try:
+            index = int(original.split()[-1]) - 1
+        except (ValueError, IndexError):
+            return None
+        return index
+
+    def _find_nearest_point(line, x_value: float, y_value: float) -> Tuple[float, float] | None:
+        try:
+            x_data = line.get_xdata()
+            y_data = line.get_ydata()
+        except AttributeError:
+            return None
+
+        if len(x_data) != len(y_data):
+            return None
+
+        nearest_point: Tuple[float, float] | None = None
+        min_distance: float | None = None
+
+        for x_item, y_item in zip(x_data, y_data):
+            try:
+                x_val = float(x_item)
+                y_val = float(y_item)
+            except (TypeError, ValueError):
+                continue
+
+            if not (math.isfinite(x_val) and math.isfinite(y_val)):
+                continue
+
+            dx = x_val - x_value
+            dy = y_val - y_value
+            distance = dx * dx + dy * dy
+
+            if min_distance is None or distance < min_distance:
+                min_distance = distance
+                nearest_point = (x_val, y_val)
+
+        return nearest_point
+
+    def _apply_annotation_snap(x_value: float, y_value: float) -> Tuple[float, float]:
+        index = _get_selected_line_index()
+        if index is None:
+            return x_value, y_value
+
+        lines = list(ax.lines)
+        if not (0 <= index < len(lines)):
+            return x_value, y_value
+
+        snapped = _find_nearest_point(lines[index], x_value, y_value)
+        if snapped is None:
+            return x_value, y_value
+        return snapped
+
+    def _update_annotation_snap_options() -> None:
+        lines = list(ax.lines)
+        options = ["нет"] + [f"кривая {i}" for i in range(1, len(lines) + 1)]
+        annotation_snap_combo["values"] = options
+        if annotation_snap_var.get() not in options:
+            annotation_snap_var.set("нет")
+
     def on_canvas_click(event) -> None:
         if not annotation_mode_var.get():
             return
@@ -804,16 +884,17 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             return
         if hasattr(event, "button") and event.button != 1:
             return
-        text = _format_annotation_text(event.xdata, event.ydata)
+        x_value, y_value = _apply_annotation_snap(event.xdata, event.ydata)
+        text = _format_annotation_text(x_value, y_value)
         if annotation_type_var.get() == "Свой текст" and not text:
             messagebox.showwarning(
                 "Предупреждение", "Введите текст подписи для отметки."
             )
             return
-        point = ax.scatter([event.xdata], [event.ydata], color="red", zorder=5)
+        point = ax.scatter([x_value], [y_value], color="red", zorder=5)
         label = ax.annotate(
             text,
-            (event.xdata, event.ydata),
+            (x_value, y_value),
             textcoords="offset points",
             xytext=(5, 5),
             color="red",
@@ -823,6 +904,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         _redraw_canvas()
 
     canvas.mpl_connect("button_press_event", on_canvas_click)
+    _update_annotation_snap_options()
     clear_annotations_button.config(command=clear_annotations)
 
     editor_visible = {"shown": False}
@@ -834,6 +916,10 @@ def create_tab1(notebook: ttk.Notebook) -> None:
         height=plot_editor.required_height,
     )
     plot_editor.place_forget()
+
+    def _refresh_editor_state() -> None:
+        plot_editor.refresh()
+        _update_annotation_snap_options()
 
     def reset_auto_entries() -> None:
         for entry in axis_auto_entries.values():
@@ -878,7 +964,7 @@ def create_tab1(notebook: ttk.Notebook) -> None:
                 axis_auto_entries,
                 axis_manual_entries,
             )
-            plot_editor.refresh()
+            _refresh_editor_state()
             plot_editor.reset_ranges()
             editor_height = plot_editor.required_height
             if not editor_visible["shown"]:
@@ -894,9 +980,11 @@ def create_tab1(notebook: ttk.Notebook) -> None:
             logger.info("График построен успешно")
         except ValueError as exc:
             logger.error("Ошибка построения графика", exc_info=True)
+            _refresh_editor_state()
             messagebox.showerror("Ошибка", f"Не удалось построить график:\n{exc}")
         except Exception as exc:
             logger.exception("Ошибка при построении графика")
+            _refresh_editor_state()
             messagebox.showerror(
                 "Ошибка",
                 f"Не удалось построить график:\n{exc}\nПроверьте введённые данные и попробуйте снова.",

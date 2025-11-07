@@ -500,6 +500,23 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         combo_curve_type.set("Текстовой файл")
         saved_data[i - 1]["curve_type"] = "Текстовой файл"
 
+    def _get_frequency_value(new_key: str, legacy_key: str) -> str:
+        """Возвращает сохраненное значение для параметров частотного анализа."""
+
+        value = saved_data[i - 1].get(new_key, "")
+        if not value:
+            legacy_value = saved_data[i - 1].get(legacy_key, "")
+            if legacy_value:
+                saved_data[i - 1][new_key] = legacy_value
+                value = legacy_value
+        return value
+
+    def _set_frequency_value(new_key: str, legacy_key: str, value: str) -> None:
+        """Сохраняет значение параметра частотного анализа с учетом старых ключей."""
+
+        saved_data[i - 1][new_key] = value
+        saved_data[i - 1][legacy_key] = value
+
     label_curve_typeX = ttk.Label(input_frame, text="Выберите параметр для Х:")
     combo_curve_typeX = ttk.Combobox(
         input_frame,
@@ -514,6 +531,15 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state="readonly",
     )
     combo_curve_typeX._name = f"curve_{i}_typeXF"
+    saved_curve_typeX = _get_frequency_value("curve_typeXF", "curve_typeX")
+    if saved_curve_typeX:
+        combo_curve_typeX.set(saved_curve_typeX)
+    combo_curve_typeX.bind(
+        "<<ComboboxSelected>>",
+        lambda e: _set_frequency_value(
+            "curve_typeXF", "curve_typeX", combo_curve_typeX.get()
+        ),
+    )
 
     label_curve_typeY = ttk.Label(input_frame, text="Выберите параметр для Y:")
     combo_curve_typeY = ttk.Combobox(
@@ -529,18 +555,53 @@ def create_curve_box(input_frame, i, checkbox_var, saved_data):
         state="readonly",
     )
     combo_curve_typeY._name = f"curve_{i}_typeYF"
+    saved_curve_typeY = _get_frequency_value("curve_typeYF", "curve_typeY")
+    if saved_curve_typeY:
+        combo_curve_typeY.set(saved_curve_typeY)
+    combo_curve_typeY.bind(
+        "<<ComboboxSelected>>",
+        lambda e: _set_frequency_value(
+            "curve_typeYF", "curve_typeY", combo_curve_typeY.get()
+        ),
+    )
 
     label_curve_typeX_type = ttk.Label(input_frame, text="По какой оси:")
     combo_curve_typeX_type = ttk.Combobox(
         input_frame, values=["X", "Y", "Z", "XR", "YR", "ZR"], state="readonly"
     )
     combo_curve_typeX_type._name = f"curve_{i}_typeXFtype"
+    saved_curve_typeX_type = _get_frequency_value(
+        "curve_typeXF_type", "curve_typeX_type"
+    )
+    if saved_curve_typeX_type:
+        combo_curve_typeX_type.set(saved_curve_typeX_type)
+    combo_curve_typeX_type.bind(
+        "<<ComboboxSelected>>",
+        lambda e: _set_frequency_value(
+            "curve_typeXF_type",
+            "curve_typeX_type",
+            combo_curve_typeX_type.get(),
+        ),
+    )
 
     label_curve_typeY_type = ttk.Label(input_frame, text="По какой оси:")
     combo_curve_typeY_type = ttk.Combobox(
         input_frame, values=["X", "Y", "Z", "XR", "YR", "ZR"], state="readonly"
     )
     combo_curve_typeY_type._name = f"curve_{i}_typeYFtype"
+    saved_curve_typeY_type = _get_frequency_value(
+        "curve_typeYF_type", "curve_typeY_type"
+    )
+    if saved_curve_typeY_type:
+        combo_curve_typeY_type.set(saved_curve_typeY_type)
+    combo_curve_typeY_type.bind(
+        "<<ComboboxSelected>>",
+        lambda e: _set_frequency_value(
+            "curve_typeYF_type",
+            "curve_typeY_type",
+            combo_curve_typeY_type.get(),
+        ),
+    )
 
     x_source = _build_source_section("X", input_frame, i, saved_data)
     y_source = _build_source_section("Y", input_frame, i, saved_data)
@@ -786,6 +847,10 @@ def update_curves(frame, num_curves, axis_frame, next_frame, checkbox_var, saved
             'curve_typeY': "",
             'curve_typeX_type': "",
             'curve_typeY_type': "",
+            'curve_typeXF': "",
+            'curve_typeYF': "",
+            'curve_typeXF_type': "",
+            'curve_typeYF_type': "",
             'horizontal': False,
             'use_offset': False,
             'offset_horizontal': 0,

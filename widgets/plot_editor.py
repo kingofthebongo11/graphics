@@ -316,8 +316,8 @@ class PlotEditor(ttk.Frame):
     ) -> None:
         if lower is None or upper is None:
             lower, upper = controls.slider.get()
-        controls.upper_value.set(f"До: {upper:.0f}%")
-        controls.lower_value.set(f"От: {lower:.0f}%")
+        controls.upper_value.set(f"До: {upper:.2f}%")
+        controls.lower_value.set(f"От: {lower:.2f}%")
 
     def _on_range_change(
         self, controls: _RangeWidgets, lower: float, upper: float

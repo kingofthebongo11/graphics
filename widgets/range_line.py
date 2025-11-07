@@ -51,9 +51,9 @@ class RangeLine(ttk.Frame):
 
     def set(self, lower=None, upper=None, notify=True):
         if lower is not None:
-            self.lower = max(self.from_, min(float(lower), self.to))
+            self.lower = self._quantize(self._clamp(lower))
         if upper is not None:
-            self.upper = max(self.from_, min(float(upper), self.to))
+            self.upper = self._quantize(self._clamp(upper))
         if self.lower > self.upper:
             self.lower, self.upper = self.upper, self.lower
         self._draw_dynamic()
@@ -98,6 +98,12 @@ class RangeLine(ttk.Frame):
         v = self.from_ + t * (self.to - self.from_)
         return max(self.from_, min(self.to, v))
 
+    def _clamp(self, value):
+        return max(self.from_, min(float(value), self.to))
+
+    def _quantize(self, value):
+        return round(float(value) * 100) / 100
+
     # --- события ---
     def _nearest_handle(self, x):
         xl = self._val2x(self.lower)
@@ -116,11 +122,11 @@ class RangeLine(ttk.Frame):
         self._dragging = None
 
     def _move_handle(self, which, x, notify=True):
-        v = self._x2val(x)
+        v = self._quantize(self._x2val(x))
         if which == "lower":
-            self.lower = min(v, self.upper)
+            self.lower = self._quantize(min(v, self.upper))
         else:
-            self.upper = max(v, self.lower)
+            self.upper = self._quantize(max(v, self.lower))
         self._draw_dynamic()
         if notify and self.command:
             self.command(self.lower, self.upper)

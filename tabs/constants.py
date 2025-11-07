@@ -141,6 +141,15 @@ FREQUENCY_UNIT_PAIRS = sort_unit_pairs([
 ])
 
 
+ENERGY_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
+    ("Дж", "J"),
+    ("кДж", "kJ"),
+    ("МДж", "MJ"),
+    ("Другое", "Other"),
+])
+
+
 UNITS_PAIRS = {
     "Время": TIME_UNIT_PAIRS,
     "Перемещение по X": LENGTH_UNIT_PAIRS,
@@ -184,6 +193,9 @@ UNITS_PAIRS = {
     "Частота 1": FREQUENCY_UNIT_PAIRS,
     "Частота 2": FREQUENCY_UNIT_PAIRS,
     "Частота 3": FREQUENCY_UNIT_PAIRS,
+    "Кинетическая энергия": ENERGY_UNIT_PAIRS,
+    "Потенциальная энергия": ENERGY_UNIT_PAIRS,
+    "Полная энергия": ENERGY_UNIT_PAIRS,
     "Другое": [],
 }
 
@@ -240,6 +252,9 @@ DEFAULT_UNITS = {
     "Частота 1": "Гц",
     "Частота 2": "Гц",
     "Частота 3": "Гц",
+    "Кинетическая энергия": "Дж",
+    "Потенциальная энергия": "Дж",
+    "Полная энергия": "Дж",
 }
 
 PHYSICAL_QUANTITIES = sort_options(
@@ -287,6 +302,9 @@ PHYSICAL_QUANTITIES = sort_options(
         "Частота 1",
         "Частота 2",
         "Частота 3",
+        "Кинетическая энергия",
+        "Потенциальная энергия",
+        "Полная энергия",
         "Другое",
     ]
 )
@@ -335,6 +353,9 @@ PHYSICAL_QUANTITIES_TRANSLATION = {
     "Частота 1": "Frequency 1",
     "Частота 2": "Frequency 2",
     "Частота 3": "Frequency 3",
+    "Кинетическая энергия": "Kinetic energy",
+    "Потенциальная энергия": "Potential energy",
+    "Полная энергия": "Total energy",
     "Другое": "Other",
 }
 
@@ -403,6 +424,9 @@ DEFAULT_UNITS_EN = {
     "Frequency 1": "Hz",
     "Frequency 2": "Hz",
     "Frequency 3": "Hz",
+    "Kinetic energy": "J",
+    "Potential energy": "J",
+    "Total energy": "J",
 }
 
 # Подписи осей с обычным курсивом
@@ -466,6 +490,18 @@ TITLE_TRANSLATIONS = {
         "Английский": r"Shear force $\mathit{Q}_{\mathit{z}}$",
     },
     "Масса": {"Русский": r"Масса $\mathit{m}$", "Английский": r"Mass $\mathit{m}$"},
+    "Кинетическая энергия": {
+        "Русский": r"Кинетическая энергия $\mathit{E}_{\mathit{k}}$",
+        "Английский": r"Kinetic energy $\mathit{E}_{\mathit{k}}$",
+    },
+    "Потенциальная энергия": {
+        "Русский": r"Потенциальная энергия $\mathit{E}_{\mathit{p}}$",
+        "Английский": r"Potential energy $\mathit{E}_{\mathit{p}}$",
+    },
+    "Полная энергия": {
+        "Русский": r"Полная энергия $\mathit{E}$",
+        "Английский": r"Total energy $\mathit{E}$",
+    },
     "Напряжение": {
         "Русский": r"Напряжение \upsigma",
         "Английский": r"Stress \upsigma",

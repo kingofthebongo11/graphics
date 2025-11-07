@@ -11,6 +11,7 @@ from tabs.constants import (
     STRESS_UNITS_PAIRS,
     MOMENT_UNIT_PAIRS,
     FREQUENCY_UNIT_PAIRS,
+    ENERGY_UNIT_PAIRS,
 )
 
 
@@ -51,6 +52,18 @@ class ComboStub:
         (
             "Частота 1",
             [(ru, en) for ru, en in FREQUENCY_UNIT_PAIRS if ru != "Нет"],
+        ),
+        (
+            "Кинетическая энергия",
+            [(ru, en) for ru, en in ENERGY_UNIT_PAIRS if ru != "Нет"],
+        ),
+        (
+            "Потенциальная энергия",
+            [(ru, en) for ru, en in ENERGY_UNIT_PAIRS if ru != "Нет"],
+        ),
+        (
+            "Полная энергия",
+            [(ru, en) for ru, en in ENERGY_UNIT_PAIRS if ru != "Нет"],
         ),
     ],
 )

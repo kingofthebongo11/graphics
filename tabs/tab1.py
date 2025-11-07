@@ -198,14 +198,31 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     content_frame = ttk.Frame(scroll_canvas)
     content_window = scroll_canvas.create_window((0, 0), window=content_frame, anchor="nw")
 
-    def _update_scrollregion(_event=None) -> None:
-        scroll_canvas.configure(scrollregion=scroll_canvas.bbox("all"))
+    def _refresh_scrollregion() -> None:
+        """Обновляет размеры прокручиваемого содержимого."""
 
-    def _update_canvas_width(event) -> None:
-        scroll_canvas.itemconfigure(content_window, width=event.width)
+        content_frame.update_idletasks()
+        children = [child for child in content_frame.winfo_children() if child.winfo_ismapped()]
+        if children:
+            max_width = max(child.winfo_x() + child.winfo_width() for child in children)
+            max_height = max(child.winfo_y() + child.winfo_height() for child in children)
+        else:
+            max_width = max_height = 0
 
-    content_frame.bind("<Configure>", _update_scrollregion)
-    scroll_canvas.bind("<Configure>", _update_canvas_width)
+        required_width = max_width + ui_const.PADDING
+        required_height = max_height + ui_const.PADDING
+        canvas_width = scroll_canvas.winfo_width()
+
+        content_width = max(canvas_width, required_width)
+        content_frame.configure(width=content_width, height=required_height)
+        scroll_canvas.itemconfigure(content_window, width=content_width, height=required_height)
+        scroll_canvas.configure(scrollregion=(0, 0, content_width, required_height))
+
+    def _schedule_refresh(_event=None) -> None:
+        scroll_canvas.after_idle(_refresh_scrollregion)
+
+    content_frame.bind("<Configure>", _schedule_refresh)
+    scroll_canvas.bind("<Configure>", _schedule_refresh)
 
     def _on_mousewheel(event) -> None:
         if event.delta:
@@ -889,3 +906,5 @@ def create_tab1(notebook: ttk.Notebook) -> None:
     )
     checkbox.place(x=ui_const.CHECKBOX_X, y=ui_const.CURVE_LABEL_Y)
     toggle_legend_title_visibility()
+
+    scroll_canvas.after_idle(_refresh_scrollregion)

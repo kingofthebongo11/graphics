@@ -141,11 +141,45 @@ FREQUENCY_UNIT_PAIRS = sort_unit_pairs([
 ])
 
 
+ENERGY_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
+    ("Дж", "J"),
+    ("кДж", "kJ"),
+    ("МДж", "MJ"),
+    ("Другое", "Other"),
+])
+
+
+VELOCITY_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
+    ("мм/с", "mm/s"),
+    ("см/с", "cm/s"),
+    ("м/с", "m/s"),
+    ("км/ч", "km/h"),
+    ("Другое", "Other"),
+])
+
+
+ACCELERATION_UNIT_PAIRS = sort_unit_pairs([
+    ("Нет", "None"),
+    ("мм/с²", "mm/s²"),
+    ("см/с²", "cm/s²"),
+    ("м/с²", "m/s²"),
+    ("g", "g"),
+    ("Другое", "Other"),
+])
+
+
 UNITS_PAIRS = {
     "Время": TIME_UNIT_PAIRS,
     "Перемещение по X": LENGTH_UNIT_PAIRS,
     "Перемещение по Y": LENGTH_UNIT_PAIRS,
     "Перемещение по Z": LENGTH_UNIT_PAIRS,
+    "Результирующее перемещение (модуль)": LENGTH_UNIT_PAIRS,
+    "Координата X": LENGTH_UNIT_PAIRS,
+    "Координата Y": LENGTH_UNIT_PAIRS,
+    "Координата Z": LENGTH_UNIT_PAIRS,
+    "Суммарная координата (модуль)": LENGTH_UNIT_PAIRS,
     "Удлинение": LENGTH_UNIT_PAIRS,
     "Удлинение по X": LENGTH_UNIT_PAIRS,
     "Удлинение по Y": LENGTH_UNIT_PAIRS,
@@ -184,6 +218,17 @@ UNITS_PAIRS = {
     "Частота 1": FREQUENCY_UNIT_PAIRS,
     "Частота 2": FREQUENCY_UNIT_PAIRS,
     "Частота 3": FREQUENCY_UNIT_PAIRS,
+    "Скорость по X": VELOCITY_UNIT_PAIRS,
+    "Скорость по Y": VELOCITY_UNIT_PAIRS,
+    "Скорость по Z": VELOCITY_UNIT_PAIRS,
+    "Результирующая скорость (модуль)": VELOCITY_UNIT_PAIRS,
+    "Ускорение по X": ACCELERATION_UNIT_PAIRS,
+    "Ускорение по Y": ACCELERATION_UNIT_PAIRS,
+    "Ускорение по Z": ACCELERATION_UNIT_PAIRS,
+    "Результирующее ускорение (модуль)": ACCELERATION_UNIT_PAIRS,
+    "Кинетическая энергия": ENERGY_UNIT_PAIRS,
+    "Потенциальная энергия": ENERGY_UNIT_PAIRS,
+    "Полная энергия": ENERGY_UNIT_PAIRS,
     "Другое": [],
 }
 
@@ -202,6 +247,11 @@ DEFAULT_UNITS = {
     "Перемещение по X": "м",
     "Перемещение по Y": "м",
     "Перемещение по Z": "м",
+    "Результирующее перемещение (модуль)": "м",
+    "Координата X": "м",
+    "Координата Y": "м",
+    "Координата Z": "м",
+    "Суммарная координата (модуль)": "м",
     "Удлинение": "м",
     "Удлинение по X": "м",
     "Удлинение по Y": "м",
@@ -240,6 +290,17 @@ DEFAULT_UNITS = {
     "Частота 1": "Гц",
     "Частота 2": "Гц",
     "Частота 3": "Гц",
+    "Скорость по X": "м/с",
+    "Скорость по Y": "м/с",
+    "Скорость по Z": "м/с",
+    "Результирующая скорость (модуль)": "м/с",
+    "Ускорение по X": "м/с²",
+    "Ускорение по Y": "м/с²",
+    "Ускорение по Z": "м/с²",
+    "Результирующее ускорение (модуль)": "м/с²",
+    "Кинетическая энергия": "Дж",
+    "Потенциальная энергия": "Дж",
+    "Полная энергия": "Дж",
 }
 
 PHYSICAL_QUANTITIES = sort_options(
@@ -270,15 +331,28 @@ PHYSICAL_QUANTITIES = sort_options(
         "Нормальное напряжение X",
         "Нормальное напряжение Y",
         "Нормальное напряжение Z",
+        "Координата X",
+        "Координата Y",
+        "Координата Z",
+        "Суммарная координата (модуль)",
         "Перемещение по X",
         "Перемещение по Y",
         "Перемещение по Z",
+        "Результирующее перемещение (модуль)",
         "Пластическая деформация",
         "Поперечная сила",
         "Поперечная сила по Y",
         "Поперечная сила по Z",
         "Продольная сила",
         "Сила",
+        "Скорость по X",
+        "Скорость по Y",
+        "Скорость по Z",
+        "Результирующая скорость (модуль)",
+        "Ускорение по X",
+        "Ускорение по Y",
+        "Ускорение по Z",
+        "Результирующее ускорение (модуль)",
         "Удлинение",
         "Удлинение по X",
         "Удлинение по Y",
@@ -287,6 +361,9 @@ PHYSICAL_QUANTITIES = sort_options(
         "Частота 1",
         "Частота 2",
         "Частота 3",
+        "Кинетическая энергия",
+        "Потенциальная энергия",
+        "Полная энергия",
         "Другое",
     ]
 )
@@ -318,15 +395,28 @@ PHYSICAL_QUANTITIES_TRANSLATION = {
     "Нормальное напряжение X": "Normal stress X",
     "Нормальное напряжение Y": "Normal stress Y",
     "Нормальное напряжение Z": "Normal stress Z",
+    "Координата X": "Coordinate X",
+    "Координата Y": "Coordinate Y",
+    "Координата Z": "Coordinate Z",
+    "Суммарная координата (модуль)": "Total coordinate (magnitude)",
     "Перемещение по X": "Displacement X",
     "Перемещение по Y": "Displacement Y",
     "Перемещение по Z": "Displacement Z",
+    "Результирующее перемещение (модуль)": "Resultant displacement (magnitude)",
     "Пластическая деформация": "Plastic strain",
     "Поперечная сила": "Shear force",
     "Поперечная сила по Y": "Shear force Y",
     "Поперечная сила по Z": "Shear force Z",
     "Продольная сила": "Axial force",
     "Сила": "Force",
+    "Скорость по X": "Velocity X",
+    "Скорость по Y": "Velocity Y",
+    "Скорость по Z": "Velocity Z",
+    "Результирующая скорость (модуль)": "Resultant velocity (magnitude)",
+    "Ускорение по X": "Acceleration X",
+    "Ускорение по Y": "Acceleration Y",
+    "Ускорение по Z": "Acceleration Z",
+    "Результирующее ускорение (модуль)": "Resultant acceleration (magnitude)",
     "Удлинение": "Elongation",
     "Удлинение по X": "Elongation X",
     "Удлинение по Y": "Elongation Y",
@@ -335,6 +425,9 @@ PHYSICAL_QUANTITIES_TRANSLATION = {
     "Частота 1": "Frequency 1",
     "Частота 2": "Frequency 2",
     "Частота 3": "Frequency 3",
+    "Кинетическая энергия": "Kinetic energy",
+    "Потенциальная энергия": "Potential energy",
+    "Полная энергия": "Total energy",
     "Другое": "Other",
 }
 
@@ -367,6 +460,11 @@ DEFAULT_UNITS_EN = {
     "Displacement X": "m",
     "Displacement Y": "m",
     "Displacement Z": "m",
+    "Resultant displacement (magnitude)": "m",
+    "Coordinate X": "m",
+    "Coordinate Y": "m",
+    "Coordinate Z": "m",
+    "Total coordinate (magnitude)": "m",
     "Elongation": "m",
     "Elongation X": "m",
     "Elongation Y": "m",
@@ -403,6 +501,17 @@ DEFAULT_UNITS_EN = {
     "Frequency 1": "Hz",
     "Frequency 2": "Hz",
     "Frequency 3": "Hz",
+    "Velocity X": "m/s",
+    "Velocity Y": "m/s",
+    "Velocity Z": "m/s",
+    "Resultant velocity (magnitude)": "m/s",
+    "Acceleration X": "m/s²",
+    "Acceleration Y": "m/s²",
+    "Acceleration Z": "m/s²",
+    "Resultant acceleration (magnitude)": "m/s²",
+    "Kinetic energy": "J",
+    "Potential energy": "J",
+    "Total energy": "J",
 }
 
 # Подписи осей с обычным курсивом
@@ -419,6 +528,26 @@ TITLE_TRANSLATIONS = {
     "Перемещение по Z": {
         "Русский": r"Перемещение $\mathit{z}$",
         "Английский": r"Displacement $\mathit{z}$",
+    },
+    "Результирующее перемещение (модуль)": {
+        "Русский": r"Результирующее перемещение $\left|\vec{u}\right|$",
+        "Английский": r"Resultant displacement $\left|\vec{u}\right|$",
+    },
+    "Координата X": {
+        "Русский": r"Координата $\mathit{x}$",
+        "Английский": r"Coordinate $\mathit{x}$",
+    },
+    "Координата Y": {
+        "Русский": r"Координата $\mathit{y}$",
+        "Английский": r"Coordinate $\mathit{y}$",
+    },
+    "Координата Z": {
+        "Русский": r"Координата $\mathit{z}$",
+        "Английский": r"Coordinate $\mathit{z}$",
+    },
+    "Суммарная координата (модуль)": {
+        "Русский": r"Суммарная координата $\left|\vec{r}\right|$",
+        "Английский": r"Total coordinate $\left|\vec{r}\right|$",
     },
     "Удлинение": {
         "Русский": r"Удлинение $\Delta \mathit{l}$",
@@ -466,6 +595,50 @@ TITLE_TRANSLATIONS = {
         "Английский": r"Shear force $\mathit{Q}_{\mathit{z}}$",
     },
     "Масса": {"Русский": r"Масса $\mathit{m}$", "Английский": r"Mass $\mathit{m}$"},
+    "Кинетическая энергия": {
+        "Русский": r"Кинетическая энергия $\mathit{E}_{\mathit{k}}$",
+        "Английский": r"Kinetic energy $\mathit{E}_{\mathit{k}}$",
+    },
+    "Потенциальная энергия": {
+        "Русский": r"Потенциальная энергия $\mathit{E}_{\mathit{p}}$",
+        "Английский": r"Potential energy $\mathit{E}_{\mathit{p}}$",
+    },
+    "Полная энергия": {
+        "Русский": r"Полная энергия $\mathit{E}$",
+        "Английский": r"Total energy $\mathit{E}$",
+    },
+    "Скорость по X": {
+        "Русский": r"Скорость $\mathit{v}_{\mathit{x}}$",
+        "Английский": r"Velocity $\mathit{v}_{\mathit{x}}$",
+    },
+    "Скорость по Y": {
+        "Русский": r"Скорость $\mathit{v}_{\mathit{y}}$",
+        "Английский": r"Velocity $\mathit{v}_{\mathit{y}}$",
+    },
+    "Скорость по Z": {
+        "Русский": r"Скорость $\mathit{v}_{\mathit{z}}$",
+        "Английский": r"Velocity $\mathit{v}_{\mathit{z}}$",
+    },
+    "Результирующая скорость (модуль)": {
+        "Русский": r"Результирующая скорость $\left|\vec{v}\right|$",
+        "Английский": r"Resultant velocity $\left|\vec{v}\right|$",
+    },
+    "Ускорение по X": {
+        "Русский": r"Ускорение $\mathit{a}_{\mathit{x}}$",
+        "Английский": r"Acceleration $\mathit{a}_{\mathit{x}}$",
+    },
+    "Ускорение по Y": {
+        "Русский": r"Ускорение $\mathit{a}_{\mathit{y}}$",
+        "Английский": r"Acceleration $\mathit{a}_{\mathit{y}}$",
+    },
+    "Ускорение по Z": {
+        "Русский": r"Ускорение $\mathit{a}_{\mathit{z}}$",
+        "Английский": r"Acceleration $\mathit{a}_{\mathit{z}}$",
+    },
+    "Результирующее ускорение (модуль)": {
+        "Русский": r"Результирующее ускорение $\left|\vec{a}\right|$",
+        "Английский": r"Resultant acceleration $\left|\vec{a}\right|$",
+    },
     "Напряжение": {
         "Русский": r"Напряжение \upsigma",
         "Английский": r"Stress \upsigma",

@@ -24,13 +24,13 @@ def test_collect_commands():
 
 
 def test_walk_tree_and_build_commands(tmp_path):
-    analysis = AnalysisType.TIME_AXIAL_FORCE.value
+    analysis = AnalysisType.TIME_NODE_DISPLACEMENT_X.value
     entity = EntityNode(
         user_name="user",
-        entity_kind="node",
+        entity_kind="nodal",
         children=[AnalysisNode(analysis, children=[FileNode(1)])],
     )
-    numbered = f"1-{encode_topfolder('user', 'node')}"
+    numbered = f"1-{encode_topfolder('user', 'nodal')}"
     folder_map = {(0, 0): f"1-{analysis}"}
     commands = walk_tree_and_build_commands(
         [entity],
@@ -45,7 +45,24 @@ def test_walk_tree_and_build_commands(tmp_path):
     assert commands == [
         "genselect clear all",
         "genselect node add node 1",
+        "ntime 5",
         f'xyplot 1 savefile curve_file "{expected_path}" 1 all',
         "xyplot 1 donemenu",
         "deletewin 1",
     ]
+
+
+def test_walk_tree_and_build_commands_handles_global(tmp_path):
+    entity = EntityNode(
+        user_name="global",
+        entity_kind="none",
+        children=[
+            AnalysisNode(AnalysisType.TIME_GLOBAL_KINETIC_ENERGY.value, children=[])
+        ],
+    )
+    numbered = f"1-{encode_topfolder('global', 'none')}"
+    commands = walk_tree_and_build_commands(
+        [entity], base_project_dir=tmp_path, top_folder_names=[numbered]
+    )
+    assert commands[0] == "genselect clear all"
+    assert commands[1] == "gtime 1"

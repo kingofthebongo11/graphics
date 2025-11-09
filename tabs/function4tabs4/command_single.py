@@ -35,11 +35,17 @@ SELECT_TEMPLATES: Dict[Tuple[str, str | None], List[str]] = {
         "genselect solid add solid {element_id}/0",
         "etype {etype} ;etime {etime}",
     ],
-    ("node", None): [
+    ("nodal", None): [
         "genselect clear all",
         "genselect node add node {element_id}",
+        "ntime {ntime}",
     ],
 }
+
+GLOBAL_TEMPLATE: List[str] = [
+    "genselect clear all",
+    "gtime {gtime}",
+]
 
 
 def build_command(name: str, props: Dict[str, Any]) -> str:
@@ -70,14 +76,14 @@ def build_curve_commands(
         raise ValueError("analysis_type must be non-empty")
     if element_id <= 0:
         raise ValueError("element_id must be positive")
-    if entity_kind not in {"element", "node"}:
+    if entity_kind not in {"element", "nodal"}:
         raise ValueError("unknown entity_kind")
     if entity_kind == "element":
         if element_type not in {"beam", "shell", "solid"}:
             raise ValueError("invalid element_type for element")
     else:
         if element_type is not None:
-            raise ValueError("element_type must be None for node")
+            raise ValueError("element_type must be None for nodal")
 
     key = (entity_kind, element_type)
     try:
@@ -93,16 +99,19 @@ def build_curve_commands(
             raise ValueError("unsupported element_type") from exc
 
     try:
-        if element_type is None:
-            etime = ANALYSIS_TYPE_CODES["beam"][analysis_type]
-        else:
-            etime = ANALYSIS_TYPE_CODES[element_type][analysis_type]
+        code = ANALYSIS_TYPE_CODES[key][analysis_type]
     except KeyError as exc:
         raise ValueError("unsupported analysis_type") from exc
 
-    select_cmds = [
-        cmd.format(element_id=element_id, etype=etype, etime=etime) for cmd in template
-    ]
+    format_args: Dict[str, Any] = {"element_id": element_id}
+    if etype is not None:
+        format_args["etype"] = etype
+    if entity_kind == "element":
+        format_args["etime"] = code
+    else:
+        format_args["ntime"] = code
+
+    select_cmds = [cmd.format(**format_args) for cmd in template]
 
     curve_path = PureWindowsPath(
         base_project_dir,
@@ -121,4 +130,41 @@ def build_curve_commands(
     return select_cmds + save_cmds
 
 
-__all__ = ["build_command", "build_curve_commands"]
+def build_global_curve_commands(
+    base_project_dir: str,
+    top_folder_name: str,
+    analysis_type: str,
+    curves_dirname: str = "curves",
+    analysis_dirname: str | None = None,
+) -> List[str]:
+    """Построить команды для глобальных графиков энергий."""
+
+    if not analysis_type:
+        raise ValueError("analysis_type must be non-empty")
+
+    key = ("none", None)
+    try:
+        gtime = ANALYSIS_TYPE_CODES[key][analysis_type]
+    except KeyError as exc:
+        raise ValueError("unsupported analysis_type") from exc
+
+    select_cmds = [cmd.format(gtime=gtime) for cmd in GLOBAL_TEMPLATE]
+
+    curve_path = PureWindowsPath(
+        base_project_dir,
+        curves_dirname,
+        top_folder_name,
+        analysis_dirname or analysis_type,
+        f"{gtime}.txt",
+    )
+
+    save_cmds = [
+        f'xyplot 1 savefile curve_file "{curve_path}" 1 all',
+        "xyplot 1 donemenu",
+        "deletewin 1",
+    ]
+
+    return select_cmds + save_cmds
+
+
+__all__ = ["build_command", "build_curve_commands", "build_global_curve_commands"]

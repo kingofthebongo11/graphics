@@ -64,7 +64,7 @@ def test_tree_from_gui_basic():
 def test_tree_from_gui_duplicate_ids():
     tree = FakeTreeWidget([
         FakeItem("user", [
-            FakeItem("node", [
+            FakeItem("nodal", [
                 FakeItem("static", [FakeItem("1"), FakeItem("1")])
             ])
         ])
@@ -76,7 +76,7 @@ def test_tree_from_gui_duplicate_ids():
 def test_tree_from_gui_invalid_analysis():
     tree = FakeTreeWidget([
         FakeItem("user", [
-            FakeItem("node", [
+            FakeItem("nodal", [
                 FakeItem("unknown", [FakeItem("1")])
             ])
         ])

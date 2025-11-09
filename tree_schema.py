@@ -5,13 +5,13 @@ from typing import Literal
 
 from analysis_types import ANALYSIS_TYPES
 
-EntityKind = Literal["element", "node"]
+EntityKind = Literal["element", "nodal", "none"]
 ElementType = Literal["beam", "shell", "solid"]
 
 
 @dataclass
 class FileNode:
-    """Leaf node that represents a particular element or node."""
+    """Leaf node that represents a particular element or nodal point."""
 
     id: int
 
@@ -46,7 +46,7 @@ class AnalysisNode:
 
 @dataclass
 class EntityNode:
-    """Top-level node representing an entity (element or node)."""
+    """Top-level node representing an entity (element, nodal or none)."""
 
     user_name: str
     entity_kind: EntityKind

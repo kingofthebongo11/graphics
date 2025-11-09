@@ -7,7 +7,7 @@ def test_scan_curves_collects_files(tmp_path):
     (pilon_analysis_dir / "file.png").touch()
     (pilon_analysis_dir / "file.txt").touch()
 
-    uzli_analysis_dir = tmp_path / "2-uzli-node" / "3-dynamic"
+    uzli_analysis_dir = tmp_path / "2-uzli-nodal" / "3-dynamic"
     uzli_analysis_dir.mkdir(parents=True)
     (uzli_analysis_dir / "file.png").touch()
     (uzli_analysis_dir / "file.txt").touch()
@@ -19,7 +19,7 @@ def test_scan_curves_collects_files(tmp_path):
                 str(pilon_analysis_dir / "file.txt"),
             ],
         },
-        "2-uzli-node": {
+        "2-uzli-nodal": {
             "dynamic": [
                 str(uzli_analysis_dir / "file.png"),
                 str(uzli_analysis_dir / "file.txt"),
@@ -44,7 +44,7 @@ def test_scan_curves_empty_or_missing(tmp_path):
     # Топ-папка с пустой подпапкой анализа
     (tmp_path / "1-pilon-element-beam" / "2-static").mkdir(parents=True)
     # Топ-папка без подпапок анализа
-    (tmp_path / "02-uzli-node").mkdir()
+    (tmp_path / "02-uzli-nodal").mkdir()
 
     result, errors = scan_curves(tmp_path)
 
@@ -52,7 +52,7 @@ def test_scan_curves_empty_or_missing(tmp_path):
     assert sorted(errors) == sorted(
         [
             "Подпапка анализа 'static' в топ-папке '1-pilon-element-beam' не содержит файлов",
-            "Топ-папка '02-uzli-node' не содержит подпапок анализов",
+            "Топ-папка '02-uzli-nodal' не содержит подпапок анализов",
         ]
     )
 

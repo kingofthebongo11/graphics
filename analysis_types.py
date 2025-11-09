@@ -24,6 +24,50 @@ class AnalysisType(str, Enum):
     TIME_BENDING_MOMENT_MX = "Время - Изгибающий момент Mx(п)"
     TIME_BENDING_MOMENT_MY = "Время - Изгибающий момент My(п)"
     TIME_BENDING_MOMENT_MXY = "Время - Изгибающий момент Mxy(п)"
+    TIME_GLOBAL_KINETIC_ENERGY = "Время - Кинетическая энергия"
+    TIME_GLOBAL_POTENTIAL_ENERGY = "Время - Потенциальная энергия"
+    TIME_GLOBAL_TOTAL_ENERGY = "Время - Полная энергия"
+    TIME_NODE_COORDINATE_X = "Время - Координата X"
+    TIME_NODE_COORDINATE_Y = "Время - Координата Y"
+    TIME_NODE_COORDINATE_Z = "Время - Координата Z"
+    TIME_NODE_COORDINATE_TOTAL = "Время - Суммарная координата (модуль)"
+    TIME_NODE_DISPLACEMENT_X = "Время - Перемещение по X"
+    TIME_NODE_DISPLACEMENT_Y = "Время - Перемещение по Y"
+    TIME_NODE_DISPLACEMENT_Z = "Время - Перемещение по Z"
+    TIME_NODE_DISPLACEMENT_TOTAL = "Время - Результирующее перемещение (модуль)"
+    TIME_NODE_VELOCITY_X = "Время - Скорость по X"
+    TIME_NODE_VELOCITY_Y = "Время - Скорость по Y"
+    TIME_NODE_VELOCITY_Z = "Время - Скорость по Z"
+    TIME_NODE_VELOCITY_TOTAL = "Время - Результирующая скорость (модуль)"
+    TIME_NODE_ACCELERATION_X = "Время - Ускорение по X"
+    TIME_NODE_ACCELERATION_Y = "Время - Ускорение по Y"
+    TIME_NODE_ACCELERATION_Z = "Время - Ускорение по Z"
+    TIME_NODE_ACCELERATION_TOTAL = "Время - Результирующее ускорение (модуль)"
+    TIME_SOLID_STRESS_X = "Время - Напряжение по X"
+    TIME_SOLID_STRESS_Y = "Время - Напряжение по Y"
+    TIME_SOLID_STRESS_Z = "Время - Напряжение по Z"
+    TIME_SOLID_SHEAR_STRESS_XY = "Время - Напряжение по XY (сдвиг)"
+    TIME_SOLID_SHEAR_STRESS_YZ = "Время - Напряжение по YZ (сдвиг)"
+    TIME_SOLID_SHEAR_STRESS_ZX = "Время - Напряжение по ZX (сдвиг)"
+    TIME_SOLID_EQUIVALENT_PLASTIC_STRAIN = (
+        "Время - Эквивалентная пластическая деформация"
+    )
+    TIME_SOLID_EQUIVALENT_STRESS = "Время - Эквивалентное напряжение (по Мизесу)"
+    TIME_SOLID_MAX_DEVIATORIC_PRINCIPAL_STRESS = (
+        "Время - Максимальное главное девиаторное напряжение"
+    )
+    TIME_SOLID_SECOND_DEVIATORIC_PRINCIPAL_STRESS = (
+        "Время - Второе главное девиаторное напряжение"
+    )
+    TIME_SOLID_MIN_DEVIATORIC_PRINCIPAL_STRESS = (
+        "Время - Минимальное главное девиаторное напряжение"
+    )
+    TIME_SOLID_MAX_SHEAR_STRESS_TRESCA = (
+        "Время - Наибольшее касательное напряжение (Треска)"
+    )
+    TIME_SOLID_MAX_PRINCIPAL_STRESS = "Время - Максимальное главное напряжение (σ₁)"
+    TIME_SOLID_SECOND_PRINCIPAL_STRESS = "Время - Второе главное напряжение (σ₂)"
+    TIME_SOLID_MIN_PRINCIPAL_STRESS = "Время - Минимальное главное напряжение (σ₃)"
 
     @classmethod
     def list(cls) -> list[str]:
@@ -63,16 +107,70 @@ ANALYSIS_TYPES_SHELL: list[str] = [
     AnalysisType.TIME_BENDING_MOMENT_MXY.value,
 ]
 
-# Карта доступных типов анализа для разных типов элементов.
-ANALYSIS_TYPES_BY_ELEMENT: dict[str | None, list[str]] = {
-    "beam": ANALYSIS_TYPES_BEAM,
-    "shell": ANALYSIS_TYPES_SHELL,
-    "node": [],
+ANALYSIS_TYPES_SOLID: list[str] = [
+    AnalysisType.TIME_SOLID_STRESS_X.value,
+    AnalysisType.TIME_SOLID_STRESS_Y.value,
+    AnalysisType.TIME_SOLID_STRESS_Z.value,
+    AnalysisType.TIME_SOLID_SHEAR_STRESS_XY.value,
+    AnalysisType.TIME_SOLID_SHEAR_STRESS_YZ.value,
+    AnalysisType.TIME_SOLID_SHEAR_STRESS_ZX.value,
+    AnalysisType.TIME_SOLID_EQUIVALENT_PLASTIC_STRAIN.value,
+    AnalysisType.TIME_PRESSURE.value,
+    AnalysisType.TIME_SOLID_EQUIVALENT_STRESS.value,
+    AnalysisType.TIME_SOLID_MAX_DEVIATORIC_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_SECOND_DEVIATORIC_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_MIN_DEVIATORIC_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_MAX_SHEAR_STRESS_TRESCA.value,
+    AnalysisType.TIME_SOLID_MAX_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_SECOND_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_SOLID_MIN_PRINCIPAL_STRESS.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_X.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_Y.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_Z.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_TOTAL.value,
+    AnalysisType.TIME_NODE_VELOCITY_X.value,
+    AnalysisType.TIME_NODE_VELOCITY_Y.value,
+    AnalysisType.TIME_NODE_VELOCITY_Z.value,
+    AnalysisType.TIME_NODE_VELOCITY_TOTAL.value,
+]
+
+ANALYSIS_TYPES_GLOBAL: list[str] = [
+    AnalysisType.TIME_GLOBAL_KINETIC_ENERGY.value,
+    AnalysisType.TIME_GLOBAL_POTENTIAL_ENERGY.value,
+    AnalysisType.TIME_GLOBAL_TOTAL_ENERGY.value,
+]
+
+ANALYSIS_TYPES_NODAL: list[str] = [
+    AnalysisType.TIME_NODE_COORDINATE_X.value,
+    AnalysisType.TIME_NODE_COORDINATE_Y.value,
+    AnalysisType.TIME_NODE_COORDINATE_Z.value,
+    AnalysisType.TIME_NODE_COORDINATE_TOTAL.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_X.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_Y.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_Z.value,
+    AnalysisType.TIME_NODE_DISPLACEMENT_TOTAL.value,
+    AnalysisType.TIME_NODE_VELOCITY_X.value,
+    AnalysisType.TIME_NODE_VELOCITY_Y.value,
+    AnalysisType.TIME_NODE_VELOCITY_Z.value,
+    AnalysisType.TIME_NODE_VELOCITY_TOTAL.value,
+    AnalysisType.TIME_NODE_ACCELERATION_X.value,
+    AnalysisType.TIME_NODE_ACCELERATION_Y.value,
+    AnalysisType.TIME_NODE_ACCELERATION_Z.value,
+    AnalysisType.TIME_NODE_ACCELERATION_TOTAL.value,
+]
+
+# Карта доступных типов анализа для разных комбинаций сущностей.
+ANALYSIS_TYPES_BY_ENTITY: dict[tuple[str, str | None], list[str]] = {
+    ("element", "beam"): ANALYSIS_TYPES_BEAM,
+    ("element", "shell"): ANALYSIS_TYPES_SHELL,
+    ("element", "solid"): ANALYSIS_TYPES_SOLID,
+    ("nodal", None): ANALYSIS_TYPES_NODAL,
+    ("none", None): ANALYSIS_TYPES_GLOBAL,
 }
 
 # Соответствие названия анализа номеру команды etime для разных типов элементов.
-ANALYSIS_TYPE_CODES: dict[str, dict[str, int]] = {
-    "beam": {
+ANALYSIS_TYPE_CODES: dict[tuple[str, str | None], dict[str, int]] = {
+    ("element", "beam"): {
         AnalysisType.TIME_AXIAL_FORCE.value: 1,
         AnalysisType.TIME_SHEAR_FORCE_Y.value: 2,
         AnalysisType.TIME_SHEAR_FORCE_Z.value: 3,
@@ -86,7 +184,7 @@ ANALYSIS_TYPE_CODES: dict[str, dict[str, int]] = {
         AnalysisType.TIME_ELONGATION.value: 11,
         AnalysisType.TIME_STRESS_INTENSITY.value: 12,
     },
-    "shell": {
+    ("element", "shell"): {
         AnalysisType.TIME_NORMAL_STRESS_X.value: 1,
         AnalysisType.TIME_NORMAL_STRESS_Y.value: 2,
         AnalysisType.TIME_NORMAL_STRESS_Z.value: 3,
@@ -100,6 +198,55 @@ ANALYSIS_TYPE_CODES: dict[str, dict[str, int]] = {
         AnalysisType.TIME_BENDING_MOMENT_MY.value: 27,
         AnalysisType.TIME_BENDING_MOMENT_MXY.value: 28,
     },
+    ("element", "solid"): {
+        AnalysisType.TIME_SOLID_STRESS_X.value: 1,
+        AnalysisType.TIME_SOLID_STRESS_Y.value: 2,
+        AnalysisType.TIME_SOLID_STRESS_Z.value: 3,
+        AnalysisType.TIME_SOLID_SHEAR_STRESS_XY.value: 4,
+        AnalysisType.TIME_SOLID_SHEAR_STRESS_YZ.value: 5,
+        AnalysisType.TIME_SOLID_SHEAR_STRESS_ZX.value: 6,
+        AnalysisType.TIME_SOLID_EQUIVALENT_PLASTIC_STRAIN.value: 7,
+        AnalysisType.TIME_PRESSURE.value: 8,
+        AnalysisType.TIME_SOLID_EQUIVALENT_STRESS.value: 9,
+        AnalysisType.TIME_SOLID_MAX_DEVIATORIC_PRINCIPAL_STRESS.value: 10,
+        AnalysisType.TIME_SOLID_SECOND_DEVIATORIC_PRINCIPAL_STRESS.value: 11,
+        AnalysisType.TIME_SOLID_MIN_DEVIATORIC_PRINCIPAL_STRESS.value: 12,
+        AnalysisType.TIME_SOLID_MAX_SHEAR_STRESS_TRESCA.value: 13,
+        AnalysisType.TIME_SOLID_MAX_PRINCIPAL_STRESS.value: 14,
+        AnalysisType.TIME_SOLID_SECOND_PRINCIPAL_STRESS.value: 15,
+        AnalysisType.TIME_SOLID_MIN_PRINCIPAL_STRESS.value: 16,
+        AnalysisType.TIME_NODE_DISPLACEMENT_X.value: 17,
+        AnalysisType.TIME_NODE_DISPLACEMENT_Y.value: 18,
+        AnalysisType.TIME_NODE_DISPLACEMENT_Z.value: 19,
+        AnalysisType.TIME_NODE_DISPLACEMENT_TOTAL.value: 20,
+        AnalysisType.TIME_NODE_VELOCITY_X.value: 21,
+        AnalysisType.TIME_NODE_VELOCITY_Y.value: 22,
+        AnalysisType.TIME_NODE_VELOCITY_Z.value: 23,
+        AnalysisType.TIME_NODE_VELOCITY_TOTAL.value: 24,
+    },
+    ("nodal", None): {
+        AnalysisType.TIME_NODE_COORDINATE_X.value: 1,
+        AnalysisType.TIME_NODE_COORDINATE_Y.value: 2,
+        AnalysisType.TIME_NODE_COORDINATE_Z.value: 3,
+        AnalysisType.TIME_NODE_COORDINATE_TOTAL.value: 4,
+        AnalysisType.TIME_NODE_DISPLACEMENT_X.value: 5,
+        AnalysisType.TIME_NODE_DISPLACEMENT_Y.value: 6,
+        AnalysisType.TIME_NODE_DISPLACEMENT_Z.value: 7,
+        AnalysisType.TIME_NODE_DISPLACEMENT_TOTAL.value: 8,
+        AnalysisType.TIME_NODE_VELOCITY_X.value: 9,
+        AnalysisType.TIME_NODE_VELOCITY_Y.value: 10,
+        AnalysisType.TIME_NODE_VELOCITY_Z.value: 11,
+        AnalysisType.TIME_NODE_VELOCITY_TOTAL.value: 12,
+        AnalysisType.TIME_NODE_ACCELERATION_X.value: 13,
+        AnalysisType.TIME_NODE_ACCELERATION_Y.value: 14,
+        AnalysisType.TIME_NODE_ACCELERATION_Z.value: 15,
+        AnalysisType.TIME_NODE_ACCELERATION_TOTAL.value: 16,
+    },
+    ("none", None): {
+        AnalysisType.TIME_GLOBAL_KINETIC_ENERGY.value: 1,
+        AnalysisType.TIME_GLOBAL_POTENTIAL_ENERGY.value: 2,
+        AnalysisType.TIME_GLOBAL_TOTAL_ENERGY.value: 3,
+    },
 }
 
 __all__ = [
@@ -107,6 +254,9 @@ __all__ = [
     "ANALYSIS_TYPES",
     "ANALYSIS_TYPES_BEAM",
     "ANALYSIS_TYPES_SHELL",
-    "ANALYSIS_TYPES_BY_ELEMENT",
+    "ANALYSIS_TYPES_SOLID",
+    "ANALYSIS_TYPES_GLOBAL",
+    "ANALYSIS_TYPES_NODAL",
+    "ANALYSIS_TYPES_BY_ENTITY",
     "ANALYSIS_TYPE_CODES",
 ]

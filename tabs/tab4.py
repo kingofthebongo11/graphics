@@ -19,7 +19,7 @@ from tree_schema import AnalysisNode, EntityNode, FileNode
 from ui import constants as ui_const
 from widgets import create_text, select_path
 from curves_pipeline import build_curves_report
-from analysis_types import ANALYSIS_TYPES_BY_ELEMENT
+from analysis_types import ANALYSIS_TYPES_BY_ENTITY
 
 
 class AnalysisTypeDialog(simpledialog.Dialog):
@@ -69,10 +69,18 @@ class SectionDialog(simpledialog.Dialog):
             row=0, column=0, sticky="w", padx=5, pady=(5, 0)
         )
         self.name_var = tk.StringVar()
+        section_names = [
+            "Глобально",
+            "Узел",
+            "Колонна",
+            "Плита",
+            "Стена",
+            "Балка",
+        ]
         self.name_box = ttk.Combobox(
             master,
             textvariable=self.name_var,
-            values=["Колонна", "Плита", "Стена", "Балка"],
+            values=section_names,
             state="readonly",
         )
         self.name_box.grid(row=0, column=1, sticky="ew", padx=5, pady=(5, 0))
@@ -82,11 +90,10 @@ class SectionDialog(simpledialog.Dialog):
         ttk.Label(master, text="Тип").grid(
             row=1, column=0, sticky="w", padx=5, pady=(5, 0)
         )
-        self.entity_var = tk.StringVar(value="node")
+        self.entity_var = tk.StringVar(value="element")
         self.entity_box = ttk.Combobox(
             master,
             textvariable=self.entity_var,
-            values=("element", "node"),
             state="readonly",
         )
         self.entity_box.grid(row=1, column=1, sticky="ew", padx=5, pady=5)
@@ -108,9 +115,18 @@ class SectionDialog(simpledialog.Dialog):
             row=0, column=3, sticky="w", pady=(5, 0)
         )
 
+        def display_to_kind(display: str) -> str:
+            return "none" if display == "-" else display
+
+        def kind_to_display(kind: str) -> str:
+            return "-" if kind == "none" else kind
+
+        self._display_to_kind = display_to_kind
+        self._kind_to_display = kind_to_display
+
         def update_top(*_):
             name = safe_name(self.name_var.get())
-            kind = self.entity_var.get()
+            kind = display_to_kind(self.entity_var.get())
             elem = self.element_var.get() if kind == "element" else None
             try:
                 new_top = encode_topfolder(name, kind, elem)
@@ -119,7 +135,8 @@ class SectionDialog(simpledialog.Dialog):
             self.top_var.set(new_top)
 
         def on_entity_change(*_):
-            if self.entity_var.get() == "element":
+            kind = display_to_kind(self.entity_var.get())
+            if kind == "element":
                 self.element_label.grid(
                     row=2, column=0, sticky="w", padx=5, pady=(5, 0)
                 )
@@ -131,7 +148,27 @@ class SectionDialog(simpledialog.Dialog):
                 self.element_box.grid_remove()
             update_top()
 
-        self.name_var.trace_add("write", update_top)
+        def apply_name_rules(*_):
+            name = self.name_var.get()
+            if name == "Глобально":
+                values = ("-",)
+                state = "disabled"
+                default = "-"
+            elif name == "Узел":
+                values = ("nodal",)
+                state = "disabled"
+                default = "nodal"
+            else:
+                values = ("element", "nodal")
+                state = "readonly"
+                current = self.entity_var.get()
+                default = current if current in values else values[0]
+            self.entity_box.configure(values=values, state=state)
+            if self.entity_var.get() not in values or state == "disabled":
+                self.entity_var.set(default)
+            on_entity_change()
+
+        self.name_var.trace_add("write", apply_name_rules)
         self.entity_var.trace_add("write", on_entity_change)
         self.element_var.trace_add("write", update_top)
 
@@ -139,7 +176,7 @@ class SectionDialog(simpledialog.Dialog):
             try:
                 u, k, e = decode_topfolder(self._tree.item(self._item, "text"))
             except Exception:
-                u, k, e = "", "node", None
+                u, k, e = "", "nodal", None
             values = list(self.name_box["values"])
             if u in values:
                 self.name_box.current(values.index(u))
@@ -148,16 +185,17 @@ class SectionDialog(simpledialog.Dialog):
                 self.name_box["values"] = values
                 self.name_box.set(u)
             self.name_var.set(u)
-            self.entity_var.set(k)
+            apply_name_rules()
+            self.entity_var.set(kind_to_display(k))
             if e:
                 self.element_var.set(e)
 
-        on_entity_change()
+        apply_name_rules()
         return self.name_box
 
     def apply(self) -> None:  # pragma: no cover - UI code
         name = safe_name(self.name_var.get())
-        kind = self.entity_var.get()
+        kind = self._display_to_kind(self.entity_var.get())
         elem = self.element_var.get() if kind == "element" else None
         try:
             text = encode_topfolder(name, kind, elem)
@@ -245,12 +283,12 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
         parent = tree.parent(item)
 
         try:
-            _, _, element_type = decode_topfolder(tree.item(item, "text"))
+            _, entity_kind, element_type = decode_topfolder(tree.item(item, "text"))
         except Exception:
-            element_type = None
+            entity_kind, element_type = "element", None
 
         if parent == "":
-            values = ANALYSIS_TYPES_BY_ELEMENT.get(element_type, [])
+            values = ANALYSIS_TYPES_BY_ENTITY.get((entity_kind, element_type), [])
             dlg = AnalysisTypeDialog(
                 tab4, title="Выбор типа анализа", values=values
             )
@@ -260,6 +298,17 @@ def create_tab4(notebook: ttk.Notebook) -> ttk.Frame:
             return
 
         if tree.parent(parent) == "":
+            try:
+                _, parent_kind, _ = decode_topfolder(tree.item(parent, "text"))
+            except Exception:
+                parent_kind = "element"
+            if parent_kind == "none":
+                messagebox.showinfo(
+                    "Добавление узлов",
+                    "Для глобальных анализов не требуются номера узлов/элементов.",
+                    parent=tab4,
+                )
+                return
             number = simpledialog.askstring(
                 "Номер элемента", "Введите номер", parent=tab4
             )
